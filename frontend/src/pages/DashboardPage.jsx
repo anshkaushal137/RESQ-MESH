@@ -4,6 +4,8 @@ import { StatCard } from '../components/StatCard';
 import {
   AlertTriangleIcon,
   ShelterIcon,
+  RouteIcon,
+  BellIcon,
   ActivityIcon,
   RadioIcon,
   MapIcon,
@@ -328,11 +330,58 @@ export const DashboardPage = () => {
         </div>
       </div>
 
+      {/* 4. Quick Module Previews & Navigation Bar */}
+      <div className="dashboard-quick-links">
+        <div className="quick-link-tile" onClick={() => setActiveTab('map')}>
+          <div className="quick-tile-icon cyan">
+            <MapIcon className="w-3.5 h-3.5" />
+          </div>
+          <div className="quick-tile-info">
+            <span className="quick-tile-title">RISK MAP & RADAR</span>
+            <span className="quick-tile-sub">Live Doppler & Threat GIS</span>
+          </div>
+          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+        </div>
+
+        <div className="quick-link-tile" onClick={() => setActiveTab('routes')}>
+          <div className="quick-tile-icon emerald">
+            <RouteIcon className="w-3.5 h-3.5" />
+          </div>
+          <div className="quick-tile-info">
+            <span className="quick-tile-title">SAFE ROUTES</span>
+            <span className="quick-tile-sub">Corridor Alpha (96% Safe)</span>
+          </div>
+          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+        </div>
+
+        <div className="quick-link-tile" onClick={() => setActiveTab('shelters')}>
+          <div className="quick-tile-icon success">
+            <ShelterIcon className="w-3.5 h-3.5" />
+          </div>
+          <div className="quick-tile-info">
+            <span className="quick-tile-title">SHELTERS DIRECTORY</span>
+            <span className="quick-tile-sub">{totalOpenBeds} Beds Available</span>
+          </div>
+          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+        </div>
+
+        <div className="quick-link-tile" onClick={() => setActiveTab('alerts')}>
+          <div className="quick-tile-icon warning">
+            <BellIcon className="w-3.5 h-3.5" />
+          </div>
+          <div className="quick-tile-info">
+            <span className="quick-tile-title">EMERGENCY ALERTS</span>
+            <span className="quick-tile-sub">{criticalAlertsCount} Critical Broadcasts</span>
+          </div>
+          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+        </div>
+      </div>
+
       <style>{`
         .dashboard-clean-view {
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
+          gap: 0.75rem;
           min-width: 0;
           width: 100%;
           max-width: 100%;
@@ -343,7 +392,7 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.75rem 1.15rem;
+          padding: 0.65rem 1.15rem;
           background: #090e1a;
           border: 1px solid rgba(239, 68, 68, 0.35);
           border-left: 4px solid var(--danger);
@@ -365,7 +414,7 @@ export const DashboardPage = () => {
           align-items: baseline;
           background: rgba(239, 68, 68, 0.16);
           border: 1px solid rgba(239, 68, 68, 0.45);
-          padding: 0.25rem 0.65rem;
+          padding: 0.2rem 0.6rem;
           border-radius: 6px;
         }
 
@@ -393,7 +442,7 @@ export const DashboardPage = () => {
           background: rgba(239, 68, 68, 0.25);
           border: 1px solid var(--danger);
           color: #ffffff;
-          padding: 0.22rem 0.55rem;
+          padding: 0.2rem 0.5rem;
           border-radius: 4px;
           letter-spacing: 0.05em;
         }
@@ -410,7 +459,7 @@ export const DashboardPage = () => {
         .threat-strip-center {
           display: flex;
           flex-direction: column;
-          gap: 0.2rem;
+          gap: 0.15rem;
           flex: 1;
           min-width: 0;
         }
@@ -433,7 +482,7 @@ export const DashboardPage = () => {
         .threat-status-highlight {
           font-size: 0.68rem;
           font-weight: 800;
-          padding: 0.1rem 0.45rem;
+          padding: 0.08rem 0.45rem;
           border-radius: 4px;
           background: rgba(239, 68, 68, 0.2);
           border: 1px solid rgba(239, 68, 68, 0.4);
@@ -489,7 +538,7 @@ export const DashboardPage = () => {
           font-family: var(--font-main);
           font-size: 0.74rem;
           font-weight: 800;
-          padding: 0.45rem 0.9rem;
+          padding: 0.4rem 0.85rem;
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -520,12 +569,12 @@ export const DashboardPage = () => {
 
         .triage-card-body,
         .resources-card-body {
-          padding: 0.75rem 0.95rem;
+          padding: 0.65rem 0.95rem;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           flex: 1;
-          gap: 0.65rem;
+          gap: 0.55rem;
         }
 
         .triage-filter-tabs {
@@ -558,7 +607,7 @@ export const DashboardPage = () => {
         .triage-list {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.45rem;
         }
 
         .triage-empty {
@@ -572,7 +621,7 @@ export const DashboardPage = () => {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.55rem 0.75rem;
+          padding: 0.5rem 0.75rem;
           transition: border-color 0.2s ease, background 0.2s ease;
         }
 
@@ -596,7 +645,7 @@ export const DashboardPage = () => {
         .triage-item-main {
           display: flex;
           flex-direction: column;
-          gap: 0.3rem;
+          gap: 0.25rem;
         }
 
         .triage-item-line1 {
@@ -625,7 +674,7 @@ export const DashboardPage = () => {
         }
 
         .triage-type-label {
-          font-size: 0.75rem;
+          font-size: 0.74rem;
           font-weight: 800;
           color: #ffffff;
           white-space: nowrap;
@@ -648,7 +697,7 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.66rem;
+          font-size: 0.65rem;
           color: #94a3b8;
           gap: 0.5rem;
         }
@@ -691,9 +740,9 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.5rem;
+          padding-top: 0.45rem;
           border-top: 1px solid var(--border-subtle);
-          font-size: 0.66rem;
+          font-size: 0.65rem;
         }
 
         .triage-footer-note {
@@ -744,17 +793,17 @@ export const DashboardPage = () => {
         .resources-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 0.55rem;
+          gap: 0.5rem;
         }
 
         .resource-tile {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.55rem 0.75rem;
+          padding: 0.5rem 0.75rem;
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
+          gap: 0.3rem;
           transition: border-color 0.2s ease;
         }
 
@@ -866,11 +915,11 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.45rem 0.75rem;
+          padding: 0.38rem 0.65rem;
           background: rgba(6, 182, 212, 0.06);
           border: 1px solid rgba(6, 182, 212, 0.2);
           border-radius: 5px;
-          font-size: 0.66rem;
+          font-size: 0.65rem;
           color: #cbd5e1;
         }
 
@@ -898,6 +947,96 @@ export const DashboardPage = () => {
 
         .fleet-action-link:hover {
           text-decoration: underline;
+        }
+
+        /* 4. Quick Module Previews & Navigation Bar */
+        .dashboard-quick-links {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 0.65rem;
+          width: 100%;
+        }
+
+        .quick-link-tile {
+          display: flex;
+          align-items: center;
+          gap: 0.6rem;
+          background: #0d1424;
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
+          padding: 0.5rem 0.75rem;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .quick-link-tile:hover {
+          transform: translateY(-2px);
+          border-color: rgba(6, 182, 212, 0.4);
+          background: #111a30;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .quick-tile-icon {
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .quick-tile-icon.cyan { background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35); color: var(--cyan); }
+        .quick-tile-icon.emerald { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; }
+        .quick-tile-icon.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; }
+        .quick-tile-icon.warning { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: var(--warning); }
+
+        .quick-tile-info {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+          flex: 1;
+        }
+
+        .quick-tile-title {
+          font-size: 0.66rem;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          color: #ffffff;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .quick-tile-sub {
+          font-size: 0.58rem;
+          color: var(--text-secondary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .quick-tile-arrow {
+          color: #64748b;
+          flex-shrink: 0;
+          transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .quick-link-tile:hover .quick-tile-arrow {
+          color: var(--cyan);
+          transform: translateX(2px);
+        }
+
+        @media (max-width: 960px) {
+          .dashboard-quick-links {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 580px) {
+          .dashboard-quick-links {
+            grid-template-columns: 1fr;
+          }
         }
       `}</style>
     </div>
