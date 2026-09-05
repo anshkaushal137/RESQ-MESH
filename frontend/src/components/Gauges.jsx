@@ -223,3 +223,92 @@ export const SemiCircularGauge = ({
     </div>
   );
 };
+
+/**
+ * Compact Dial / Level Gauge for Alerts & Threat Levels
+ */
+export const AlertLevelDial = ({
+  level = 4,
+  maxLevel = 5,
+  label = 'CRITICAL',
+  color = '#ef4444',
+  size = 54
+}) => {
+  const percentage = (level / maxLevel) * 100;
+  const radius = (size - 6) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="alert-level-dial" style={{ width: size, height: size }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="alert-dial-svg">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="rgba(255, 255, 255, 0.08)"
+          strokeWidth="4"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="4"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          style={{ transition: 'stroke-dashoffset 0.8s ease' }}
+        />
+      </svg>
+      <div className="alert-dial-center">
+        <span className="dial-lvl-num" style={{ color }}>L{level}</span>
+        <span className="dial-lvl-lbl">{label}</span>
+      </div>
+
+      <style>{`
+        .alert-level-dial {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .alert-dial-svg {
+          transform: rotate(-90deg);
+          overflow: visible;
+        }
+
+        .alert-dial-center {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
+          line-height: 1;
+        }
+
+        .dial-lvl-num {
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          font-weight: 800;
+        }
+
+        .dial-lvl-lbl {
+          font-size: 0.44rem;
+          font-weight: 800;
+          color: var(--text-muted);
+          letter-spacing: 0.04em;
+          margin-top: 1px;
+          text-transform: uppercase;
+        }
+      `}</style>
+    </div>
+  );
+};
+

@@ -7,9 +7,7 @@ import {
   ShelterIcon,
   RouteIcon,
   AlertTriangleIcon,
-  BotIcon,
   RadioIcon,
-  ActivityIcon,
   SearchIcon,
   XIcon
 } from './Icons';
@@ -23,10 +21,10 @@ export const Sidebar = ({ isOpen, onClose }) => {
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboardIcon, badge: null },
     { id: 'map', label: 'Risk Map', icon: MapIcon, badge: 'LIVE' },
-    { id: 'alerts', label: 'Alerts Feed', icon: BellIcon, badge: unreadAlerts > 0 ? `${unreadAlerts} New` : null, badgeColor: 'danger' },
-    { id: 'shelters', label: 'Shelters Directory', icon: ShelterIcon, badge: '4 Open' },
+    { id: 'alerts', label: 'Alerts', icon: BellIcon, badge: unreadAlerts > 0 ? `${unreadAlerts}` : null, badgeColor: 'danger' },
+    { id: 'shelters', label: 'Shelters', icon: ShelterIcon, badge: 'Open' },
     { id: 'routes', label: 'Safe Routes', icon: RouteIcon, badge: 'AI Safe' },
-    { id: 'sos', label: 'SOS Command & Dispatch', icon: AlertTriangleIcon, badge: sosActive ? 'ACTIVE' : 'Page', isSos: true }
+    { id: 'sos', label: 'Emergency SOS', icon: AlertTriangleIcon, badge: sosActive ? 'ACTIVE' : null, isSos: true }
   ];
 
   const filteredNavItems = navSearch.trim()
@@ -46,28 +44,19 @@ export const Sidebar = ({ isOpen, onClose }) => {
       <aside className={`sidebar-container ${isOpen ? 'mobile-open' : ''}`}>
         {/* Mobile Header */}
         <div className="sidebar-header-mobile">
-          <span className="sidebar-title">OPERATIONS COMMAND</span>
+          <span className="sidebar-title">NAVIGATION</span>
           <button className="close-btn" onClick={onClose} aria-label="Close sidebar">
             <XIcon className="w-5 h-5 text-slate-400" />
           </button>
         </div>
 
-        {/* Desktop Header Badge */}
-        <div className="sidebar-header-desktop">
-          <div className="status-indicator-pill">
-            <span className="pulse-green-dot"></span>
-            <span className="status-label">COMMAND DISPATCH</span>
-          </div>
-          <span className="sys-ver">v2.4 ONLINE</span>
-        </div>
-
         {/* Quick Nav Search Input */}
         <div className="sidebar-search-box">
-          <SearchIcon className="w-3.5 h-3.5 text-slate-400" />
+          <SearchIcon className="w-3 h-3 text-slate-400" />
           <input
             type="text"
             className="sidebar-search-input"
-            placeholder="Quick jump..."
+            placeholder="Search tabs..."
             value={navSearch}
             onChange={(e) => setNavSearch(e.target.value)}
           />
@@ -78,9 +67,9 @@ export const Sidebar = ({ isOpen, onClose }) => {
           )}
         </div>
 
-        <div className="nav-section-label">MAIN NAVIGATION</div>
+        {/* Navigation Section */}
+        <div className="nav-section-label">COMMAND NAV</div>
 
-        {/* Full Nav List with Icons + Labels Visible by Default on Desktop */}
         <nav className="nav-list">
           {filteredNavItems.map((item) => {
             const Icon = item.icon;
@@ -112,43 +101,37 @@ export const Sidebar = ({ isOpen, onClose }) => {
           })}
         </nav>
 
-        {/* Live Network Telemetry Widget */}
+        {/* Telemetry Summary Pill */}
         <div className="telemetry-widget">
           <div className="telemetry-header">
-            <RadioIcon className="w-3.5 h-3.5 text-cyan" />
-            <span>RESQ MESH TELEMETRY</span>
+            <RadioIcon className="w-3 h-3 text-cyan" />
+            <span>868.4 MHz MESH</span>
           </div>
-          <div className="telemetry-rows">
-            <div className="telemetry-row">
-              <span className="telemetry-key">Relay Frequency</span>
-              <span className="telemetry-val">868.4 MHz LoRa</span>
-            </div>
-            <div className="telemetry-row">
-              <span className="telemetry-key">Mesh Nodes</span>
-              <span className="telemetry-val text-cyan">48 Active</span>
-            </div>
-            <div className="telemetry-row">
-              <span className="telemetry-key">P2P Health</span>
-              <span className="telemetry-val text-emerald">99.8% Sync</span>
-            </div>
+          <div className="telemetry-row">
+            <span>Mesh Relays</span>
+            <strong className="text-cyan">48 Active</strong>
+          </div>
+          <div className="telemetry-row">
+            <span>P2P Sync</span>
+            <strong className="text-emerald">99.8%</strong>
           </div>
         </div>
 
-        {/* Instant Action: Emergency SOS Distress Modal Broadcast */}
+        {/* Instant Emergency SOS Distress Broadcast Button */}
         <div className="sidebar-footer">
           <button
             className={`sidebar-sos-trigger ${sosActive ? 'is-active' : ''}`}
             onClick={() => setSosModalOpen(true)}
-            title="Trigger instant emergency SOS distress broadcast modal"
+            title="Trigger emergency SOS distress beacon"
           >
             <div className="sos-btn-icon-wrap">
               <AlertTriangleIcon className="w-4 h-4" />
             </div>
             <div className="sos-btn-text-block">
               <span className="sos-btn-headline">
-                {sosActive ? 'SOS BROADCASTING' : 'BROADCAST DISTRESS SOS'}
+                {sosActive ? 'SOS ACTIVE' : 'SEND DISTRESS SOS'}
               </span>
-              <span className="sos-btn-sub">Instant Mesh Modal Action</span>
+              <span className="sos-btn-sub">Direct Mesh Dispatch</span>
             </div>
           </button>
         </div>
@@ -156,13 +139,13 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
       <style>{`
         .sidebar-container {
-          width: 256px;
-          min-width: 256px;
-          background: #090e1a;
+          width: 220px;
+          min-width: 220px;
+          background: #090e18;
           border-right: 1px solid var(--border-subtle);
           display: flex !important;
           flex-direction: column;
-          padding: 0.95rem 0.75rem;
+          padding: 0.75rem 0.65rem;
           height: calc(100vh - var(--header-height, 54px) - var(--ticker-height, 34px));
           position: sticky;
           top: calc(var(--header-height, 54px) + var(--ticker-height, 34px));
@@ -173,55 +156,17 @@ export const Sidebar = ({ isOpen, onClose }) => {
           overflow-x: hidden;
         }
 
-        .sidebar-header-desktop {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0.2rem 0.4rem 0.6rem;
-          margin-bottom: 0.4rem;
-          border-bottom: 1px solid var(--border-subtle);
-        }
-
-        .status-indicator-pill {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-
-        .pulse-green-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--success);
-          box-shadow: 0 0 6px var(--success);
-        }
-
-        .status-label {
-          font-size: 0.62rem;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          color: #94a3b8;
-          text-transform: uppercase;
-        }
-
-        .sys-ver {
-          font-family: var(--font-mono);
-          font-size: 0.58rem;
-          color: var(--cyan);
-          font-weight: 700;
-        }
-
         .sidebar-header-mobile {
           display: none;
           align-items: center;
           justify-content: space-between;
-          padding: 0.4rem 0.5rem 0.75rem;
+          padding: 0.35rem 0.45rem 0.65rem;
           border-bottom: 1px solid var(--border-subtle);
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.45rem;
         }
 
         .sidebar-title {
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           font-weight: 800;
           letter-spacing: 0.08em;
           color: var(--text-primary);
@@ -240,12 +185,12 @@ export const Sidebar = ({ isOpen, onClose }) => {
         .sidebar-search-box {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          background: #060a14;
+          gap: 0.4rem;
+          background: #050810;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.35rem 0.6rem;
-          margin-bottom: 0.65rem;
+          padding: 0.3rem 0.5rem;
+          margin-bottom: 0.55rem;
         }
 
         .sidebar-search-input {
@@ -254,7 +199,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
           border: none;
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.74rem;
+          font-size: 0.72rem;
           outline: none;
           min-width: 0;
         }
@@ -268,23 +213,23 @@ export const Sidebar = ({ isOpen, onClose }) => {
           border: none;
           color: #64748b;
           cursor: pointer;
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           line-height: 1;
         }
 
         .nav-section-label {
-          font-size: 0.6rem;
+          font-size: 0.58rem;
           font-weight: 800;
           letter-spacing: 0.08em;
           color: #475569;
-          padding: 0.2rem 0.6rem 0.35rem;
+          padding: 0.15rem 0.5rem 0.3rem;
           text-transform: uppercase;
         }
 
         .nav-list {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.2rem;
           flex: 1;
         }
 
@@ -293,7 +238,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
           align-items: center;
           justify-content: space-between;
           width: 100%;
-          padding: 0.5rem 0.65rem;
+          padding: 0.45rem 0.55rem;
           border-radius: var(--radius-md);
           background: transparent;
           border: 1px solid transparent;
@@ -307,13 +252,13 @@ export const Sidebar = ({ isOpen, onClose }) => {
         .nav-link-left {
           display: flex !important;
           align-items: center;
-          gap: 0.65rem;
+          gap: 0.55rem;
           min-width: 0;
         }
 
         .nav-icon-wrap {
-          width: 24px;
-          height: 24px;
+          width: 22px;
+          height: 22px;
           border-radius: 6px;
           display: flex;
           align-items: center;
@@ -335,10 +280,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
         }
 
         .nav-link-text {
-          display: inline-block !important;
-          visibility: visible !important;
-          opacity: 1 !important;
-          font-size: 0.82rem;
+          font-size: 0.78rem;
           font-weight: 600;
           white-space: nowrap;
           color: inherit;
@@ -355,10 +297,10 @@ export const Sidebar = ({ isOpen, onClose }) => {
         }
 
         .nav-link.active {
-          background: rgba(6, 182, 212, 0.12);
-          border-color: rgba(6, 182, 212, 0.35);
+          background: rgba(6, 182, 212, 0.14);
+          border-color: rgba(6, 182, 212, 0.4);
           color: #ffffff;
-          box-shadow: 0 0 14px rgba(6, 182, 212, 0.15);
+          box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
         }
 
         .nav-link-sos {
@@ -380,9 +322,9 @@ export const Sidebar = ({ isOpen, onClose }) => {
         }
 
         .nav-badge {
-          font-size: 0.6rem;
+          font-size: 0.58rem;
           font-weight: 800;
-          padding: 0.12rem 0.45rem;
+          padding: 0.1rem 0.4rem;
           border-radius: 9999px;
           letter-spacing: 0.02em;
           white-space: nowrap;
@@ -401,45 +343,37 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
         .telemetry-widget {
           margin-top: auto;
-          background: #060a14;
+          background: #050810;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.65rem 0.75rem;
-          margin-bottom: 0.75rem;
+          padding: 0.5rem 0.65rem;
+          margin-bottom: 0.6rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
         }
 
         .telemetry-header {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
-          font-size: 0.64rem;
+          gap: 0.35rem;
+          font-size: 0.6rem;
           font-weight: 800;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.04em;
           color: var(--cyan);
           border-bottom: 1px solid var(--border-subtle);
-          padding-bottom: 0.35rem;
-          margin-bottom: 0.45rem;
-        }
-
-        .telemetry-rows {
-          display: flex;
-          flex-direction: column;
-          gap: 0.3rem;
+          padding-bottom: 0.25rem;
+          margin-bottom: 0.15rem;
         }
 
         .telemetry-row {
           display: flex;
           justify-content: space-between;
-          font-size: 0.65rem;
-        }
-
-        .telemetry-key {
+          font-size: 0.62rem;
           color: #64748b;
         }
 
-        .telemetry-val {
-          font-weight: 700;
-          color: #ffffff;
+        .telemetry-row strong {
           font-family: var(--font-mono);
         }
 
@@ -447,16 +381,16 @@ export const Sidebar = ({ isOpen, onClose }) => {
         .text-emerald { color: #34d399; }
 
         .sidebar-footer {
-          padding-top: 0.45rem;
+          padding-top: 0.35rem;
           border-top: 1px solid var(--border-subtle);
         }
 
         .sidebar-sos-trigger {
           display: flex;
           align-items: center;
-          gap: 0.55rem;
+          gap: 0.45rem;
           width: 100%;
-          padding: 0.55rem 0.65rem;
+          padding: 0.45rem 0.55rem;
           background: rgba(239, 68, 68, 0.12);
           border: 1px dashed rgba(239, 68, 68, 0.45);
           color: #fca5a5;
@@ -479,9 +413,9 @@ export const Sidebar = ({ isOpen, onClose }) => {
         }
 
         .sos-btn-icon-wrap {
-          width: 24px;
-          height: 24px;
-          border-radius: 6px;
+          width: 22px;
+          height: 22px;
+          border-radius: 5px;
           background: rgba(239, 68, 68, 0.2);
           display: flex;
           align-items: center;
@@ -499,16 +433,16 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
         .sos-btn-headline {
           font-family: var(--font-main);
-          font-size: 0.7rem;
+          font-size: 0.66rem;
           font-weight: 800;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.03em;
           color: #ffffff;
-          line-height: 1.15;
+          line-height: 1.1;
           white-space: nowrap;
         }
 
         .sos-btn-sub {
-          font-size: 0.58rem;
+          font-size: 0.54rem;
           color: #fca5a5;
           letter-spacing: 0.02em;
           white-space: nowrap;
@@ -544,10 +478,6 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
           .sidebar-header-mobile {
             display: flex;
-          }
-
-          .sidebar-header-desktop {
-            display: none;
           }
         }
       `}</style>

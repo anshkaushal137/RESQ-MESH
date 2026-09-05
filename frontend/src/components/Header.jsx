@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDisaster } from '../context/DisasterContext';
 import { ShieldIcon, SirenIcon, RadioIcon, AlertTriangleIcon, MenuIcon, BellIcon } from './Icons';
 import { DISASTER_SCENARIOS } from '../data/mockData';
@@ -13,12 +13,33 @@ export const Header = ({ onToggleSidebar }) => {
     audioSirenEnabled,
     setAudioSirenEnabled,
     currentAlerts,
+    acknowledgedAlerts,
     setActiveTab
   } = useDisaster();
+
+  // Running Live Timer state (HH:MM:SS)
+  const [elapsedSeconds, setElapsedSeconds] = useState(6142); // starts with active incident time
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTimer = (totalSecs) => {
+    const hrs = Math.floor(totalSecs / 3600);
+    const mins = Math.floor((totalSecs % 3600) / 60);
+    const secs = totalSecs % 60;
+    return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  const unreadAlertsCount = currentAlerts.filter((a) => !acknowledgedAlerts?.includes(a.id)).length;
 
   return (
     <header className="header-bar">
       <div className="header-inner">
+        {/* Left: Brand Logo & Name */}
         <div className="header-left">
           <button className="mobile-menu-btn" onClick={onToggleSidebar} aria-label="Toggle navigation">
             <MenuIcon className="w-5 h-5 text-slate-300" />
@@ -26,67 +47,100 @@ export const Header = ({ onToggleSidebar }) => {
 
           <div className="brand-badge" onClick={() => setActiveTab('dashboard')} style={{ cursor: 'pointer' }}>
             <div className="brand-logo-glow">
-              <ShieldIcon className="w-6 h-6 text-cyan" />
+              <ShieldIcon className="w-5 h-5 text-cyan" />
             </div>
             <div className="brand-text-block">
               <div className="brand-title">
                 RESQ <span>MESH</span>
               </div>
-              <div className="brand-sub">AI Emergency & Safety Operations</div>
+              <div className="brand-sub">AI Emergency Command</div>
             </div>
           </div>
         </div>
 
+        {/* Center: Active Incident Status with Name & Scenario Switcher */}
         <div className="header-center">
-          <div className="scenario-selector-box">
-            <span className="selector-label">INCIDENT:</span>
+          <div className="incident-status-card">
+            <div className="incident-status-tag">
+              <span className="incident-pulse-dot"></span>
+              <span className="incident-tag-label">ACTIVE INCIDENT:</span>
+            </div>
             <select
               value={scenarioKey}
               onChange={(e) => switchScenario(e.target.value)}
-              className="scenario-select"
+              className="incident-select"
               aria-label="Active emergency incident scenario"
             >
               {Object.entries(DISASTER_SCENARIOS).map(([key, item]) => (
                 <option key={key} value={key}>
-                  {item.title} ({item.severity})
+                  {item.title} — {item.threatLevel}
                 </option>
               ))}
             </select>
           </div>
         </div>
 
+        {/* Right: Live Running Timer, Commander Profile, Notification Bell, SOS Panic Button */}
         <div className="header-right">
+          {/* Live Badge with Running Timer */}
+          <div className="live-timer-badge" title="Live incident tracking runtime">
+            <span className="live-dot-pulse"></span>
+            <span className="live-label">LIVE</span>
+            <span className="live-timer-digits">{formatTimer(elapsedSeconds)}</span>
+          </div>
+
           {/* Mesh Status Pill */}
-          <div className="mesh-status-indicator" title="Decentralized emergency mesh network active">
-            <span className="mesh-dot blinking"></span>
+          <div className="mesh-status-indicator" title="Decentralized emergency mesh network active (48 Nodes Synced)">
             <RadioIcon className="w-3.5 h-3.5 text-cyan" />
-            <span className="mesh-text">MESH: <strong>48 Nodes</strong></span>
+            <span className="mesh-text">48 MESH</span>
           </div>
 
           {/* Siren Alert Toggle */}
           <button
             className={`siren-toggle-btn ${audioSirenEnabled ? 'active' : ''}`}
             onClick={() => setAudioSirenEnabled(!audioSirenEnabled)}
-            title={audioSirenEnabled ? 'Emergency Siren Alert Active' : 'Enable Siren Broadcasts'}
+            title={audioSirenEnabled ? 'Emergency Siren Active' : 'Enable Siren Broadcasts'}
           >
-            <SirenIcon className={`w-4 h-4 ${audioSirenEnabled ? 'text-danger' : 'text-slate-400'}`} />
-            <span className="siren-text">{audioSirenEnabled ? 'SIREN ON' : 'SIREN'}</span>
+            <SirenIcon className={`w-3.5 h-3.5 ${audioSirenEnabled ? 'text-danger' : 'text-slate-400'}`} />
           </button>
 
-          {/* SOS Panic Button */}
+          {/* Notification Bell with Badge */}
+          <button 
+            className="notif-bell-btn" 
+            onClick={() => setActiveTab('alerts')}
+            title={`${unreadAlertsCount} unread emergency broadcasts`}
+          >
+            <BellIcon className="w-4 h-4 text-slate-300" />
+            {unreadAlertsCount > 0 && (
+              <span className="notif-badge">{unreadAlertsCount}</span>
+            )}
+          </button>
+
+          {/* Commander / User Profile Badge */}
+          <div className="commander-profile-badge" title="Disaster Operations Commander">
+            <div className="commander-avatar">
+              <span>⚡</span>
+            </div>
+            <div className="commander-info">
+              <span className="commander-name">CMD. DISPATCH</span>
+              <span className="commander-role">SECTOR 04</span>
+            </div>
+          </div>
+
+          {/* SOS Panic Action Button */}
           <button
             className={`btn-sos ${sosActive ? 'pulse-beacon' : ''}`}
             onClick={() => setSosModalOpen(true)}
           >
-            <AlertTriangleIcon className="w-4 h-4" />
-            <span>{sosActive ? 'SOS BROADCASTING' : 'EMERGENCY SOS'}</span>
+            <AlertTriangleIcon className="w-3.5 h-3.5" />
+            <span>{sosActive ? 'SOS ACTIVE' : 'EMERGENCY SOS'}</span>
           </button>
         </div>
       </div>
 
       <style>{`
         .header-bar {
-          background: rgba(11, 17, 32, 0.95);
+          background: #090e18;
           backdrop-filter: blur(12px);
           border-bottom: 1px solid var(--border-subtle);
           position: sticky;
@@ -95,7 +149,7 @@ export const Header = ({ onToggleSidebar }) => {
           height: var(--header-height, 54px);
           display: flex;
           align-items: center;
-          padding: 0 1.75rem;
+          padding: 0 1.25rem;
           width: 100%;
         }
 
@@ -134,20 +188,20 @@ export const Header = ({ onToggleSidebar }) => {
         .brand-badge {
           display: flex;
           align-items: center;
-          gap: 0.65rem;
+          gap: 0.6rem;
           user-select: none;
         }
 
         .brand-logo-glow {
-          width: 30px;
-          height: 30px;
-          border-radius: 8px;
-          background: radial-gradient(circle, rgba(6, 182, 212, 0.25) 0%, rgba(13, 20, 36, 0.9) 100%);
+          width: 28px;
+          height: 28px;
+          border-radius: 7px;
+          background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(13, 20, 36, 0.95) 100%);
           border: 1px solid rgba(6, 182, 212, 0.5);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 0 12px rgba(6, 182, 212, 0.3);
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
           flex-shrink: 0;
         }
 
@@ -157,9 +211,9 @@ export const Header = ({ onToggleSidebar }) => {
         }
 
         .brand-title {
-          font-size: 0.95rem;
+          font-size: 0.92rem;
           font-weight: 800;
-          letter-spacing: 0.07em;
+          letter-spacing: 0.06em;
           color: #ffffff;
           line-height: 1.1;
         }
@@ -169,7 +223,7 @@ export const Header = ({ onToggleSidebar }) => {
         }
 
         .brand-sub {
-          font-size: 0.58rem;
+          font-size: 0.56rem;
           color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.04em;
@@ -178,37 +232,52 @@ export const Header = ({ onToggleSidebar }) => {
 
         .header-center {
           flex: 1;
-          max-width: 380px;
+          max-width: 480px;
           min-width: 0;
         }
 
-        .scenario-selector-box {
+        .incident-status-card {
           display: flex;
           align-items: center;
-          background: #090e1a;
-          border: 1px solid var(--border-subtle);
+          background: #0d1424;
+          border: 1px solid rgba(239, 68, 68, 0.3);
           border-radius: var(--radius-md);
-          padding: 0.25rem 0.6rem;
+          padding: 0.22rem 0.65rem;
           gap: 0.45rem;
           min-width: 0;
         }
 
-        .selector-label {
-          font-size: 0.6rem;
-          font-weight: 800;
-          letter-spacing: 0.06em;
-          color: var(--warning);
-          white-space: nowrap;
+        .incident-status-tag {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
           flex-shrink: 0;
         }
 
-        .scenario-select {
+        .incident-pulse-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--danger);
+          box-shadow: 0 0 8px var(--danger);
+          animation: blink 1.2s infinite;
+        }
+
+        .incident-tag-label {
+          font-size: 0.58rem;
+          font-weight: 800;
+          letter-spacing: 0.06em;
+          color: #fca5a5;
+          white-space: nowrap;
+        }
+
+        .incident-select {
           background: transparent;
           border: none;
-          color: var(--text-primary);
+          color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.76rem;
-          font-weight: 600;
+          font-size: 0.74rem;
+          font-weight: 700;
           width: 100%;
           outline: none;
           cursor: pointer;
@@ -216,7 +285,7 @@ export const Header = ({ onToggleSidebar }) => {
           text-overflow: ellipsis;
         }
 
-        .scenario-select option {
+        .incident-select option {
           background: #0d1424;
           color: #ffffff;
         }
@@ -228,75 +297,173 @@ export const Header = ({ onToggleSidebar }) => {
           flex-shrink: 0;
         }
 
-        .mesh-status-indicator {
+        .live-timer-badge {
           display: flex;
           align-items: center;
           gap: 0.4rem;
-          padding: 0.3rem 0.65rem;
-          background: rgba(6, 182, 212, 0.08);
-          border: 1px solid rgba(6, 182, 212, 0.25);
+          padding: 0.25rem 0.6rem;
+          background: rgba(239, 68, 68, 0.12);
+          border: 1px solid rgba(239, 68, 68, 0.35);
           border-radius: 9999px;
           font-size: 0.68rem;
-          color: var(--text-secondary);
           white-space: nowrap;
         }
 
-        .mesh-dot {
-          width: 7px;
-          height: 7px;
+        .live-dot-pulse {
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          background: var(--cyan);
-          box-shadow: 0 0 6px var(--cyan);
-          flex-shrink: 0;
+          background: #ef4444;
+          box-shadow: 0 0 6px #ef4444;
+          animation: blink 1s infinite;
         }
 
-        .mesh-text strong {
+        .live-label {
+          font-weight: 800;
+          font-size: 0.6rem;
+          color: #fca5a5;
+          letter-spacing: 0.05em;
+        }
+
+        .live-timer-digits {
+          font-family: var(--font-mono);
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: 0.04em;
+        }
+
+        .mesh-status-indicator {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.25rem 0.55rem;
+          background: rgba(6, 182, 212, 0.08);
+          border: 1px solid rgba(6, 182, 212, 0.25);
+          border-radius: 9999px;
+          font-size: 0.64rem;
+          font-family: var(--font-mono);
+          font-weight: 700;
           color: var(--cyan);
+          white-space: nowrap;
         }
 
         .siren-toggle-btn {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          padding: 0.35rem 0.65rem;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-          color: var(--text-secondary);
-          font-size: 0.68rem;
-          font-weight: 700;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: all 0.2s ease;
-          white-space: nowrap;
+        }
+
+        .siren-toggle-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
         }
 
         .siren-toggle-btn.active {
           background: var(--danger-bg);
           border-color: var(--danger-border);
-          color: var(--danger);
+        }
+
+        .notif-bell-btn {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 30px;
+          height: 30px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-sm);
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .notif-bell-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: #ffffff;
+        }
+
+        .notif-badge {
+          position: absolute;
+          top: -3px;
+          right: -3px;
+          background: var(--danger);
+          color: #ffffff;
+          font-size: 0.54rem;
+          font-weight: 800;
+          font-family: var(--font-mono);
+          width: 15px;
+          height: 15px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1.5px solid #090e18;
+        }
+
+        .commander-profile-badge {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+          padding: 0.22rem 0.55rem;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-sm);
+          user-select: none;
+        }
+
+        .commander-avatar {
+          width: 22px;
+          height: 22px;
+          border-radius: 5px;
+          background: rgba(6, 182, 212, 0.2);
+          border: 1px solid var(--cyan);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.65rem;
+        }
+
+        .commander-info {
+          display: flex;
+          flex-direction: column;
+          line-height: 1;
+        }
+
+        .commander-name {
+          font-size: 0.62rem;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          color: #ffffff;
+        }
+
+        .commander-role {
+          font-size: 0.52rem;
+          color: var(--cyan);
+          font-weight: 700;
+          margin-top: 1px;
+        }
+
+        @media (max-width: 1024px) {
+          .mesh-status-indicator, .commander-profile-badge {
+            display: none;
+          }
         }
 
         @media (max-width: 768px) {
           .mobile-menu-btn {
             display: block;
           }
-        }
-
-        @media (max-width: 900px) {
-          .mesh-status-indicator {
-            display: none;
-          }
-        }
-
-        @media (max-width: 720px) {
           .header-center {
             display: none;
           }
-          .siren-text {
-            display: none;
-          }
           .header-bar {
-            padding: 0 1rem;
+            padding: 0 0.85rem;
           }
           .brand-sub {
             display: none;
@@ -306,3 +473,4 @@ export const Header = ({ onToggleSidebar }) => {
     </header>
   );
 };
+export default Header;
