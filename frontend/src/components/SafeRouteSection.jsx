@@ -165,66 +165,68 @@ export const SafeRouteSection = ({ showFullDetails = false, compact = false }) =
         }
 
         .safe-route-section.is-compact .card-header {
-          padding: 0.45rem 0.75rem;
+          padding: 0.75rem 1.15rem;
         }
 
         .safe-route-section.is-compact .card-body {
-          padding: 0.55rem 0.75rem;
+          padding: 0.75rem 0.95rem;
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
+          gap: 0.65rem;
         }
 
         .safe-route-section.is-compact .route-picker-tabs {
-          margin-bottom: 0.25rem;
-          padding-bottom: 0.35rem;
-          gap: 0.35rem;
+          margin-bottom: 0.35rem;
+          padding-bottom: 0.45rem;
+          gap: 0.45rem;
         }
 
         .safe-route-section.is-compact .route-tab-btn {
-          padding: 0.25rem 0.45rem;
+          padding: 0.35rem 0.55rem;
         }
 
         .safe-route-section.is-compact .tab-btn-title {
-          font-size: 0.64rem;
+          font-size: 0.70rem;
         }
 
         .safe-route-section.is-compact .tab-btn-score {
-          font-size: 0.58rem;
+          font-size: 0.62rem;
         }
 
         .safe-route-section.is-compact .route-detail-box {
-          padding: 0.5rem 0.65rem;
-          gap: 0.4rem;
+          padding: 0.65rem 0.85rem;
+          gap: 0.55rem;
         }
 
         .safe-route-section.is-compact .route-title {
-          font-size: 0.72rem;
+          font-size: 0.78rem;
+          font-weight: 800;
         }
 
         .safe-route-section.is-compact .route-metrics-bar {
-          padding: 0.25rem 0.45rem;
-          gap: 0.35rem;
+          padding: 0.35rem 0.55rem;
+          gap: 0.45rem;
         }
 
         .safe-route-section.is-compact .r-val {
-          font-size: 0.66rem;
+          font-size: 0.70rem;
           font-weight: 800;
         }
 
         .safe-route-section.is-compact .r-lbl {
-          font-size: 0.54rem;
+          font-size: 0.58rem;
         }
 
         .safe-route-section.is-compact .start-nav-btn {
-          padding: 0.35rem 0.65rem;
-          font-size: 0.66rem;
+          padding: 0.45rem 0.85rem;
+          font-size: 0.72rem;
+          font-weight: 800;
         }
 
         .route-id-row {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.45rem;
         }
 
         .route-picker-tabs {

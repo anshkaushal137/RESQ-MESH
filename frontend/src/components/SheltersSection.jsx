@@ -174,49 +174,52 @@ export const SheltersSection = ({ limit = null, showViewAll = true, compact = fa
         }
 
         .shelters-section.is-compact .card-header {
-          padding: 0.45rem 0.75rem;
+          padding: 0.75rem 1.15rem;
         }
 
         .shelters-section.is-compact .card-body {
-          padding: 0.55rem 0.75rem;
+          padding: 0.75rem 0.95rem;
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
+          gap: 0.65rem;
         }
 
         .shelters-section.is-compact .shelter-system-bar {
-          padding: 0.35rem 0.65rem;
+          padding: 0.45rem 0.75rem;
           margin-bottom: 0.35rem;
         }
 
         .shelters-section.is-compact .shelters-grid {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 0.4rem;
+          gap: 0.55rem;
         }
 
         .shelters-section.is-compact .shelter-card {
-          padding: 0.45rem 0.65rem;
-          gap: 0.35rem;
-        }
-
-        .shelters-section.is-compact .shelter-name {
-          font-size: 0.74rem;
-        }
-
-        .shelters-section.is-compact .shelter-status-badge {
-          font-size: 0.56rem;
-          padding: 0.1rem 0.35rem;
-        }
-
-        .shelters-section.is-compact .shelter-gauge-container {
-          padding: 0.25rem 0.45rem;
+          padding: 0.65rem 0.85rem;
           gap: 0.45rem;
         }
 
+        .shelters-section.is-compact .shelter-name {
+          font-size: 0.78rem;
+          font-weight: 800;
+        }
+
+        .shelters-section.is-compact .shelter-status-badge {
+          font-size: 0.60rem;
+          font-weight: 800;
+          padding: 0.12rem 0.4rem;
+        }
+
+        .shelters-section.is-compact .shelter-gauge-container {
+          padding: 0.35rem 0.55rem;
+          gap: 0.55rem;
+        }
+
         .shelters-section.is-compact .btn-navigate {
-          padding: 0.35rem 0.65rem;
-          font-size: 0.66rem;
+          padding: 0.45rem 0.85rem;
+          font-size: 0.72rem;
+          font-weight: 800;
         }
 
 

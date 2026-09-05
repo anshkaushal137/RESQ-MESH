@@ -54,43 +54,43 @@ export const DashboardPage = () => {
   const totalOpenBeds = shelters.reduce((acc, s) => acc + s.bedsAvailable, 0);
   const openBedsPct = totalCapacity > 0 ? Math.round((totalOpenBeds / totalCapacity) * 100) : 30;
 
-  // Filter triage queue
+  // Filter triage queue: strictly top 2 items by default for clean breathing room
   const filteredTriage = (triageFilter === 'ALL'
     ? triageQueue
     : triageQueue.filter((item) => item.urgency === triageFilter)
-  ).slice(0, 3);
+  ).slice(0, 2);
 
   const getUrgencyBadgeStyle = (urgency) => {
     switch (urgency) {
       case 'CRITICAL':
-        return { bg: 'rgba(239, 68, 68, 0.22)', border: 'rgba(239, 68, 68, 0.6)', text: '#fca5a5' };
+        return { bg: 'rgba(239, 68, 68, 0.2)', border: 'rgba(239, 68, 68, 0.6)', text: '#fca5a5' };
       case 'HIGH':
-        return { bg: 'rgba(245, 158, 11, 0.22)', border: 'rgba(245, 158, 11, 0.6)', text: '#fcd34d' };
+        return { bg: 'rgba(245, 158, 11, 0.18)', border: 'rgba(245, 158, 11, 0.5)', text: '#fcd34d' };
       case 'MEDIUM':
-        return { bg: 'rgba(6, 182, 212, 0.22)', border: 'rgba(6, 182, 212, 0.6)', text: '#67e8f9' };
+        return { bg: 'rgba(6, 182, 212, 0.15)', border: 'rgba(6, 182, 212, 0.4)', text: '#67e8f9' };
       default:
-        return { bg: 'rgba(148, 163, 184, 0.22)', border: 'rgba(148, 163, 184, 0.4)', text: '#cbd5e1' };
+        return { bg: 'rgba(148, 163, 184, 0.15)', border: 'rgba(148, 163, 184, 0.3)', text: '#cbd5e1' };
     }
   };
 
   const getResourceIcon = (iconName) => {
     switch (iconName) {
       case 'AmbulanceIcon':
-        return <AmbulanceIcon className="w-3.5 h-3.5 text-rose-400" />;
+        return <AmbulanceIcon className="w-4 h-4 text-rose-400" />;
       case 'BoatIcon':
-        return <BoatIcon className="w-3.5 h-3.5 text-cyan" />;
+        return <BoatIcon className="w-4 h-4 text-cyan" />;
       case 'UsersIcon':
-        return <UsersIcon className="w-3.5 h-3.5 text-emerald-400" />;
+        return <UsersIcon className="w-4 h-4 text-emerald-400" />;
       case 'PackageIcon':
-        return <PackageIcon className="w-3.5 h-3.5 text-amber-400" />;
+        return <PackageIcon className="w-4 h-4 text-amber-400" />;
       default:
-        return <HeartPulseIcon className="w-3.5 h-3.5 text-cyan" />;
+        return <HeartPulseIcon className="w-4 h-4 text-cyan" />;
     }
   };
 
   return (
-    <div className="dashboard-compact-overview">
-      {/* Top 4 Operations Stat Counters with Gauges & Ambient Badges */}
+    <div className="dashboard-clean-view">
+      {/* Top 4 Operations Stat Counters */}
       <div className="grid-stats">
         <StatCard
           title="Incident Threat Index"
@@ -128,7 +128,7 @@ export const DashboardPage = () => {
         />
       </div>
 
-      {/* Unified Incident Command Strip: Prominent Risk Gauge + Quick Map Launcher */}
+      {/* Unified Executive Incident Command Strip */}
       <div className="card-glass command-threat-strip">
         <div className="threat-strip-left">
           <div className="threat-score-box">
@@ -137,7 +137,7 @@ export const DashboardPage = () => {
           </div>
           <div className="threat-severity-tag">
             <span className="threat-pulse-dot"></span>
-            <strong>{scenario.severity}</strong>
+            <span>{scenario.severity}</span>
           </div>
         </div>
 
@@ -150,40 +150,37 @@ export const DashboardPage = () => {
             <span className="threat-urgency-highlight">{scenario.evacuationUrgency}</span>
           </div>
           <div className="threat-subline-row">
-            <span><strong>Target:</strong> {scenario.impactZone}</span>
+            <span><strong>Target Sector:</strong> {scenario.impactZone}</span>
             <span className="threat-sub-dot">•</span>
             <span><strong>Population at Risk:</strong> {scenario.populationAtRisk}</span>
             <span className="threat-sub-dot">•</span>
-            <span><strong>Key Hazard:</strong> {scenario.keyHazard}</span>
+            <span><strong>Primary Hazard:</strong> {scenario.keyHazard}</span>
           </div>
         </div>
 
         <div className="threat-strip-right">
           <button className="btn-open-gis-map" onClick={() => setActiveTab('map')}>
-            <MapIcon className="w-3.5 h-3.5" />
+            <MapIcon className="w-4 h-4" />
             <span>OPEN RISK MAP & GIS RADAR</span>
             <ChevronRightIcon className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* High-Density 2-Column Command Grid */}
+      {/* Symmetrical 2-Column Command Grid */}
       <div className="grid-dashboard">
         {/* =========================================================================
-            Column 1: AI Triage Queue (Top 3) & Safe Corridors Preview
+            Column 1: AI Triage Queue (Top 2) & Safe Corridors Preview
             ========================================================================= */}
         <div className="dashboard-col">
           {/* AI Triage Queue Card */}
           <div className="card-glass triage-card">
-            <div className="triage-card-header">
-              <div className="triage-hdr-left">
-                <div className="triage-icon-badge">
-                  <SparklesIcon className="w-3.5 h-3.5 text-cyan" />
+            <div className="card-header">
+              <div className="card-header-title">
+                <div className="header-icon-badge cyan">
+                  <SparklesIcon className="w-4 h-4 text-cyan" />
                 </div>
-                <div>
-                  <h3 className="triage-hdr-title">AI TRIAGE QUEUE</h3>
-                  <span className="triage-hdr-subtitle">Prioritized Distress Signals</span>
-                </div>
+                <span>AI TRIAGE QUEUE</span>
               </div>
 
               <div className="triage-filter-tabs">
@@ -201,63 +198,65 @@ export const DashboardPage = () => {
               </div>
             </div>
 
-            <div className="triage-list">
-              {loadingData ? (
-                <div className="triage-empty">Loading prioritized distress queue...</div>
-              ) : filteredTriage.length === 0 ? (
-                <div className="triage-empty">No incoming requests in this category.</div>
-              ) : (
-                filteredTriage.map((req) => {
-                  const badge = getUrgencyBadgeStyle(req.urgency);
-                  return (
-                    <div key={req.id} className={`triage-item urgency-${req.urgency.toLowerCase()}`}>
-                      <div className="triage-item-main">
-                        <div className="triage-item-line1">
-                          <span
-                            className="triage-badge"
-                            style={{
-                              backgroundColor: badge.bg,
-                              borderColor: badge.border,
-                              color: badge.text
-                            }}
-                          >
-                            {req.urgency}
-                          </span>
-                          <span className="triage-req-id">#{req.id}</span>
-                          <strong className="triage-type-label">{req.type}</strong>
-                          <span className="triage-time-tag">
-                            <ClockIcon className="w-2.5 h-2.5" />
-                            {req.timestamp}
-                          </span>
-                        </div>
-
-                        <div className="triage-item-line2">
-                          <div className="triage-loc-block">
-                            <MapPinIcon className="w-3 h-3 text-cyan shrink-0" />
-                            <span>{req.location}</span>
-                            <span className="triage-people-pill">{req.peopleCount} {req.peopleCount > 1 ? 'people' : 'person'}</span>
+            <div className="card-body triage-card-body">
+              <div className="triage-list">
+                {loadingData ? (
+                  <div className="triage-empty">Loading prioritized distress queue...</div>
+                ) : filteredTriage.length === 0 ? (
+                  <div className="triage-empty">No incoming requests in this category.</div>
+                ) : (
+                  filteredTriage.map((req) => {
+                    const badge = getUrgencyBadgeStyle(req.urgency);
+                    return (
+                      <div key={req.id} className={`triage-item urgency-${req.urgency.toLowerCase()}`}>
+                        <div className="triage-item-main">
+                          <div className="triage-item-line1">
+                            <span
+                              className="triage-badge"
+                              style={{
+                                backgroundColor: badge.bg,
+                                borderColor: badge.border,
+                                color: badge.text
+                              }}
+                            >
+                              {req.urgency}
+                            </span>
+                            <span className="triage-req-id">#{req.id}</span>
+                            <strong className="triage-type-label">{req.type}</strong>
+                            <span className="triage-time-tag">
+                              <ClockIcon className="w-3 h-3" />
+                              {req.timestamp}
+                            </span>
                           </div>
-                          <div className="triage-dispatch-info">
-                            <span>{req.assignedUnit}</span>
-                            <span className="eta-tag">ETA: {req.eta}</span>
+
+                          <div className="triage-item-line2">
+                            <div className="triage-loc-block">
+                              <MapPinIcon className="w-3.5 h-3.5 text-cyan shrink-0" />
+                              <span>{req.location}</span>
+                              <span className="triage-people-pill">{req.peopleCount} {req.peopleCount > 1 ? 'people' : 'person'}</span>
+                            </div>
+                            <div className="triage-dispatch-info">
+                              <span>{req.assignedUnit}</span>
+                              <span className="eta-tag">ETA: {req.eta}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            <div className="triage-card-footer">
-              <div className="triage-footer-note">
-                <RadioIcon className="w-3 h-3 text-cyan" />
-                <span>LoRa Triangulated • {triageQueue.length} Active Distress Beacons</span>
+                    );
+                  })
+                )}
               </div>
-              <button className="btn-manage-sos" onClick={() => setActiveTab('sos')}>
-                <span>SOS Center ({triageQueue.length})</span>
-                <ChevronRightIcon className="w-3 h-3" />
-              </button>
+
+              <div className="triage-card-footer">
+                <div className="triage-footer-note">
+                  <RadioIcon className="w-3.5 h-3.5 text-cyan" />
+                  <span>LoRa Mesh Triangulated ({triageQueue.length} Total Distress Signals)</span>
+                </div>
+                <button className="btn-manage-sos" onClick={() => setActiveTab('sos')}>
+                  <span>View all in SOS Center ({triageQueue.length})</span>
+                  <ChevronRightIcon className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -271,15 +270,12 @@ export const DashboardPage = () => {
         <div className="dashboard-col">
           {/* Resource Allocation Card */}
           <div className="card-glass resources-card">
-            <div className="resources-card-header">
-              <div className="resources-hdr-left">
-                <div className="resources-icon-badge">
-                  <LayersIcon className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="card-header">
+              <div className="card-header-title">
+                <div className="header-icon-badge success">
+                  <LayersIcon className="w-4 h-4 text-emerald-400" />
                 </div>
-                <div>
-                  <h3 className="resources-hdr-title">RESOURCE ALLOCATION & FLEET</h3>
-                  <span className="resources-hdr-subtitle">Real-Time Deployment & Reserves</span>
-                </div>
+                <span>RESOURCE ALLOCATION & FLEET</span>
               </div>
               <div className="fleet-status-pill">
                 <span className="pulse-fleet-dot"></span>
@@ -287,54 +283,56 @@ export const DashboardPage = () => {
               </div>
             </div>
 
-            {/* Resource 4-Grid Cards */}
-            <div className="resources-grid">
-              {resources.map((res) => {
-                const pct = Math.round((res.deployed / res.total) * 100);
-                return (
-                  <div key={res.id} className="resource-tile">
-                    <div className="res-tile-top">
-                      <div className="res-tile-type-row">
-                        <div className="res-tile-icon-wrap">
-                          {getResourceIcon(res.icon)}
+            <div className="card-body resources-card-body">
+              {/* Resource 4-Grid Cards */}
+              <div className="resources-grid">
+                {resources.map((res) => {
+                  const pct = Math.round((res.deployed / res.total) * 100);
+                  return (
+                    <div key={res.id} className="resource-tile">
+                      <div className="res-tile-top">
+                        <div className="res-tile-type-row">
+                          <div className="res-tile-icon-wrap">
+                            {getResourceIcon(res.icon)}
+                          </div>
+                          <span className="res-type-name">{res.type}</span>
                         </div>
-                        <span className="res-type-name">{res.type}</span>
+                        <div className="res-tile-numbers">
+                          <span className="res-deployed-num">{res.deployed}</span>
+                          <span className="res-total-num">/{res.total}</span>
+                        </div>
                       </div>
-                      <div className="res-tile-numbers">
-                        <span className="res-deployed-num">{res.deployed}</span>
-                        <span className="res-total-num">/{res.total}</span>
+
+                      {/* Clean Progress Bar */}
+                      <div className="res-progress-track">
+                        <div
+                          className={`res-progress-fill ${res.color}`}
+                          style={{ width: `${pct}%` }}
+                        ></div>
+                      </div>
+
+                      <div className="res-tile-footer">
+                        <span className="res-avail-tag">
+                          <strong>{res.available}</strong> Available
+                        </span>
+                        <span className="res-pct-text">{pct}% Active</span>
                       </div>
                     </div>
-
-                    {/* Mini Progress Bar */}
-                    <div className="res-progress-track">
-                      <div
-                        className={`res-progress-fill ${res.color}`}
-                        style={{ width: `${pct}%` }}
-                      ></div>
-                    </div>
-
-                    <div className="res-tile-footer">
-                      <span className="res-avail-tag">
-                        <strong>{res.available}</strong> Avail
-                      </span>
-                      <span className="res-pct-text">{pct}% Active</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Overall Resource Health Bar */}
-            <div className="resource-fleet-banner">
-              <div className="fleet-banner-left">
-                <ShieldIcon className="w-3.5 h-3.5 text-cyan" />
-                <span>Mobilization: <strong>76% Active</strong> • 0 Deficits Detected</span>
+                  );
+                })}
               </div>
-              <button className="fleet-action-link" onClick={() => setActiveTab('map')}>
-                <span>Inspect Fleet</span>
-                <ChevronRightIcon className="w-3 h-3" />
-              </button>
+
+              {/* Overall Resource Health Bar */}
+              <div className="resource-fleet-banner">
+                <div className="fleet-banner-left">
+                  <ShieldIcon className="w-4 h-4 text-cyan" />
+                  <span>Fleet Readiness: <strong>76% Mobilized</strong> • 0 Deficits Detected</span>
+                </div>
+                <button className="fleet-action-link" onClick={() => setActiveTab('map')}>
+                  <span>Inspect Fleet</span>
+                  <ChevronRightIcon className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -344,47 +342,34 @@ export const DashboardPage = () => {
       </div>
 
       <style>{`
-        .dashboard-compact-overview {
+        .dashboard-clean-view {
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
+          gap: 0.85rem;
           min-width: 0;
           width: 100%;
           max-width: 100%;
         }
 
-        .grid-stats {
-          display: grid;
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 0.45rem;
-          margin-bottom: 0;
-          width: 100%;
-        }
-
-        @media (max-width: 1100px) {
-          .grid-stats {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-        }
-
-        /* Unified Threat Strip */
+        /* Unified Threat Strip with High Visual Hierarchy */
         .command-threat-strip {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.45rem 0.85rem;
+          padding: 0.75rem 1.15rem;
           background: #090e1a;
           border: 1px solid rgba(239, 68, 68, 0.35);
-          border-left: 3px solid var(--danger);
-          border-radius: var(--radius-sm);
-          gap: 0.75rem;
+          border-left: 4px solid var(--danger);
+          border-radius: var(--radius-md);
+          gap: 1rem;
           flex-wrap: nowrap;
+          box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
         }
 
         .threat-strip-left {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.65rem;
           flex-shrink: 0;
         }
 
@@ -393,12 +378,12 @@ export const DashboardPage = () => {
           align-items: baseline;
           background: rgba(239, 68, 68, 0.16);
           border: 1px solid rgba(239, 68, 68, 0.45);
-          padding: 0.15rem 0.45rem;
-          border-radius: 4px;
+          padding: 0.25rem 0.65rem;
+          border-radius: 6px;
         }
 
         .threat-score-num {
-          font-size: 1.25rem;
+          font-size: 1.55rem;
           font-weight: 900;
           color: #ef4444;
           font-family: var(--font-mono);
@@ -406,39 +391,39 @@ export const DashboardPage = () => {
         }
 
         .threat-score-denom {
-          font-size: 0.58rem;
+          font-size: 0.68rem;
           font-weight: 700;
           color: #94a3b8;
-          margin-left: 1px;
+          margin-left: 2px;
         }
 
         .threat-severity-tag {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
-          font-size: 0.58rem;
-          font-weight: 900;
+          gap: 0.35rem;
+          font-size: 0.68rem;
+          font-weight: 800;
           background: rgba(239, 68, 68, 0.25);
           border: 1px solid var(--danger);
           color: #ffffff;
-          padding: 0.15rem 0.4rem;
-          border-radius: 3px;
-          letter-spacing: 0.04em;
+          padding: 0.22rem 0.55rem;
+          border-radius: 4px;
+          letter-spacing: 0.05em;
         }
 
         .threat-pulse-dot {
-          width: 4.5px;
-          height: 4.5px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           background: var(--danger);
-          box-shadow: 0 0 6px var(--danger);
+          box-shadow: 0 0 8px var(--danger);
           animation: blink 1.2s infinite;
         }
 
         .threat-strip-center {
           display: flex;
           flex-direction: column;
-          gap: 0.08rem;
+          gap: 0.2rem;
           flex: 1;
           min-width: 0;
         }
@@ -446,34 +431,34 @@ export const DashboardPage = () => {
         .threat-headline-row {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.45rem;
           flex-wrap: nowrap;
           overflow: hidden;
         }
 
         .threat-level-highlight {
-          font-size: 0.76rem;
-          font-weight: 900;
+          font-size: 0.85rem;
+          font-weight: 800;
           color: #ffffff;
           white-space: nowrap;
         }
 
         .threat-status-highlight {
-          font-size: 0.62rem;
+          font-size: 0.68rem;
           font-weight: 800;
-          padding: 0.08rem 0.35rem;
-          border-radius: 3px;
+          padding: 0.1rem 0.45rem;
+          border-radius: 4px;
           background: rgba(239, 68, 68, 0.2);
           border: 1px solid rgba(239, 68, 68, 0.4);
           color: #fca5a5;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.04em;
           white-space: nowrap;
         }
 
         .threat-urgency-highlight {
-          font-size: 0.65rem;
+          font-size: 0.72rem;
           font-weight: 700;
-          color: #cbd5e1;
+          color: #e2e8f0;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -481,14 +466,14 @@ export const DashboardPage = () => {
 
         .threat-divider {
           color: #475569;
-          font-size: 0.62rem;
+          font-size: 0.7rem;
         }
 
         .threat-subline-row {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          font-size: 0.60rem;
+          gap: 0.5rem;
+          font-size: 0.66rem;
           color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;
@@ -496,7 +481,7 @@ export const DashboardPage = () => {
         }
 
         .threat-subline-row strong {
-          color: #e2e8f0;
+          color: #cbd5e1;
         }
 
         .threat-sub-dot {
@@ -510,15 +495,15 @@ export const DashboardPage = () => {
         .btn-open-gis-map {
           display: inline-flex;
           align-items: center;
-          gap: 0.35rem;
-          background: linear-gradient(135deg, rgba(6, 182, 212, 0.28) 0%, rgba(6, 182, 212, 0.12) 100%);
+          gap: 0.45rem;
+          background: linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(6, 182, 212, 0.12) 100%);
           border: 1px solid var(--cyan);
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.68rem;
+          font-size: 0.74rem;
           font-weight: 800;
-          padding: 0.35rem 0.75rem;
-          border-radius: 5px;
+          padding: 0.45rem 0.9rem;
+          border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
           white-space: nowrap;
@@ -527,21 +512,11 @@ export const DashboardPage = () => {
         .btn-open-gis-map:hover {
           background: var(--cyan);
           color: #050810;
-          box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
-        }
-
-        .grid-dashboard {
-          display: grid;
-          grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-          gap: 0.5rem;
-          align-items: start;
-          width: 100%;
+          box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+          transform: translateY(-1px);
         }
 
         @media (max-width: 960px) {
-          .grid-dashboard {
-            grid-template-columns: 1fr;
-          }
           .command-threat-strip {
             flex-direction: column;
             align-items: flex-start;
@@ -551,63 +526,24 @@ export const DashboardPage = () => {
         .dashboard-col {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.85rem;
           min-width: 0;
         }
 
         /* AI Triage Queue Card */
-        .triage-card {
+        .triage-card-body {
+          padding: 0.75rem 0.95rem;
           display: flex;
           flex-direction: column;
-          padding: 0.55rem 0.75rem;
-          gap: 0.45rem;
-          border-radius: var(--radius-sm);
-        }
-
-        .triage-card-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border-bottom: 1px solid var(--border-subtle);
-          padding-bottom: 0.35rem;
-        }
-
-        .triage-hdr-left {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-
-        .triage-icon-badge {
-          width: 22px;
-          height: 22px;
-          border-radius: 4px;
-          background: rgba(6, 182, 212, 0.15);
-          border: 1px solid rgba(6, 182, 212, 0.35);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .triage-hdr-title {
-          font-size: 0.74rem;
-          font-weight: 800;
-          letter-spacing: 0.04em;
-          color: #ffffff;
-          line-height: 1.1;
-        }
-
-        .triage-hdr-subtitle {
-          font-size: 0.56rem;
-          color: var(--text-muted);
+          gap: 0.65rem;
         }
 
         .triage-filter-tabs {
           display: flex;
-          gap: 0.2rem;
+          gap: 0.25rem;
           background: #060913;
-          padding: 1px;
-          border-radius: 4px;
+          padding: 2px;
+          border-radius: 5px;
           border: 1px solid var(--border-subtle);
         }
 
@@ -615,9 +551,9 @@ export const DashboardPage = () => {
           background: transparent;
           border: none;
           color: #64748b;
-          font-size: 0.54rem;
+          font-size: 0.60rem;
           font-weight: 800;
-          padding: 0.15rem 0.35rem;
+          padding: 0.18rem 0.45rem;
           border-radius: 3px;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -632,22 +568,22 @@ export const DashboardPage = () => {
         .triage-list {
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
+          gap: 0.5rem;
         }
 
         .triage-empty {
-          font-size: 0.64rem;
+          font-size: 0.72rem;
           color: var(--text-muted);
-          padding: 0.6rem;
+          padding: 0.85rem;
           text-align: center;
         }
 
         .triage-item {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
-          border-radius: 4px;
-          padding: 0.35rem 0.55rem;
-          transition: border-color 0.2s ease;
+          border-radius: var(--radius-sm);
+          padding: 0.55rem 0.75rem;
+          transition: border-color 0.2s ease, background 0.2s ease;
         }
 
         .triage-item.urgency-critical {
@@ -664,33 +600,34 @@ export const DashboardPage = () => {
 
         .triage-item:hover {
           border-color: rgba(6, 182, 212, 0.4);
+          background: #0a1020;
         }
 
         .triage-item-main {
           display: flex;
           flex-direction: column;
-          gap: 0.15rem;
+          gap: 0.3rem;
         }
 
         .triage-item-line1 {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.45rem;
           min-width: 0;
         }
 
         .triage-badge {
-          font-size: 0.52rem;
+          font-size: 0.58rem;
           font-weight: 900;
           letter-spacing: 0.04em;
-          padding: 0.06rem 0.28rem;
-          border-radius: 2px;
+          padding: 0.1rem 0.35rem;
+          border-radius: 3px;
           border: 1px solid;
           flex-shrink: 0;
         }
 
         .triage-req-id {
-          font-size: 0.58rem;
+          font-size: 0.65rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: var(--text-muted);
@@ -698,7 +635,7 @@ export const DashboardPage = () => {
         }
 
         .triage-type-label {
-          font-size: 0.68rem;
+          font-size: 0.75rem;
           font-weight: 800;
           color: #ffffff;
           white-space: nowrap;
@@ -710,8 +647,8 @@ export const DashboardPage = () => {
         .triage-time-tag {
           display: flex;
           align-items: center;
-          gap: 0.2rem;
-          font-size: 0.54rem;
+          gap: 0.25rem;
+          font-size: 0.60rem;
           color: var(--text-muted);
           flex-shrink: 0;
           margin-left: auto;
@@ -721,15 +658,15 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.58rem;
+          font-size: 0.66rem;
           color: #94a3b8;
-          gap: 0.35rem;
+          gap: 0.5rem;
         }
 
         .triage-loc-block {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
+          gap: 0.35rem;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -737,11 +674,11 @@ export const DashboardPage = () => {
         }
 
         .triage-people-pill {
-          font-size: 0.52rem;
+          font-size: 0.58rem;
           font-weight: 800;
           background: rgba(255, 255, 255, 0.06);
-          padding: 0.05rem 0.25rem;
-          border-radius: 2px;
+          padding: 0.08rem 0.35rem;
+          border-radius: 3px;
           color: #cbd5e1;
           flex-shrink: 0;
         }
@@ -749,9 +686,10 @@ export const DashboardPage = () => {
         .triage-dispatch-info {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.35rem;
           color: var(--cyan);
           font-weight: 700;
+          font-size: 0.64rem;
           flex-shrink: 0;
         }
 
@@ -763,26 +701,26 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.3rem;
+          padding-top: 0.5rem;
           border-top: 1px solid var(--border-subtle);
-          font-size: 0.58rem;
+          font-size: 0.66rem;
         }
 
         .triage-footer-note {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
+          gap: 0.35rem;
           color: var(--text-muted);
         }
 
         .btn-manage-sos {
           display: inline-flex;
           align-items: center;
-          gap: 0.25rem;
+          gap: 0.3rem;
           background: transparent;
           border: none;
           color: var(--cyan);
-          font-size: 0.62rem;
+          font-size: 0.68rem;
           font-weight: 800;
           cursor: pointer;
         }
@@ -792,87 +730,53 @@ export const DashboardPage = () => {
         }
 
         /* Resource Allocation Card */
-        .resources-card {
+        .resources-card-body {
+          padding: 0.75rem 0.95rem;
           display: flex;
           flex-direction: column;
-          padding: 0.55rem 0.75rem;
-          gap: 0.45rem;
-          border-radius: var(--radius-sm);
-        }
-
-        .resources-card-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          border-bottom: 1px solid var(--border-subtle);
-          padding-bottom: 0.35rem;
-        }
-
-        .resources-hdr-left {
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-
-        .resources-icon-badge {
-          width: 22px;
-          height: 22px;
-          border-radius: 4px;
-          background: rgba(16, 185, 129, 0.15);
-          border: 1px solid rgba(16, 185, 129, 0.35);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .resources-hdr-title {
-          font-size: 0.74rem;
-          font-weight: 800;
-          letter-spacing: 0.04em;
-          color: #ffffff;
-          line-height: 1.1;
-        }
-
-        .resources-hdr-subtitle {
-          font-size: 0.56rem;
-          color: var(--text-muted);
+          gap: 0.65rem;
         }
 
         .fleet-status-pill {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
+          gap: 0.3rem;
           background: rgba(16, 185, 129, 0.12);
           border: 1px solid rgba(16, 185, 129, 0.35);
           color: #34d399;
-          font-size: 0.52rem;
+          font-size: 0.58rem;
           font-weight: 800;
-          padding: 0.12rem 0.4rem;
+          padding: 0.15rem 0.45rem;
           border-radius: 9999px;
         }
 
         .pulse-fleet-dot {
-          width: 4px;
-          height: 4px;
+          width: 5px;
+          height: 5px;
           border-radius: 50%;
           background: #10b981;
-          box-shadow: 0 0 4px #10b981;
+          box-shadow: 0 0 6px #10b981;
         }
 
         .resources-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 0.35rem;
+          gap: 0.55rem;
         }
 
         .resource-tile {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
-          border-radius: 4px;
-          padding: 0.4rem 0.55rem;
+          border-radius: var(--radius-sm);
+          padding: 0.55rem 0.75rem;
           display: flex;
           flex-direction: column;
-          gap: 0.2rem;
+          gap: 0.35rem;
+          transition: border-color 0.2s ease;
+        }
+
+        .resource-tile:hover {
+          border-color: rgba(6, 182, 212, 0.3);
         }
 
         .res-tile-top {
@@ -884,14 +788,14 @@ export const DashboardPage = () => {
         .res-tile-type-row {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.4rem;
           min-width: 0;
         }
 
         .res-tile-icon-wrap {
-          width: 18px;
-          height: 18px;
-          border-radius: 3px;
+          width: 22px;
+          height: 22px;
+          border-radius: 4px;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid var(--border-subtle);
           display: flex;
@@ -901,7 +805,7 @@ export const DashboardPage = () => {
         }
 
         .res-type-name {
-          font-size: 0.64rem;
+          font-size: 0.72rem;
           font-weight: 700;
           color: #e2e8f0;
           white-space: nowrap;
@@ -917,20 +821,20 @@ export const DashboardPage = () => {
         }
 
         .res-deployed-num {
-          font-size: 0.95rem;
+          font-size: 1.15rem;
           font-weight: 900;
           color: #ffffff;
         }
 
         .res-total-num {
-          font-size: 0.58rem;
+          font-size: 0.65rem;
           font-weight: 700;
           color: #64748b;
         }
 
         .res-progress-track {
           width: 100%;
-          height: 3.5px;
+          height: 4px;
           background: rgba(255, 255, 255, 0.06);
           border-radius: 9999px;
           overflow: hidden;
@@ -961,7 +865,7 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.54rem;
+          font-size: 0.60rem;
           color: var(--text-muted);
         }
 
@@ -979,18 +883,18 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.3rem 0.55rem;
-          background: rgba(6, 182, 212, 0.08);
-          border: 1px solid rgba(6, 182, 212, 0.25);
-          border-radius: 4px;
-          font-size: 0.58rem;
+          padding: 0.45rem 0.75rem;
+          background: rgba(6, 182, 212, 0.06);
+          border: 1px solid rgba(6, 182, 212, 0.2);
+          border-radius: 5px;
+          font-size: 0.66rem;
           color: #cbd5e1;
         }
 
         .fleet-banner-left {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.4rem;
         }
 
         .fleet-banner-left strong {
@@ -1000,11 +904,11 @@ export const DashboardPage = () => {
         .fleet-action-link {
           display: inline-flex;
           align-items: center;
-          gap: 0.2rem;
+          gap: 0.25rem;
           background: transparent;
           border: none;
           color: var(--cyan);
-          font-size: 0.58rem;
+          font-size: 0.64rem;
           font-weight: 800;
           cursor: pointer;
         }
@@ -1018,5 +922,6 @@ export const DashboardPage = () => {
 };
 
 export default DashboardPage;
+
 
 
