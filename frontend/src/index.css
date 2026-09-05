@@ -155,7 +155,7 @@ body::before {
 }
 
 .content-body {
-  padding: 1.25rem 2rem;
+  padding: 0.65rem 1rem;
   width: 100%;
   max-width: 100%;
   margin: 0;

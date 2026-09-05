@@ -19,11 +19,7 @@ import {
   BotIcon,
   SparklesIcon,
   SendIcon,
-  TrendingUpIcon,
-  CloudLightningIcon,
-  SunIcon,
-  CrosshairIcon,
-  LayersIcon
+  TrendingUpIcon
 } from '../components/Icons';
 import { CircularGauge, SemiCircularGauge, AlertLevelDial } from '../components/Gauges';
 import { MAP_NODES, DEFAULT_AI_PROMPTS } from '../data/mockData';
@@ -61,16 +57,15 @@ export const DashboardPage = () => {
   const totalOccupied = shelters.reduce((acc, s) => acc + s.capacityOccupied, 0);
   const totalOpenBeds = shelters.reduce((acc, s) => acc + s.bedsAvailable, 0);
   const openBedsPct = totalCapacity > 0 ? Math.round((totalOpenBeds / totalCapacity) * 100) : 30;
-  const occupancyPct = totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 70;
 
   // Weather data from scenario
   const weather = scenario.weather;
 
   // Dynamic 3-day forecast based on scenario
   const forecastDays = [
-    { day: 'Wed (Today)', temp: weather.temperature, icon: '⛈️', condition: 'Violent Surge', metric: weather.rainfallRate },
-    { day: 'Sat', temp: '26°C', icon: '🌧️', condition: 'Heavy Rain', metric: '18 mm/hr' },
-    { day: 'Mon', temp: '29°C', icon: '🌤️', condition: 'Receding Flood', metric: '2 mm/hr' }
+    { day: 'Wed', temp: weather.temperature, icon: '⛈️', metric: weather.rainfallRate },
+    { day: 'Sat', temp: '26°C', icon: '🌧️', metric: '18 mm/h' },
+    { day: 'Mon', temp: '29°C', icon: '🌤️', metric: '2 mm/h' }
   ];
 
   const handleChatSubmit = (e) => {
@@ -96,29 +91,29 @@ export const DashboardPage = () => {
   };
 
   return (
-    <div className="dashboard-redesign-view">
+    <div className="dashboard-compact-view">
       <div className="dashboard-3col-grid">
         {/* =========================================================================
             COLUMN 1 (LEFT, ~40% width): Risk Map & Shelter Capacity
             ========================================================================= */}
         <div className="dash-col dash-col-left">
-          {/* Card 1.1: Interactive Risk Map with Live Doppler Radar Overlay */}
+          {/* Card 1.1: Compact Interactive Risk Map with Doppler Radar */}
           <div className="card-glass dash-card risk-map-card">
             <div className="dash-card-header">
               <div className="header-title-group">
                 <div className="card-hdr-icon cyan-icon">
-                  <MapIcon className="w-4 h-4 text-cyan" />
+                  <MapIcon className="w-3.5 h-3.5 text-cyan" />
                 </div>
                 <span className="card-hdr-title">RISK MAP & GIS RADAR</span>
               </div>
               <div className="map-badge-live">
                 <span className="pulse-dot-cyan"></span>
-                <span>DOPPLER ACTIVE</span>
+                <span>DOPPLER LIVE</span>
               </div>
             </div>
 
             <div className="map-card-body">
-              {/* Layer Filter Toggles */}
+              {/* Compact Layer Filter Toggles */}
               <div className="map-layer-pills">
                 <button
                   className={`layer-pill ${showFloodLayer ? 'active-flood' : ''}`}
@@ -146,46 +141,204 @@ export const DashboardPage = () => {
                 </button>
               </div>
 
-              {/* Map Canvas / Visualization */}
+              {/* Shorter Map Canvas (132px) */}
               <div className="interactive-map-canvas">
                 <div className="radar-sweep-grid">
                   <div className="radar-beam"></div>
                 </div>
 
-                {/* SVG Polygons: Flood Surge, Moderate Buffer, Safe Ridge, Evac Polyline */}
-                <svg className="map-svg-layers" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  {showFloodLayer && (
-                    <polygon
-                      points="8,78 38,86 74,68 96,88 96,98 5,98"
-                      fill="rgba(239, 68, 68, 0.25)"
-                      stroke="#ef4444"
-                      strokeWidth="0.8"
-                      strokeDasharray="2 1"
-                    />
-                  )}
-                  {showFloodLayer && (
-                    <polygon
-                      points="12,54 52,60 82,42 94,62 94,88 8,78"
-                      fill="rgba(245, 158, 11, 0.14)"
-                      stroke="#f59e0b"
-                      strokeWidth="0.5"
-                    />
-                  )}
-                  <polygon
-                    points="8,6 92,6 92,34 58,28 18,38"
-                    fill="rgba(16, 185, 129, 0.12)"
-                    stroke="#10b981"
+                {/* Realistic Cartographic GIS Vector Map */}
+                <svg className="map-svg-layers" viewBox="0 0 400 220" preserveAspectRatio="none">
+                  <defs>
+                    {/* Road Grid Pattern for City Blocks */}
+                    <pattern id="city-grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(148, 163, 184, 0.07)" strokeWidth="0.5" />
+                    </pattern>
+                    {/* Urban Footprint Blocks */}
+                    <pattern id="urban-footprints" width="40" height="40" patternUnits="userSpaceOnUse">
+                      <rect x="2" y="2" width="16" height="16" fill="rgba(30, 41, 59, 0.35)" rx="1" />
+                      <rect x="22" y="2" width="16" height="16" fill="rgba(30, 41, 59, 0.25)" rx="1" />
+                      <rect x="2" y="22" width="16" height="16" fill="rgba(30, 41, 59, 0.25)" rx="1" />
+                      <rect x="22" y="22" width="16" height="16" fill="rgba(30, 41, 59, 0.35)" rx="1" />
+                    </pattern>
+                    {/* Red Hazard Flood Hatch */}
+                    <pattern id="gis-flood-hatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                      <line x1="0" y1="0" x2="0" y2="8" stroke="rgba(239, 68, 68, 0.3)" strokeWidth="1.2" />
+                    </pattern>
+                    {/* Waterway Gradient */}
+                    <linearGradient id="riverGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#081829" />
+                      <stop offset="60%" stopColor="#0d2847" />
+                      <stop offset="100%" stopColor="#0a1e36" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Base Cartographic Slate Background */}
+                  <rect width="400" height="220" fill="#060c18" />
+
+                  {/* Urban Block Textures */}
+                  <rect width="400" height="220" fill="url(#urban-footprints)" />
+                  <rect width="400" height="220" fill="url(#city-grid-pattern)" />
+
+                  {/* Organic River Waterway (Victoria River) */}
+                  <path
+                    d="M-10,170 C60,165 110,145 150,130 C190,115 240,105 290,75 C340,45 380,35 410,20 L410,48 C370,68 330,80 280,110 C230,140 180,150 140,165 C95,182 40,195 -10,198 Z"
+                    fill="url(#riverGradDark)"
+                    stroke="rgba(56, 189, 248, 0.25)"
+                    strokeWidth="0.75"
+                  />
+
+                  {/* Coastal Basin Inlet at Delta */}
+                  <path
+                    d="M-10,200 C30,195 70,205 100,225 L-10,225 Z"
+                    fill="url(#riverGradDark)"
+                    stroke="rgba(56, 189, 248, 0.2)"
                     strokeWidth="0.5"
                   />
-                  {/* Evacuation Route Corridor Line */}
-                  <polyline
-                    points="20,74 34,48 64,36 86,22"
+
+                  {/* River Label */}
+                  <text x="215" y="132" fill="rgba(56, 189, 248, 0.45)" fontSize="5.5" fontFamily="monospace" fontWeight="bold" letterSpacing="0.8" transform="rotate(-15, 215, 132)">
+                    VICTORIA RIVER (SURGE +3.8m)
+                  </text>
+
+                  {/* City Street Network (Secondary roads - fine gray lines) */}
+                  <line x1="0" y1="20" x2="400" y2="20" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="0" y1="45" x2="400" y2="45" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="0" y1="70" x2="400" y2="70" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="0" y1="95" x2="400" y2="95" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="0" y1="120" x2="400" y2="120" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="0" y1="150" x2="400" y2="150" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="0" y1="180" x2="400" y2="180" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="0" y1="205" x2="400" y2="205" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+
+                  <line x1="35" y1="0" x2="35" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="75" y1="0" x2="75" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="120" y1="0" x2="120" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="165" y1="0" x2="165" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="210" y1="0" x2="210" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="255" y1="0" x2="255" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="300" y1="0" x2="300" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="345" y1="0" x2="345" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+                  <line x1="380" y1="0" x2="380" y2="220" stroke="rgba(148, 163, 184, 0.15)" strokeWidth="0.6" />
+
+                  {/* Major Arterial Highways (Thicker stylized lines with road borders) */}
+                  {/* Hwy 101 North Ridge Expressway */}
+                  <path d="M-10,35 L140,35 L260,25 L410,15" fill="none" stroke="#223954" strokeWidth="2.5" />
+                  <path d="M-10,35 L140,35 L260,25 L410,15" fill="none" stroke="rgba(148, 163, 184, 0.5)" strokeWidth="1" strokeDasharray="6 3" />
+
+                  {/* Grand Avenue / Route Alpha Corridor */}
+                  <path d="M50,210 L80,165 L125,125 L180,85 L265,65 L360,58" fill="none" stroke="#1e3a5f" strokeWidth="2.5" />
+                  <path d="M50,210 L80,165 L125,125 L180,85 L265,65 L360,58" fill="none" stroke="rgba(56, 189, 248, 0.6)" strokeWidth="1" />
+
+                  {/* Coastal Bypass Parkway */}
+                  <path d="M-10,185 L70,185 L150,195 L250,205 L410,205" fill="none" stroke="#223954" strokeWidth="2" />
+
+                  {/* Bridges Across River */}
+                  {/* Victoria Bridge (Closed / Submerged) */}
+                  <line x1="145" y1="132" x2="160" y2="155" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" />
+                  <line x1="145" y1="132" x2="160" y2="155" stroke="#ffffff" strokeWidth="1" strokeDasharray="2 1" />
+                  <text x="122" y="142" fill="#ef4444" fontSize="5" fontWeight="bold" fontFamily="monospace">✕ BRIDGE CLOSED</text>
+
+                  {/* Metro Elevated Flyover (Clear Passage) */}
+                  <line x1="260" y1="80" x2="278" y2="102" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
+                  <line x1="260" y1="80" x2="278" y2="102" stroke="#ffffff" strokeWidth="1" />
+                  <text x="282" y="93" fill="#10b981" fontSize="4.8" fontWeight="bold" fontFamily="monospace">✓ FLYOVER OPEN</text>
+
+                  {/* GIS Hazard & Safe Zone Polygons */}
+                  {/* Safe High Ground Ridge Zone (Green) */}
+                  <polygon
+                    points="0,0 400,0 400,68 310,60 230,50 150,58 70,52 0,62"
+                    fill="rgba(16, 185, 129, 0.14)"
+                    stroke="#10b981"
+                    strokeWidth="0.8"
+                    strokeDasharray="4 2"
+                  />
+
+                  {/* Moderate Surge Buffer Zone (Orange) */}
+                  {showFloodLayer && (
+                    <polygon
+                      points="0,125 45,115 105,120 160,98 215,92 275,108 345,138 400,158 400,195 0,165"
+                      fill="rgba(245, 158, 11, 0.15)"
+                      stroke="#f59e0b"
+                      strokeWidth="0.75"
+                      strokeDasharray="3 2"
+                    />
+                  )}
+
+                  {/* High Hazard Inundation Surge Zone (Red) */}
+                  {showFloodLayer && (
+                    <>
+                      <polygon
+                        points="0,165 45,155 90,168 140,145 180,135 225,130 285,155 360,185 400,195 400,220 0,220"
+                        fill="rgba(239, 68, 68, 0.24)"
+                        stroke="#ef4444"
+                        strokeWidth="1.2"
+                        strokeDasharray="4 2"
+                      />
+                      <polygon
+                        points="0,165 45,155 90,168 140,145 180,135 225,130 285,155 360,185 400,195 400,220 0,220"
+                        fill="url(#gis-flood-hatch)"
+                      />
+                    </>
+                  )}
+
+                  {/* Active AI Evacuation Corridor Polyline (Glowing Cyan Route) */}
+                  <path
+                    d="M60,195 L85,160 L130,120 L180,80 L255,58 L300,45"
                     fill="none"
                     stroke="#06b6d4"
-                    strokeWidth="1.4"
+                    strokeWidth="2.2"
                     strokeLinecap="round"
-                    strokeDasharray="2.5 1.5"
+                    strokeDasharray="4 2"
+                    style={{ filter: 'drop-shadow(0 0 4px rgba(6, 182, 212, 0.8))' }}
                   />
+
+                  {/* Realistic Map Sector & Area Labels */}
+                  {/* Coastal Sector 4 Label with Red Marker */}
+                  <g transform="translate(12, 192)">
+                    <rect x="0" y="0" width="76" height="12" fill="rgba(15, 23, 42, 0.85)" stroke="#ef4444" strokeWidth="0.6" rx="2" />
+                    <circle cx="6" cy="6" r="2.5" fill="#ef4444" />
+                    <text x="12" y="8.5" fill="#fca5a5" fontSize="5.5" fontWeight="bold" fontFamily="monospace">COASTAL SECTOR 4</text>
+                  </g>
+
+                  {/* North Ridge Safe Zone Label */}
+                  <g transform="translate(10, 10)">
+                    <rect x="0" y="0" width="92" height="12" fill="rgba(15, 23, 42, 0.85)" stroke="#10b981" strokeWidth="0.6" rx="2" />
+                    <circle cx="6" cy="6" r="2.5" fill="#10b981" />
+                    <text x="12" y="8.5" fill="#6ee7b7" fontSize="5.5" fontWeight="bold" fontFamily="monospace">NORTH RIDGE SAFE ZONE</text>
+                  </g>
+
+                  {/* Delta Basin Label */}
+                  <text x="65" y="215" fill="rgba(248, 113, 113, 0.7)" fontSize="4.8" fontFamily="monospace" fontWeight="600">DELTA BASIN (ELEV &lt;2m)</text>
+
+                  {/* Downtown Civic Core Label */}
+                  <text x="160" y="75" fill="rgba(148, 163, 184, 0.6)" fontSize="4.8" fontFamily="monospace" fontWeight="600">DOWNTOWN CIVIC CORE</text>
+
+                  {/* West Hills District Label */}
+                  <text x="290" y="32" fill="rgba(148, 163, 184, 0.6)" fontSize="4.8" fontFamily="monospace" fontWeight="600">WEST HILLS DISTRICT</text>
+
+                  {/* Compass Rose (North Arrow) */}
+                  <g transform="translate(378, 14)">
+                    <circle cx="0" cy="0" r="9" fill="rgba(15, 23, 42, 0.8)" stroke="rgba(148, 163, 184, 0.4)" strokeWidth="0.6" />
+                    <polygon points="0,-7 3,0 0,-2 -3,0" fill="#06b6d4" />
+                    <polygon points="0,7 3,0 0,2 -3,0" fill="rgba(148, 163, 184, 0.6)" />
+                    <text x="-2" y="-2" fill="#06b6d4" fontSize="4" fontWeight="bold" fontFamily="monospace">N</text>
+                  </g>
+
+                  {/* Map Scale Bar */}
+                  <g transform="translate(325, 210)">
+                    <rect x="0" y="0" width="68" height="6" fill="rgba(15, 23, 42, 0.8)" rx="1" />
+                    <line x1="4" y1="4" x2="64" y2="4" stroke="#94a3b8" strokeWidth="0.8" />
+                    <line x1="4" y1="2" x2="4" y2="5" stroke="#94a3b8" strokeWidth="0.8" />
+                    <line x1="34" y1="2" x2="34" y2="5" stroke="#94a3b8" strokeWidth="0.8" />
+                    <line x1="64" y1="2" x2="64" y2="5" stroke="#94a3b8" strokeWidth="0.8" />
+                    <text x="24" y="3" fill="#cbd5e1" fontSize="3.8" fontFamily="monospace">1.5 KM</text>
+                  </g>
+
+                  {/* Map Coordinate Watermark */}
+                  <text x="10" y="215" fill="rgba(100, 116, 139, 0.6)" fontSize="4.2" fontFamily="monospace">
+                    GIS: 18.5204°N 73.8567°E • RESQ-SAT MESH
+                  </text>
                 </svg>
 
                 {/* Map Pins */}
@@ -215,17 +368,17 @@ export const DashboardPage = () => {
                   );
                 })}
 
-                {/* Pin Hover/Select Tooltip */}
+                {/* Pin Tooltip */}
                 {selectedPin && (
                   <div className="map-selected-popover">
-                    <div className="popover-type">{selectedPin.type.toUpperCase()}</div>
-                    <div className="popover-name">{selectedPin.name}</div>
-                    <div className="popover-desc">{selectedPin.label}</div>
+                    <span className="popover-type">{selectedPin.type.toUpperCase()}: </span>
+                    <strong className="popover-name">{selectedPin.name}</strong>
+                    <span className="popover-desc"> ({selectedPin.label})</span>
                   </div>
                 )}
               </div>
 
-              {/* Overlay Panel: Live Doppler Radar Telemetry */}
+              {/* Compact Doppler Radar Panel */}
               <div className="doppler-radar-panel">
                 <div className="doppler-top-row">
                   <div className="doppler-temp-box">
@@ -238,7 +391,7 @@ export const DashboardPage = () => {
                   </div>
                 </div>
 
-                {/* 3-Day Forecast Chips (Today, Sat, Mon) */}
+                {/* Slim 3-Day Forecast Chips */}
                 <div className="forecast-chips-grid">
                   {forecastDays.map((fc, idx) => (
                     <div key={idx} className="forecast-chip">
@@ -250,14 +403,14 @@ export const DashboardPage = () => {
                   ))}
                 </div>
 
-                {/* Wind Speed Slider / Bar Indicator */}
+                {/* Compact Wind Speed Indicator */}
                 <div className="wind-speed-bar-container">
                   <div className="wind-bar-header">
                     <div className="wind-lbl">
-                      <WindIcon className="w-3.5 h-3.5 text-warning" />
-                      <span>Sustained Wind: <strong>{weather.windSpeed}</strong></span>
+                      <WindIcon className="w-3 h-3 text-warning" />
+                      <span>Wind: <strong>{weather.windSpeed}</strong> (Gusts {weather.windGusts})</span>
                     </div>
-                    <span className="wind-gusts">Gusts: {weather.windGusts} ({weather.windDirection})</span>
+                    <span className="wind-dir">{weather.windDirection}</span>
                   </div>
                   <div className="wind-track">
                     <div className="wind-fill" style={{ width: '78%' }}></div>
@@ -268,65 +421,62 @@ export const DashboardPage = () => {
                 <div className="flood-legend-bar">
                   <div className="legend-item">
                     <span className="legend-dot red"></span>
-                    <span>High Inundation (&gt;3.5m)</span>
+                    <span>High Surge (&gt;3.5m)</span>
                   </div>
                   <div className="legend-item">
                     <span className="legend-dot orange"></span>
-                    <span>Moderate Surge Buffer</span>
+                    <span>Moderate Buffer</span>
                   </div>
                   <div className="legend-item">
                     <span className="legend-dot green"></span>
-                    <span>Safe Ridge Corridor</span>
+                    <span>Safe Ridge</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Card 1.2: High-Ground Relief Shelter Capacity */}
+          {/* Card 1.2: High-Ground Relief Shelter Capacity (2 Visible by default) */}
           <div className="card-glass dash-card shelter-capacity-card">
             <div className="dash-card-header">
               <div className="header-title-group">
                 <div className="card-hdr-icon green-icon">
-                  <ShelterIcon className="w-4 h-4 text-emerald-400" />
+                  <ShelterIcon className="w-3.5 h-3.5 text-emerald-400" />
                 </div>
                 <span className="card-hdr-title">HIGH-GROUND RELIEF SHELTER CAPACITY</span>
               </div>
               <button className="card-action-link" onClick={() => setActiveTab('shelters')}>
-                <span>Directory</span>
+                <span>View All ({shelters.length})</span>
                 <ChevronRightIcon className="w-3 h-3" />
               </button>
             </div>
 
             <div className="shelter-capacity-body">
-              {/* Left Circular Percentage Gauge alongside Shelters List */}
+              {/* Compact Capacity Hero with Circular Gauge */}
               <div className="shelter-gauge-hero">
-                <div className="gauge-circle-wrap">
-                  <CircularGauge
-                    value={openBedsPct}
-                    size={72}
-                    strokeWidth={6}
-                    color="#10b981"
-                    trackColor="rgba(255, 255, 255, 0.08)"
-                    label={`${openBedsPct}%`}
-                    sublabel="OPEN BEDS"
-                  />
-                </div>
+                <CircularGauge
+                  value={openBedsPct}
+                  size={54}
+                  strokeWidth={5}
+                  color="#10b981"
+                  trackColor="rgba(255, 255, 255, 0.08)"
+                  label={`${openBedsPct}%`}
+                  sublabel="OPEN"
+                />
                 <div className="gauge-hero-meta">
-                  <span className="hero-meta-title">{totalOpenBeds} BEDS AVAILABLE</span>
-                  <span className="hero-meta-sub">
-                    {totalOccupied}/{totalCapacity} Total Capacity Occupied
-                  </span>
-                  <div className="high-ground-tag">
-                    <ShieldIcon className="w-3 h-3 text-emerald-400" />
-                    <span>VERIFIED FLOOD-CLEAR ZONE</span>
+                  <div className="hero-meta-title-row">
+                    <span className="hero-meta-title">{totalOpenBeds} BEDS AVAILABLE</span>
+                    <span className="hero-meta-badge">SAFE ZONE</span>
                   </div>
+                  <span className="hero-meta-sub">
+                    {totalOccupied}/{totalCapacity} Total Occupied across {shelters.filter(s => !s.status.includes('CLOSED')).length} Facilities
+                  </span>
                 </div>
               </div>
 
-              {/* Shelters List with Progress Bars */}
+              {/* Exactly 2 Shelters visible by default */}
               <div className="shelters-compact-list">
-                {shelters.slice(0, 3).map((shelter) => {
+                {shelters.slice(0, 2).map((shelter) => {
                   const occ = Math.round((shelter.capacityOccupied / shelter.capacityTotal) * 100);
                   const isClosed = shelter.status.includes('CLOSED');
                   const barColor = occ > 85 ? '#ef4444' : occ > 75 ? '#f59e0b' : '#10b981';
@@ -336,16 +486,13 @@ export const DashboardPage = () => {
                       <div className="s-compact-top">
                         <div className="s-compact-name-wrap">
                           <span className="s-name">{shelter.name}</span>
-                          <span className="s-meta">
-                            {shelter.distance} • Elev: {shelter.elevation}
-                          </span>
+                          <span className="s-meta">{shelter.distance} • Elev: {shelter.elevation}</span>
                         </div>
                         <span className="s-beds-count" style={{ color: barColor }}>
-                          {isClosed ? 'ZONE CLOSED' : `${shelter.bedsAvailable} Beds Open`}
+                          {isClosed ? 'CLOSED' : `${shelter.bedsAvailable} Beds Open`}
                         </span>
                       </div>
 
-                      {/* Occupancy Progress Bar */}
                       <div className="s-progress-track">
                         <div
                           className="s-progress-fill"
@@ -357,13 +504,10 @@ export const DashboardPage = () => {
                       </div>
 
                       <div className="s-compact-foot">
-                        <span className="s-occ-text">{isClosed ? 'Submerged Roadway' : `${occ}% Occupied`}</span>
+                        <span className="s-occ-text">{isClosed ? 'Submerged Roadway' : `${occ}% Occupancy`}</span>
                         {!isClosed && (
-                          <button
-                            className="s-nav-mini-btn"
-                            onClick={() => setActiveTab('routes')}
-                          >
-                            <NavigationIcon className="w-3 h-3" />
+                          <button className="s-nav-mini-btn" onClick={() => setActiveTab('routes')}>
+                            <NavigationIcon className="w-2.5 h-2.5" />
                             <span>Navigate</span>
                           </button>
                         )}
@@ -377,7 +521,7 @@ export const DashboardPage = () => {
         </div>
 
         {/* =========================================================================
-            COLUMN 2 (MIDDLE, ~30% width): Disaster Risk Threat & Alerts Feed
+            COLUMN 2 (MIDDLE, ~30% width): Disaster Threat & Alerts Feed
             ========================================================================= */}
         <div className="dash-col dash-col-mid">
           {/* Card 2.1: Disaster Threat Risk Index */}
@@ -385,7 +529,7 @@ export const DashboardPage = () => {
             <div className="dash-card-header">
               <div className="header-title-group">
                 <div className="card-hdr-icon danger-icon">
-                  <AlertTriangleIcon className="w-4 h-4 text-danger" />
+                  <AlertTriangleIcon className="w-3.5 h-3.5 text-danger" />
                 </div>
                 <span className="card-hdr-title">DISASTER THREAT RISK INDEX</span>
               </div>
@@ -395,70 +539,62 @@ export const DashboardPage = () => {
             </div>
 
             <div className="threat-card-body">
-              {/* Large Circular Arc Gauge (Speedometer Style) */}
+              {/* Semi-Circular Speedometer Gauge */}
               <div className="threat-gauge-box">
                 <SemiCircularGauge
                   value={scenario.riskScore}
                   max={100}
                   severity={scenario.threatLevel}
-                  width={150}
-                  height={82}
+                  width={130}
+                  height={68}
                   color={getScoreColor(scenario.riskScore)}
                 />
               </div>
 
-              {/* Threat Key Stats Grid */}
+              {/* Compact 2x2 Stats Grid */}
               <div className="threat-stats-grid">
                 <div className="t-stat-tile">
                   <span className="t-stat-key">Status</span>
                   <span className="t-stat-val text-danger">{scenario.status}</span>
                 </div>
                 <div className="t-stat-tile">
-                  <span className="t-stat-key">Affected Radius</span>
+                  <span className="t-stat-key">Radius</span>
                   <span className="t-stat-val">{scenario.affectedRadius}</span>
                 </div>
                 <div className="t-stat-tile">
-                  <span className="t-stat-key">Primary Impact</span>
+                  <span className="t-stat-key">Impact Zone</span>
                   <span className="t-stat-val">{scenario.impactZone}</span>
                 </div>
                 <div className="t-stat-tile">
-                  <span className="t-stat-key">Population at Risk</span>
+                  <span className="t-stat-key">At Risk</span>
                   <span className="t-stat-val text-warning">{scenario.populationAtRisk}</span>
                 </div>
               </div>
 
-              {/* Urgency Callout Banner */}
+              {/* Compact Urgency Callout */}
               <div className="threat-urgency-callout">
-                <div className="urgency-icon-wrap">⚠️</div>
+                <span className="urgency-icon-sm">⚠️</span>
                 <div className="urgency-text-block">
                   <span className="urgency-head">{scenario.evacuationUrgency}</span>
                   <p className="urgency-body">{scenario.summary}</p>
                 </div>
               </div>
 
-              {/* Key Hazard Vectors Progress Bars */}
+              {/* Compact Hazard Vectors (Top 3 vectors with 3.5px bars) */}
               <div className="hazard-vectors-section">
                 <div className="hazard-hdr">
-                  <ActivityIcon className="w-3.5 h-3.5 text-danger" />
+                  <ActivityIcon className="w-3 h-3 text-danger" />
                   <span>KEY HAZARD VECTORS</span>
                 </div>
                 <div className="hazard-bars-list">
-                  {scenario.threatBreakdown.map((item, idx) => (
+                  {scenario.threatBreakdown.slice(0, 3).map((item, idx) => (
                     <div key={idx} className="hazard-bar-row">
                       <div className="hazard-row-labels">
                         <span className="h-name">{item.name}</span>
-                        <span className="h-score" style={{ color: item.color }}>
-                          {item.score}%
-                        </span>
+                        <span className="h-score" style={{ color: item.color }}>{item.score}%</span>
                       </div>
                       <div className="h-track">
-                        <div
-                          className="h-fill"
-                          style={{
-                            width: `${item.score}%`,
-                            backgroundColor: item.color
-                          }}
-                        ></div>
+                        <div className="h-fill" style={{ width: `${item.score}%`, backgroundColor: item.color }}></div>
                       </div>
                     </div>
                   ))}
@@ -467,12 +603,12 @@ export const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Card 2.2: Emergency Broadcast Alert Feed */}
+          {/* Card 2.2: Emergency Broadcast Alerts Feed (1-2 Visible) */}
           <div className="card-glass dash-card alerts-feed-card">
             <div className="dash-card-header">
               <div className="header-title-group">
                 <div className="card-hdr-icon warning-icon">
-                  <BellIcon className="w-4 h-4 text-warning" />
+                  <BellIcon className="w-3.5 h-3.5 text-warning" />
                 </div>
                 <span className="card-hdr-title">EMERGENCY BROADCAST ALERTS</span>
               </div>
@@ -483,52 +619,45 @@ export const DashboardPage = () => {
             </div>
 
             <div className="alerts-feed-body">
-              {/* Small Dial Gauge for Alert Threat Level */}
+              {/* Compact Alert Level Dial Banner */}
               <div className="alerts-dial-banner">
-                <AlertLevelDial
-                  level={4}
-                  maxLevel={5}
-                  label="CRITICAL"
-                  color="#ef4444"
-                  size={48}
-                />
+                <AlertLevelDial level={4} maxLevel={5} label="CRITICAL" color="#ef4444" size={40} />
                 <div className="dial-banner-info">
-                  <span className="dial-banner-title">P2P EMERGENCY BROADCAST NETWORK</span>
+                  <span className="dial-banner-title">P2P EMERGENCY BROADCAST ACTIVE</span>
                   <span className="dial-banner-sub">
-                    {currentAlerts.filter((a) => a.priority === 'CRITICAL').length} Critical • LoRa Mesh Active
+                    {currentAlerts.filter((a) => a.priority === 'CRITICAL').length} Critical Alerts • 48 Mesh Nodes
                   </span>
                 </div>
               </div>
 
-              {/* Scrollable Alert Items List */}
+              {/* Exactly 2 Alert Items visible */}
               <div className="alerts-scroll-container">
-                {currentAlerts.slice(0, 4).map((alert, idx) => {
+                {currentAlerts.slice(0, 2).map((alert, idx) => {
                   const isAck = acknowledgedAlerts.includes(alert.id);
                   const isUrgent = idx === 0 || alert.priority === 'CRITICAL';
 
                   return (
-                    <div
-                      key={alert.id}
-                      className={`dash-alert-card ${isUrgent ? 'is-urgent' : ''} ${isAck ? 'is-acked' : ''}`}
-                    >
+                    <div key={alert.id} className={`dash-alert-card ${isUrgent ? 'is-urgent' : ''} ${isAck ? 'is-acked' : ''}`}>
                       <div className="alert-card-top">
-                        <span className={`alert-priority-badge ${alert.priority === 'CRITICAL' ? 'crit' : 'warn'}`}>
-                          {alert.priority}
-                        </span>
-                        <span className="alert-time-badge">{alert.timestamp}</span>
+                        <div className="alert-meta-inline">
+                          <span className={`alert-priority-badge ${alert.priority === 'CRITICAL' ? 'crit' : 'warn'}`}>
+                            {alert.priority}
+                          </span>
+                          <span className="alert-time-badge">{alert.timestamp}</span>
+                        </div>
                         <button
                           className={`alert-ack-btn ${isAck ? 'acked' : ''}`}
                           onClick={() => acknowledgeAlert(alert.id)}
                         >
-                          <CheckIcon className="w-3 h-3" />
-                          <span>{isAck ? 'Ack' : 'Acknowledge'}</span>
+                          <CheckIcon className="w-2.5 h-2.5" />
+                          <span>{isAck ? 'Ack' : 'Ack'}</span>
                         </button>
                       </div>
 
                       <h5 className="alert-card-heading">{alert.title}</h5>
 
                       <div className="alert-card-location">
-                        <MapPinIcon className="w-3 h-3 text-cyan" />
+                        <MapPinIcon className="w-2.5 h-2.5 text-cyan" />
                         <span>{alert.location}</span>
                       </div>
 
@@ -555,7 +684,7 @@ export const DashboardPage = () => {
             <div className="dash-card-header">
               <div className="header-title-group">
                 <div className="card-hdr-icon cyan-icon">
-                  <RouteIcon className="w-4 h-4 text-cyan" />
+                  <RouteIcon className="w-3.5 h-3.5 text-cyan" />
                 </div>
                 <span className="card-hdr-title">AI EVACUATION CORRIDOR</span>
               </div>
@@ -567,7 +696,6 @@ export const DashboardPage = () => {
             <div className="evac-route-body">
               {/* Route Dropdown Selector */}
               <div className="route-select-wrapper">
-                <label className="route-select-lbl">CORRIDOR SELECTION:</label>
                 <select
                   value={selectedRouteId}
                   onChange={(e) => setSelectedRouteId(e.target.value)}
@@ -575,23 +703,160 @@ export const DashboardPage = () => {
                 >
                   {safeRoutes.map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.name} ({r.safetyScore}% Safe)
+                      {r.name.split(':')[0]} ({r.safetyScore}% Safe)
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Route Preview Map / HUD & Safety Score Progress Bar */}
+              {/* Compact Route Preview HUD */}
               {selectedRoute && (
                 <div className="route-preview-hud">
                   <div className="hud-header">
                     <div className="hud-dest">
-                      <span>Destination:</span>
-                      <strong>{selectedRoute.destination}</strong>
+                      <span>Destination: <strong>{selectedRoute.destination}</strong></span>
                     </div>
                     <div className="hud-score-badge" style={{ color: getScoreColor(selectedRoute.safetyScore) }}>
                       {selectedRoute.safetyScore}% Safety Score
                     </div>
+                  </div>
+
+                  {/* Realistic Route Preview Map Thumbnail */}
+                  <div className="route-preview-map-canvas">
+                    <svg viewBox="0 0 320 90" className="route-preview-svg" preserveAspectRatio="none">
+                      <defs>
+                        <linearGradient id="corridorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#06b6d4" />
+                          <stop offset="60%" stopColor="#10b981" />
+                          <stop offset="100%" stopColor="#34d399" />
+                        </linearGradient>
+                        <pattern id="route-grid-pattern" width="16" height="16" patternUnits="userSpaceOnUse">
+                          <path d="M 16 0 L 0 0 0 16" fill="none" stroke="rgba(148, 163, 184, 0.08)" strokeWidth="0.5" />
+                        </pattern>
+                      </defs>
+
+                      {/* Map Background */}
+                      <rect width="320" height="90" fill="#060c18" rx="4" />
+                      <rect width="320" height="90" fill="url(#route-grid-pattern)" rx="4" />
+
+                      {/* River Waterway (Flooded Barrier) */}
+                      <path
+                        d="M-5,70 C50,65 100,55 140,48 C180,40 220,35 260,20 C290,10 320,5 330,0 L330,12 C290,22 250,38 210,48 C170,58 120,68 80,78 C40,85 -5,88 -5,88 Z"
+                        fill="rgba(12, 36, 64, 0.85)"
+                        stroke="rgba(56, 189, 248, 0.25)"
+                        strokeWidth="0.5"
+                      />
+                      <text x="135" y="55" fill="rgba(56, 189, 248, 0.35)" fontSize="4.2" fontFamily="monospace" transform="rotate(-8, 135, 55)">
+                        Victoria River (Flooded)
+                      </text>
+
+                      {/* Street Network (City Roads) */}
+                      <line x1="0" y1="20" x2="320" y2="20" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+                      <line x1="0" y1="45" x2="320" y2="45" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+                      <line x1="0" y1="70" x2="320" y2="70" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+                      <line x1="40" y1="0" x2="40" y2="90" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+                      <line x1="90" y1="0" x2="90" y2="90" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+                      <line x1="150" y1="0" x2="150" y2="90" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+                      <line x1="210" y1="0" x2="210" y2="90" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+                      <line x1="270" y1="0" x2="270" y2="90" stroke="rgba(148, 163, 184, 0.12)" strokeWidth="0.5" />
+
+                      {/* Lowland Flood Hazard Zone Shading */}
+                      <polygon
+                        points="0,62 75,60 125,66 180,75 320,80 320,90 0,90"
+                        fill="rgba(239, 68, 68, 0.14)"
+                        stroke="rgba(239, 68, 68, 0.3)"
+                        strokeWidth="0.5"
+                        strokeDasharray="2 2"
+                      />
+
+                      {/* Hazard Point: Blocked Bridge */}
+                      <g transform="translate(108, 62)">
+                        <circle cx="0" cy="0" r="4.5" fill="rgba(239, 68, 68, 0.25)" stroke="#ef4444" strokeWidth="0.8" />
+                        <text x="-2.2" y="2" fill="#ef4444" fontSize="5" fontWeight="bold">✕</text>
+                        <text x="7" y="2.2" fill="#fca5a5" fontSize="4.2" fontFamily="monospace">Bridge Blocked</text>
+                      </g>
+
+                      {/* DYNAMIC ROUTE LINE ACCORDING TO SELECTED CORRIDOR */}
+                      {selectedRouteId === 'RT-ALPHA' ? (
+                        <>
+                          {/* Route Alpha: High Ground Expressway */}
+                          <path
+                            d="M 30,75 L 65,52 L 115,52 L 175,32 L 235,22 L 285,18"
+                            fill="none"
+                            stroke="rgba(6, 182, 212, 0.3)"
+                            strokeWidth="5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M 30,75 L 65,52 L 115,52 L 175,32 L 235,22 L 285,18"
+                            fill="none"
+                            stroke="url(#corridorGrad)"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeDasharray="5 2.5"
+                            className="animated-route-stroke"
+                          />
+
+                          {/* Turn Waypoints */}
+                          <circle cx="65" cy="52" r="2" fill="#06b6d4" />
+                          <circle cx="115" cy="52" r="2" fill="#06b6d4" />
+                          <circle cx="175" cy="32" r="2" fill="#10b981" />
+                          <circle cx="235" cy="22" r="2" fill="#10b981" />
+                        </>
+                      ) : (
+                        <>
+                          {/* Route Beta: West Ridge Secondary Bypass */}
+                          <path
+                            d="M 30,75 L 60,68 L 105,62 L 165,45 L 210,32 L 265,25"
+                            fill="none"
+                            stroke="rgba(245, 158, 11, 0.3)"
+                            strokeWidth="5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <path
+                            d="M 30,75 L 60,68 L 105,62 L 165,45 L 210,32 L 265,25"
+                            fill="none"
+                            stroke="#f59e0b"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeDasharray="4 2"
+                            className="animated-route-stroke"
+                          />
+                          <circle cx="105" cy="62" r="3" fill="#f59e0b" />
+                          <text x="112" y="64" fill="#fcd34d" fontSize="4.2" fontFamily="monospace">⚠️ Water 10cm</text>
+                        </>
+                      )}
+
+                      {/* Origin Marker (Sector 4) */}
+                      <g transform="translate(30, 75)">
+                        <circle cx="0" cy="0" r="6" fill="rgba(6, 182, 212, 0.25)" stroke="#06b6d4" strokeWidth="1" className="origin-ping" />
+                        <circle cx="0" cy="0" r="3" fill="#06b6d4" />
+                        <text x="-8" y="11" fill="#67e8f9" fontSize="4.8" fontWeight="bold" fontFamily="monospace">ORIGIN</text>
+                      </g>
+
+                      {/* Destination Marker */}
+                      <g transform={selectedRouteId === 'RT-ALPHA' ? "translate(285, 18)" : "translate(265, 25)"}>
+                        <circle cx="0" cy="0" r="7" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" strokeWidth="1.2" />
+                        <circle cx="0" cy="0" r="3.5" fill="#10b981" />
+                        <text x="-14" y="-5" fill="#6ee7b7" fontSize="5" fontWeight="bold" fontFamily="monospace">🏁 DESTINATION</text>
+                      </g>
+
+                      {/* Mini Map Badges */}
+                      <g transform="translate(6, 6)">
+                        <rect x="0" y="0" width="76" height="10" fill="rgba(15, 23, 42, 0.85)" stroke="rgba(6, 182, 212, 0.4)" strokeWidth="0.5" rx="2" />
+                        <circle cx="4" cy="5" r="1.5" fill="#06b6d4" />
+                        <text x="8" y="7" fill="#67e8f9" fontSize="4.2" fontWeight="bold" fontFamily="monospace">ROUTE PREVIEW MAP</text>
+                      </g>
+
+                      <g transform="translate(245, 76)">
+                        <rect x="0" y="0" width="69" height="9" fill="rgba(15, 23, 42, 0.85)" stroke="rgba(16, 185, 129, 0.4)" strokeWidth="0.5" rx="2" />
+                        <text x="4" y="6.5" fill="#34d399" fontSize="4.2" fontWeight="bold" fontFamily="monospace">▲ +32m ELEVATION</text>
+                      </g>
+                    </svg>
                   </div>
 
                   {/* Safety Score Progress Bar */}
@@ -621,14 +886,13 @@ export const DashboardPage = () => {
                     </div>
                   </div>
 
-                  {/* Hazards Avoided Snippet */}
                   <div className="route-hazard-avoided-strip">
                     <ShieldIcon className="w-3 h-3 text-emerald-400" />
-                    <span>Bypassed: <strong>Victoria Bridge Submerged</strong> (Elevation &gt;35m)</span>
+                    <span>Bypassed: <strong>Victoria Bridge Submerged</strong></span>
                   </div>
 
                   <button className="btn-launch-corridor" onClick={() => setActiveTab('routes')}>
-                    <NavigationIcon className="w-3.5 h-3.5" />
+                    <NavigationIcon className="w-3 h-3" />
                     <span>LAUNCH CORRIDOR HUD MAP</span>
                   </button>
                 </div>
@@ -636,23 +900,23 @@ export const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Card 3.2: Mini Stat Pair: Traffic Flow & Risks */}
+          {/* Card 3.2: Compact Mini Stat Pair: Traffic Flow & Risks */}
           <div className="mini-stats-pair-row">
             <div className="card-glass mini-stat-card traffic-mini-card">
               <div className="mini-stat-hdr">
                 <span className="mini-stat-title">TRAFFIC FLOW</span>
-                <TrendingUpIcon className="w-3.5 h-3.5 text-cyan" />
+                <TrendingUpIcon className="w-3 h-3 text-cyan" />
               </div>
               <div className="mini-stat-body">
                 <span className="mini-stat-val text-cyan">42 km/h</span>
-                <span className="mini-stat-sub">Moderate • Clear Ridge</span>
+                <span className="mini-stat-sub">Moderate • Ridge Clear</span>
               </div>
             </div>
 
             <div className="card-glass mini-stat-card risks-mini-card">
               <div className="mini-stat-hdr">
                 <span className="mini-stat-title">HAZARDS FILTERED</span>
-                <ShieldIcon className="w-3.5 h-3.5 text-emerald-400" />
+                <ShieldIcon className="w-3 h-3 text-emerald-400" />
               </div>
               <div className="mini-stat-body">
                 <span className="mini-stat-val text-emerald">4 Avoided</span>
@@ -661,24 +925,24 @@ export const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Card 3.3: AI Disaster Copilot Chat Widget */}
+          {/* Card 3.3: AI Disaster Copilot Chat Widget (Shorter height) */}
           <div className="card-glass dash-card ai-copilot-card">
             <div className="dash-card-header">
               <div className="header-title-group">
                 <div className="card-hdr-icon purple-icon">
-                  <BotIcon className="w-4 h-4 text-purple" />
+                  <BotIcon className="w-3.5 h-3.5 text-purple" />
                 </div>
                 <span className="card-hdr-title">AI DISASTER COPILOT</span>
               </div>
               <div className="badge badge-purple">
-                <SparklesIcon className="w-3 h-3" /> LORA READY
+                <SparklesIcon className="w-2.5 h-2.5" /> LORA READY
               </div>
             </div>
 
             <div className="copilot-card-body">
-              {/* Chat History Box */}
+              {/* Shorter Chat History Box (90px) */}
               <div className="copilot-chat-history">
-                {aiMessages.slice(-4).map((msg) => (
+                {aiMessages.slice(-2).map((msg) => (
                   <div
                     key={msg.id}
                     className={`copilot-bubble-row ${msg.sender === 'user' ? 'user-msg' : 'bot-msg'}`}
@@ -688,7 +952,7 @@ export const DashboardPage = () => {
                         {msg.sender === 'user' ? 'You' : 'ResQ Copilot'}
                       </span>
                       <p className="copilot-text">
-                        {msg.text.length > 180 ? `${msg.text.slice(0, 180)}...` : msg.text}
+                        {msg.text.length > 120 ? `${msg.text.slice(0, 120)}...` : msg.text}
                       </p>
                     </div>
                   </div>
@@ -705,7 +969,7 @@ export const DashboardPage = () => {
                 )}
               </div>
 
-              {/* Quick Prompts Chips */}
+              {/* Single-line Quick Prompt Chips */}
               <div className="copilot-quick-chips">
                 {DEFAULT_AI_PROMPTS.slice(0, 3).map((prompt, idx) => {
                   const short = prompt.split('?')[0] + '?';
@@ -716,7 +980,7 @@ export const DashboardPage = () => {
                       onClick={() => sendAiMessage(prompt)}
                       title={prompt}
                     >
-                      ⚡ {short.length > 24 ? `${short.slice(0, 24)}...` : short}
+                      ⚡ {short.length > 18 ? `${short.slice(0, 18)}...` : short}
                     </button>
                   );
                 })}
@@ -737,7 +1001,7 @@ export const DashboardPage = () => {
                   className="copilot-send-btn"
                   title="Send message"
                 >
-                  <SendIcon className="w-3.5 h-3.5" />
+                  <SendIcon className="w-3 h-3" />
                 </button>
               </form>
             </div>
@@ -746,10 +1010,10 @@ export const DashboardPage = () => {
       </div>
 
       <style>{`
-        .dashboard-redesign-view {
+        .dashboard-compact-view {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 0.65rem;
           width: 100%;
           min-width: 0;
           overflow-x: hidden;
@@ -759,7 +1023,7 @@ export const DashboardPage = () => {
         .dashboard-3col-grid {
           display: grid;
           grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
-          gap: 1rem;
+          gap: 0.65rem;
           width: 100%;
           min-width: 0;
           align-items: start;
@@ -768,21 +1032,21 @@ export const DashboardPage = () => {
         .dash-col {
           display: flex;
           flex-direction: column;
-          gap: 1rem;
+          gap: 0.65rem;
           min-width: 0;
           width: 100%;
         }
 
-        /* Generic Dashboard Card Style */
+        /* Generic Compact Dashboard Card Style */
         .dash-card {
           background: #0d1424;
           border: 1px solid var(--border-subtle);
-          border-radius: 12px;
+          border-radius: 10px;
           display: flex;
           flex-direction: column;
           min-width: 0;
           width: 100%;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
           overflow: hidden;
         }
 
@@ -790,24 +1054,24 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.65rem 0.85rem;
+          padding: 0.38rem 0.65rem;
           border-bottom: 1px solid var(--border-subtle);
           background: rgba(255, 255, 255, 0.02);
-          gap: 0.5rem;
+          gap: 0.4rem;
           min-width: 0;
         }
 
         .header-title-group {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.35rem;
           min-width: 0;
         }
 
         .card-hdr-icon {
-          width: 24px;
-          height: 24px;
-          border-radius: 6px;
+          width: 20px;
+          height: 20px;
+          border-radius: 5px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -821,9 +1085,9 @@ export const DashboardPage = () => {
         .purple-icon { background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); }
 
         .card-hdr-title {
-          font-size: 0.78rem;
+          font-size: 0.72rem;
           font-weight: 800;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.03em;
           color: #ffffff;
           white-space: nowrap;
           overflow: hidden;
@@ -833,12 +1097,12 @@ export const DashboardPage = () => {
         .card-action-link {
           display: flex;
           align-items: center;
-          gap: 0.2rem;
+          gap: 0.15rem;
           background: transparent;
           border: none;
           color: var(--cyan);
           font-family: var(--font-main);
-          font-size: 0.7rem;
+          font-size: 0.64rem;
           font-weight: 700;
           cursor: pointer;
           white-space: nowrap;
@@ -851,42 +1115,42 @@ export const DashboardPage = () => {
         .map-badge-live {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.62rem;
+          gap: 0.3rem;
+          font-size: 0.58rem;
           font-family: var(--font-mono);
           font-weight: 700;
           color: var(--cyan);
           background: rgba(6, 182, 212, 0.1);
           border: 1px solid rgba(6, 182, 212, 0.3);
-          padding: 0.12rem 0.45rem;
+          padding: 0.08rem 0.35rem;
           border-radius: 9999px;
           white-space: nowrap;
         }
 
         .pulse-dot-cyan {
-          width: 5px;
-          height: 5px;
+          width: 4px;
+          height: 4px;
           border-radius: 50%;
           background: var(--cyan);
-          box-shadow: 0 0 6px var(--cyan);
+          box-shadow: 0 0 5px var(--cyan);
           animation: blink 1.2s infinite;
         }
 
         /* -------------------------------------------------------------
-           COLUMN 1: Risk Map & Doppler Radar Styles
+           COLUMN 1: Compact Risk Map & Doppler Radar Styles
            ------------------------------------------------------------- */
         .map-card-body {
-          padding: 0.75rem;
+          padding: 0.5rem 0.65rem;
           display: flex;
           flex-direction: column;
-          gap: 0.65rem;
+          gap: 0.45rem;
           min-width: 0;
         }
 
         .map-layer-pills {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.25rem;
           flex-wrap: wrap;
         }
 
@@ -895,10 +1159,10 @@ export const DashboardPage = () => {
           border: 1px solid var(--border-subtle);
           color: #94a3b8;
           font-family: var(--font-main);
-          font-size: 0.65rem;
+          font-size: 0.58rem;
           font-weight: 700;
-          padding: 0.2rem 0.5rem;
-          border-radius: 4px;
+          padding: 0.14rem 0.4rem;
+          border-radius: 3px;
           cursor: pointer;
           transition: all 0.2s ease;
         }
@@ -911,10 +1175,10 @@ export const DashboardPage = () => {
         .interactive-map-canvas {
           position: relative;
           width: 100%;
-          height: 220px;
+          height: 125px;
           background: #050810;
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
+          border-radius: 6px;
           overflow: hidden;
         }
 
@@ -924,7 +1188,7 @@ export const DashboardPage = () => {
           background-image:
             linear-gradient(rgba(6, 182, 212, 0.08) 1px, transparent 1px),
             linear-gradient(90deg, rgba(6, 182, 212, 0.08) 1px, transparent 1px);
-          background-size: 24px 24px;
+          background-size: 20px 20px;
           pointer-events: none;
         }
 
@@ -963,10 +1227,10 @@ export const DashboardPage = () => {
 
         .pin-halo {
           position: absolute;
-          width: 22px;
-          height: 22px;
+          width: 16px;
+          height: 16px;
           border-radius: 50%;
-          border: 1.5px solid;
+          border: 1px solid;
           opacity: 0.6;
           animation: pinPulse 2s infinite ease-out;
         }
@@ -977,68 +1241,56 @@ export const DashboardPage = () => {
         }
 
         .pin-core {
-          width: 18px;
-          height: 18px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.6rem;
-          box-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
-          border: 1.5px solid #ffffff;
+          font-size: 0.5rem;
+          box-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+          border: 1px solid #ffffff;
         }
 
         .map-node-pin.selected .pin-core {
-          transform: scale(1.25);
-          box-shadow: 0 0 14px var(--cyan);
+          transform: scale(1.2);
+          box-shadow: 0 0 10px var(--cyan);
         }
 
         .map-selected-popover {
           position: absolute;
-          bottom: 8px;
-          left: 8px;
+          bottom: 4px;
+          left: 4px;
           background: rgba(9, 14, 26, 0.92);
           border: 1px solid var(--cyan);
-          border-radius: 6px;
-          padding: 0.35rem 0.55rem;
+          border-radius: 4px;
+          padding: 0.2rem 0.4rem;
           z-index: 20;
           backdrop-filter: blur(6px);
-          max-width: 200px;
-        }
-
-        .popover-type {
-          font-size: 0.52rem;
-          font-weight: 800;
-          color: var(--cyan);
-          letter-spacing: 0.05em;
-        }
-
-        .popover-name {
-          font-size: 0.7rem;
-          font-weight: 700;
+          font-size: 0.58rem;
           color: #ffffff;
         }
 
-        .popover-desc {
-          font-size: 0.6rem;
-          color: #cbd5e1;
+        .popover-type {
+          font-weight: 800;
+          color: var(--cyan);
         }
 
-        /* Doppler Radar Overlay Panel */
+        /* Compact Doppler Radar Overlay Panel */
         .doppler-radar-panel {
           background: #090e18;
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
-          padding: 0.65rem 0.75rem;
+          border-radius: 6px;
+          padding: 0.45rem 0.55rem;
           display: flex;
           flex-direction: column;
-          gap: 0.55rem;
+          gap: 0.35rem;
         }
 
         .doppler-top-row {
           display: flex;
           align-items: center;
-          gap: 0.65rem;
+          gap: 0.5rem;
         }
 
         .doppler-temp-box {
@@ -1047,13 +1299,13 @@ export const DashboardPage = () => {
           align-items: center;
           background: #050810;
           border: 1px solid var(--border-subtle);
-          border-radius: 6px;
-          padding: 0.25rem 0.55rem;
-          min-width: 58px;
+          border-radius: 4px;
+          padding: 0.15rem 0.4rem;
+          min-width: 48px;
         }
 
         .d-temp-main {
-          font-size: 1.15rem;
+          font-size: 0.95rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: #ffffff;
@@ -1061,68 +1313,64 @@ export const DashboardPage = () => {
         }
 
         .d-temp-sub {
-          font-size: 0.55rem;
+          font-size: 0.5rem;
           color: var(--text-muted);
-          margin-top: 1px;
         }
 
         .doppler-cond-info {
           display: flex;
           flex-direction: column;
-          gap: 0.1rem;
+          gap: 0.05rem;
           min-width: 0;
           flex: 1;
         }
 
         .d-cond-title {
-          font-size: 0.82rem;
+          font-size: 0.72rem;
           font-weight: 800;
           color: #ffffff;
         }
 
         .d-radar-status {
-          font-size: 0.64rem;
+          font-size: 0.58rem;
           color: var(--cyan);
-          line-height: 1.25;
+          line-height: 1.15;
         }
 
         .forecast-chips-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 0.4rem;
+          gap: 0.3rem;
         }
 
         .forecast-chip {
           display: flex;
-          flex-direction: column;
           align-items: center;
+          justify-content: space-between;
           background: #050810;
           border: 1px solid var(--border-subtle);
-          border-radius: 6px;
-          padding: 0.3rem 0.2rem;
-          text-align: center;
-          gap: 0.08rem;
+          border-radius: 4px;
+          padding: 0.18rem 0.35rem;
+          font-size: 0.56rem;
         }
 
         .fc-day {
-          font-size: 0.56rem;
           font-weight: 700;
           color: var(--text-secondary);
         }
 
         .fc-icon {
-          font-size: 0.85rem;
+          font-size: 0.7rem;
         }
 
         .fc-temp {
-          font-size: 0.74rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: #ffffff;
         }
 
         .fc-metric {
-          font-size: 0.55rem;
+          font-size: 0.5rem;
           color: var(--cyan);
           font-family: var(--font-mono);
         }
@@ -1130,36 +1378,36 @@ export const DashboardPage = () => {
         .wind-speed-bar-container {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.15rem;
           background: #050810;
           border: 1px solid var(--border-subtle);
-          border-radius: 6px;
-          padding: 0.35rem 0.55rem;
+          border-radius: 4px;
+          padding: 0.25rem 0.45rem;
         }
 
         .wind-bar-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.64rem;
+          font-size: 0.58rem;
           color: #cbd5e1;
         }
 
         .wind-lbl {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.25rem;
         }
 
-        .wind-gusts {
-          font-size: 0.58rem;
+        .wind-dir {
+          font-size: 0.52rem;
           color: #fca5a5;
           font-family: var(--font-mono);
         }
 
         .wind-track {
           width: 100%;
-          height: 5px;
+          height: 3.5px;
           background: rgba(255, 255, 255, 0.08);
           border-radius: 9999px;
           overflow: hidden;
@@ -1175,23 +1423,23 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.58rem;
+          font-size: 0.54rem;
           color: var(--text-muted);
           flex-wrap: wrap;
-          gap: 0.35rem;
-          padding-top: 0.2rem;
+          gap: 0.25rem;
+          padding-top: 0.15rem;
           border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .legend-item {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.25rem;
         }
 
         .legend-dot {
-          width: 6px;
-          height: 6px;
+          width: 5px;
+          height: 5px;
           border-radius: 50%;
         }
         .legend-dot.red { background: #ef4444; }
@@ -1199,72 +1447,75 @@ export const DashboardPage = () => {
         .legend-dot.green { background: #10b981; }
 
         /* -------------------------------------------------------------
-           Shelter Capacity Card Styles
+           Shelter Capacity Card Styles (Compact)
            ------------------------------------------------------------- */
         .shelter-capacity-body {
-          padding: 0.75rem;
+          padding: 0.5rem 0.65rem;
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 0.5rem;
         }
 
         .shelter-gauge-hero {
           display: flex;
           align-items: center;
-          gap: 0.85rem;
+          gap: 0.65rem;
           background: rgba(16, 185, 129, 0.07);
           border: 1px solid rgba(16, 185, 129, 0.25);
-          border-radius: var(--radius-sm);
-          padding: 0.55rem 0.75rem;
-        }
-
-        .gauge-circle-wrap {
-          flex-shrink: 0;
+          border-radius: 6px;
+          padding: 0.35rem 0.55rem;
         }
 
         .gauge-hero-meta {
           display: flex;
           flex-direction: column;
-          gap: 0.15rem;
+          gap: 0.08rem;
           min-width: 0;
+          flex: 1;
+        }
+
+        .hero-meta-title-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.35rem;
         }
 
         .hero-meta-title {
-          font-size: 0.88rem;
+          font-size: 0.78rem;
           font-weight: 800;
           color: #34d399;
           letter-spacing: 0.02em;
         }
 
-        .hero-meta-sub {
-          font-size: 0.68rem;
-          color: #94a3b8;
-        }
-
-        .high-ground-tag {
-          display: flex;
-          align-items: center;
-          gap: 0.3rem;
-          font-size: 0.58rem;
+        .hero-meta-badge {
+          font-size: 0.52rem;
           font-weight: 800;
           color: #34d399;
-          margin-top: 0.15rem;
+          background: rgba(16, 185, 129, 0.15);
+          padding: 0.08rem 0.3rem;
+          border-radius: 3px;
+        }
+
+        .hero-meta-sub {
+          font-size: 0.6rem;
+          color: #94a3b8;
         }
 
         .shelters-compact-list {
           display: flex;
           flex-direction: column;
-          gap: 0.55rem;
+          gap: 0.4rem;
         }
 
         .shelter-compact-item {
           background: #080d19;
           border: 1px solid var(--border-subtle);
-          border-radius: 6px;
-          padding: 0.5rem 0.65rem;
+          border-radius: 5px;
+          padding: 0.35rem 0.5rem;
           display: flex;
           flex-direction: column;
-          gap: 0.3rem;
+          gap: 0.2rem;
         }
 
         .shelter-compact-item.is-closed {
@@ -1274,18 +1525,19 @@ export const DashboardPage = () => {
         .s-compact-top {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
-          gap: 0.4rem;
+          align-items: center;
+          gap: 0.35rem;
         }
 
         .s-compact-name-wrap {
           display: flex;
-          flex-direction: column;
+          align-items: center;
+          gap: 0.35rem;
           min-width: 0;
         }
 
         .s-name {
-          font-size: 0.78rem;
+          font-size: 0.72rem;
           font-weight: 700;
           color: #ffffff;
           overflow: hidden;
@@ -1294,12 +1546,13 @@ export const DashboardPage = () => {
         }
 
         .s-meta {
-          font-size: 0.62rem;
+          font-size: 0.56rem;
           color: var(--text-muted);
+          white-space: nowrap;
         }
 
         .s-beds-count {
-          font-size: 0.68rem;
+          font-size: 0.64rem;
           font-weight: 800;
           font-family: var(--font-mono);
           white-space: nowrap;
@@ -1308,7 +1561,7 @@ export const DashboardPage = () => {
 
         .s-progress-track {
           width: 100%;
-          height: 4.5px;
+          height: 3.5px;
           background: #050810;
           border-radius: 9999px;
           overflow: hidden;
@@ -1324,21 +1577,21 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.62rem;
+          font-size: 0.56rem;
           color: var(--text-secondary);
         }
 
         .s-nav-mini-btn {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
+          gap: 0.2rem;
           background: rgba(16, 185, 129, 0.15);
           border: 1px solid rgba(16, 185, 129, 0.35);
           color: #34d399;
           font-family: var(--font-main);
-          font-size: 0.62rem;
+          font-size: 0.56rem;
           font-weight: 700;
-          padding: 0.15rem 0.45rem;
+          padding: 0.08rem 0.35rem;
           border-radius: 3px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -1350,48 +1603,48 @@ export const DashboardPage = () => {
         }
 
         /* -------------------------------------------------------------
-           COLUMN 2: Disaster Threat & Alerts Feed Styles
+           COLUMN 2: Disaster Threat & Alerts Feed Styles (Compact)
            ------------------------------------------------------------- */
         .threat-card-body, .alerts-feed-body {
-          padding: 0.75rem;
+          padding: 0.5rem 0.65rem;
           display: flex;
           flex-direction: column;
-          gap: 0.65rem;
+          gap: 0.45rem;
         }
 
         .threat-gauge-box {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0.2rem 0;
+          padding: 0.1rem 0;
         }
 
         .threat-stats-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0.4rem;
+          gap: 0.25rem;
         }
 
         .t-stat-tile {
           background: #080d19;
           border: 1px solid var(--border-subtle);
-          border-radius: 6px;
-          padding: 0.35rem 0.5rem;
+          border-radius: 4px;
+          padding: 0.22rem 0.4rem;
           display: flex;
           flex-direction: column;
-          gap: 0.08rem;
+          gap: 0.04rem;
         }
 
         .t-stat-key {
-          font-size: 0.54rem;
+          font-size: 0.5rem;
           font-weight: 800;
           text-transform: uppercase;
           color: #64748b;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.03em;
         }
 
         .t-stat-val {
-          font-size: 0.74rem;
+          font-size: 0.68rem;
           font-weight: 700;
           color: #f1f5f9;
           overflow: hidden;
@@ -1402,49 +1655,49 @@ export const DashboardPage = () => {
         .threat-urgency-callout {
           display: flex;
           align-items: flex-start;
-          gap: 0.5rem;
+          gap: 0.35rem;
           background: rgba(239, 68, 68, 0.08);
           border: 1px solid rgba(239, 68, 68, 0.25);
-          border-radius: 6px;
-          padding: 0.45rem 0.6rem;
+          border-radius: 5px;
+          padding: 0.3rem 0.45rem;
         }
 
-        .urgency-icon-wrap {
-          font-size: 0.9rem;
+        .urgency-icon-sm {
+          font-size: 0.75rem;
           flex-shrink: 0;
         }
 
         .urgency-text-block {
           display: flex;
           flex-direction: column;
-          gap: 0.1rem;
+          gap: 0.04rem;
           min-width: 0;
         }
 
         .urgency-head {
-          font-size: 0.72rem;
+          font-size: 0.66rem;
           font-weight: 800;
           color: #fca5a5;
         }
 
         .urgency-body {
-          font-size: 0.65rem;
+          font-size: 0.58rem;
           color: #cbd5e1;
-          line-height: 1.35;
+          line-height: 1.25;
           margin: 0;
         }
 
         .hazard-vectors-section {
           display: flex;
           flex-direction: column;
-          gap: 0.4rem;
+          gap: 0.25rem;
         }
 
         .hazard-hdr {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.62rem;
+          gap: 0.3rem;
+          font-size: 0.56rem;
           font-weight: 800;
           letter-spacing: 0.04em;
           color: #f87171;
@@ -1453,19 +1706,19 @@ export const DashboardPage = () => {
         .hazard-bars-list {
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
+          gap: 0.25rem;
         }
 
         .hazard-bar-row {
           display: flex;
           flex-direction: column;
-          gap: 0.15rem;
+          gap: 0.08rem;
         }
 
         .hazard-row-labels {
           display: flex;
           justify-content: space-between;
-          font-size: 0.68rem;
+          font-size: 0.6rem;
           font-weight: 600;
         }
 
@@ -1476,12 +1729,12 @@ export const DashboardPage = () => {
         .h-score {
           font-family: var(--font-mono);
           font-weight: 800;
-          font-size: 0.66rem;
+          font-size: 0.58rem;
         }
 
         .h-track {
           width: 100%;
-          height: 4px;
+          height: 3px;
           background: #050810;
           border-radius: 9999px;
           overflow: hidden;
@@ -1496,55 +1749,52 @@ export const DashboardPage = () => {
         .alerts-dial-banner {
           display: flex;
           align-items: center;
-          gap: 0.65rem;
+          gap: 0.45rem;
           background: rgba(239, 68, 68, 0.07);
           border: 1px solid rgba(239, 68, 68, 0.25);
-          border-radius: 6px;
-          padding: 0.45rem 0.65rem;
+          border-radius: 5px;
+          padding: 0.3rem 0.45rem;
         }
 
         .dial-banner-info {
           display: flex;
           flex-direction: column;
-          gap: 0.1rem;
+          gap: 0.05rem;
         }
 
         .dial-banner-title {
-          font-size: 0.68rem;
+          font-size: 0.62rem;
           font-weight: 800;
           color: #fca5a5;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.02em;
         }
 
         .dial-banner-sub {
-          font-size: 0.62rem;
+          font-size: 0.55rem;
           color: var(--text-secondary);
         }
 
         .alerts-scroll-container {
-          max-height: 290px;
-          overflow-y: auto;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
-          padding-right: 0.2rem;
+          gap: 0.35rem;
         }
 
         .dash-alert-card {
           background: #080d19;
           border: 1px solid var(--border-subtle);
-          border-left: 3px solid #64748b;
-          border-radius: 6px;
-          padding: 0.55rem 0.65rem;
+          border-left: 2.5px solid #64748b;
+          border-radius: 5px;
+          padding: 0.35rem 0.45rem;
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.18rem;
         }
 
         .dash-alert-card.is-urgent {
           border-left-color: #ef4444;
-          background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.1) 0%, #080d19 70%);
-          border-color: rgba(239, 68, 68, 0.3);
+          background: radial-gradient(circle at top right, rgba(239, 68, 68, 0.08) 0%, #080d19 70%);
+          border-color: rgba(239, 68, 68, 0.25);
         }
 
         .dash-alert-card.is-acked {
@@ -1556,20 +1806,26 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.35rem;
+          gap: 0.25rem;
+        }
+
+        .alert-meta-inline {
+          display: flex;
+          align-items: center;
+          gap: 0.3rem;
         }
 
         .alert-priority-badge {
-          font-size: 0.56rem;
+          font-size: 0.5rem;
           font-weight: 800;
-          padding: 0.1rem 0.35rem;
-          border-radius: 3px;
+          padding: 0.06rem 0.25rem;
+          border-radius: 2px;
         }
         .alert-priority-badge.crit { background: #ef4444; color: #ffffff; }
         .alert-priority-badge.warn { background: #f59e0b; color: #111827; }
 
         .alert-time-badge {
-          font-size: 0.58rem;
+          font-size: 0.52rem;
           font-family: var(--font-mono);
           color: var(--text-muted);
         }
@@ -1577,15 +1833,15 @@ export const DashboardPage = () => {
         .alert-ack-btn {
           display: flex;
           align-items: center;
-          gap: 0.2rem;
+          gap: 0.15rem;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid var(--border-subtle);
           color: #cbd5e1;
           font-family: var(--font-main);
-          font-size: 0.58rem;
+          font-size: 0.52rem;
           font-weight: 700;
-          padding: 0.12rem 0.4rem;
-          border-radius: 3px;
+          padding: 0.08rem 0.3rem;
+          border-radius: 2px;
           cursor: pointer;
         }
         .alert-ack-btn.acked {
@@ -1595,36 +1851,36 @@ export const DashboardPage = () => {
         }
 
         .alert-card-heading {
-          font-size: 0.74rem;
+          font-size: 0.68rem;
           font-weight: 700;
           color: #ffffff;
-          line-height: 1.25;
+          line-height: 1.2;
           margin: 0;
         }
 
         .alert-card-location {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
-          font-size: 0.62rem;
+          gap: 0.2rem;
+          font-size: 0.56rem;
           color: var(--cyan);
         }
 
         .alert-card-snippet {
-          font-size: 0.65rem;
+          font-size: 0.58rem;
           color: #cbd5e1;
-          line-height: 1.35;
+          line-height: 1.25;
           margin: 0;
         }
 
         .alert-card-action {
           background: #050810;
-          border-radius: 4px;
-          padding: 0.25rem 0.45rem;
+          border-radius: 3px;
+          padding: 0.18rem 0.35rem;
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.6rem;
+          gap: 0.25rem;
+          font-size: 0.54rem;
         }
 
         .action-tag {
@@ -1637,38 +1893,31 @@ export const DashboardPage = () => {
         }
 
         /* -------------------------------------------------------------
-           COLUMN 3: AI Evacuation Corridor & Copilot Styles
+           COLUMN 3: Compact AI Evac Corridor & Copilot Styles
            ------------------------------------------------------------- */
         .evac-route-body, .copilot-card-body {
-          padding: 0.75rem;
+          padding: 0.5rem 0.65rem;
           display: flex;
           flex-direction: column;
-          gap: 0.65rem;
+          gap: 0.45rem;
         }
 
         .route-select-wrapper {
           display: flex;
           flex-direction: column;
-          gap: 0.2rem;
-        }
-
-        .route-select-lbl {
-          font-size: 0.58rem;
-          font-weight: 800;
-          letter-spacing: 0.04em;
-          color: #64748b;
+          gap: 0.15rem;
         }
 
         .route-dropdown-select {
           width: 100%;
           background: #080d19;
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
+          border-radius: 4px;
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.74rem;
+          font-size: 0.68rem;
           font-weight: 700;
-          padding: 0.4rem 0.55rem;
+          padding: 0.28rem 0.45rem;
           outline: none;
           cursor: pointer;
         }
@@ -1681,39 +1930,72 @@ export const DashboardPage = () => {
         .route-preview-hud {
           background: #080d19;
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
-          padding: 0.65rem;
+          border-radius: 5px;
+          padding: 0.45rem;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.35rem;
+        }
+
+        .route-preview-map-canvas {
+          position: relative;
+          width: 100%;
+          height: 84px;
+          background: #050810;
+          border: 1px solid var(--border-subtle);
+          border-radius: 4px;
+          overflow: hidden;
+        }
+
+        .route-preview-svg {
+          width: 100%;
+          height: 100%;
+          display: block;
+        }
+
+        @keyframes routeDashPulse {
+          0% { stroke-dashoffset: 20; }
+          100% { stroke-dashoffset: 0; }
+        }
+
+        .animated-route-stroke {
+          animation: routeDashPulse 2s linear infinite;
+        }
+
+        @keyframes originPingAnim {
+          0% { transform: scale(0.7); opacity: 1; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .origin-ping {
+          transform-origin: center;
+          animation: originPingAnim 1.8s infinite ease-out;
         }
 
         .hud-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          font-size: 0.68rem;
+          font-size: 0.62rem;
         }
 
         .hud-dest {
-          display: flex;
-          flex-direction: column;
           color: #94a3b8;
         }
         .hud-dest strong {
           color: #ffffff;
-          font-size: 0.74rem;
+          font-size: 0.68rem;
         }
 
         .hud-score-badge {
-          font-size: 0.72rem;
+          font-size: 0.64rem;
           font-weight: 800;
           font-family: var(--font-mono);
         }
 
         .safety-bar-track {
           width: 100%;
-          height: 6px;
+          height: 4px;
           background: #050810;
           border-radius: 9999px;
           overflow: hidden;
@@ -1728,27 +2010,27 @@ export const DashboardPage = () => {
         .route-hud-stats-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 0.35rem;
+          gap: 0.25rem;
         }
 
         .hud-stat-box {
           background: #050810;
           border: 1px solid var(--border-subtle);
-          border-radius: 4px;
-          padding: 0.25rem 0.35rem;
+          border-radius: 3px;
+          padding: 0.18rem 0.25rem;
           text-align: center;
           display: flex;
           flex-direction: column;
         }
 
         .h-lbl {
-          font-size: 0.52rem;
+          font-size: 0.48rem;
           color: var(--text-muted);
           text-transform: uppercase;
         }
 
         .h-val {
-          font-size: 0.72rem;
+          font-size: 0.64rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: #ffffff;
@@ -1757,28 +2039,28 @@ export const DashboardPage = () => {
         .route-hazard-avoided-strip {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.6rem;
+          gap: 0.25rem;
+          font-size: 0.54rem;
           color: #cbd5e1;
           background: rgba(16, 185, 129, 0.08);
           border: 1px solid rgba(16, 185, 129, 0.2);
-          border-radius: 4px;
-          padding: 0.3rem 0.45rem;
+          border-radius: 3px;
+          padding: 0.2rem 0.35rem;
         }
 
         .btn-launch-corridor {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.35rem;
+          gap: 0.25rem;
           background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(6, 182, 212, 0.1) 100%);
           border: 1px solid var(--cyan);
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.68rem;
+          font-size: 0.62rem;
           font-weight: 800;
-          padding: 0.45rem;
-          border-radius: var(--radius-sm);
+          padding: 0.32rem;
+          border-radius: 4px;
           cursor: pointer;
           transition: all 0.2s ease;
         }
@@ -1788,21 +2070,21 @@ export const DashboardPage = () => {
           color: #050810;
         }
 
-        /* Mini Stats Pair */
+        /* Compact Mini Stats Pair */
         .mini-stats-pair-row {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0.65rem;
+          gap: 0.45rem;
         }
 
         .mini-stat-card {
           background: #0d1424;
           border: 1px solid var(--border-subtle);
-          border-radius: 10px;
-          padding: 0.6rem 0.75rem;
+          border-radius: 8px;
+          padding: 0.4rem 0.55rem;
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.15rem;
         }
 
         .mini-stat-hdr {
@@ -1812,9 +2094,9 @@ export const DashboardPage = () => {
         }
 
         .mini-stat-title {
-          font-size: 0.58rem;
+          font-size: 0.54rem;
           font-weight: 800;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.04em;
           color: #94a3b8;
         }
 
@@ -1824,29 +2106,29 @@ export const DashboardPage = () => {
         }
 
         .mini-stat-val {
-          font-size: 1rem;
+          font-size: 0.88rem;
           font-weight: 800;
           font-family: var(--font-mono);
           line-height: 1.1;
         }
 
         .mini-stat-sub {
-          font-size: 0.6rem;
+          font-size: 0.52rem;
           color: var(--text-muted);
-          margin-top: 2px;
+          margin-top: 1px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
-        /* AI Copilot Card Styles */
+        /* Compact AI Copilot Card Styles */
         .copilot-chat-history {
-          height: 160px;
+          height: 88px;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
-          padding-right: 0.25rem;
+          gap: 0.3rem;
+          padding-right: 0.2rem;
         }
 
         .copilot-bubble-row {
@@ -1859,14 +2141,14 @@ export const DashboardPage = () => {
         }
 
         .copilot-bubble-content {
-          max-width: 90%;
+          max-width: 92%;
           background: #080d19;
           border: 1px solid var(--border-subtle);
-          border-radius: 8px;
-          padding: 0.4rem 0.55rem;
+          border-radius: 6px;
+          padding: 0.25rem 0.45rem;
           display: flex;
           flex-direction: column;
-          gap: 0.1rem;
+          gap: 0.05rem;
         }
 
         .user-msg .copilot-bubble-content {
@@ -1875,15 +2157,15 @@ export const DashboardPage = () => {
         }
 
         .copilot-sender {
-          font-size: 0.54rem;
+          font-size: 0.5rem;
           font-weight: 700;
           color: #94a3b8;
         }
 
         .copilot-text {
-          font-size: 0.68rem;
+          font-size: 0.62rem;
           color: #f1f5f9;
-          line-height: 1.35;
+          line-height: 1.25;
           margin: 0;
           word-break: break-word;
         }
@@ -1892,14 +2174,14 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           gap: 3px;
-          padding: 0.35rem 0.55rem;
+          padding: 0.25rem 0.45rem;
           background: #080d19;
-          border-radius: 6px;
+          border-radius: 4px;
         }
 
         .copilot-typing span {
-          width: 4px;
-          height: 4px;
+          width: 3px;
+          height: 3px;
           border-radius: 50%;
           background: var(--cyan);
           animation: blink 1.2s infinite ease-in-out;
@@ -1908,7 +2190,7 @@ export const DashboardPage = () => {
         .copilot-quick-chips {
           display: flex;
           flex-wrap: wrap;
-          gap: 0.25rem;
+          gap: 0.2rem;
         }
 
         .copilot-chip-btn {
@@ -1916,9 +2198,9 @@ export const DashboardPage = () => {
           border: 1px solid var(--border-subtle);
           color: var(--cyan);
           font-family: var(--font-main);
-          font-size: 0.58rem;
+          font-size: 0.54rem;
           font-weight: 600;
-          padding: 0.15rem 0.4rem;
+          padding: 0.1rem 0.35rem;
           border-radius: 9999px;
           cursor: pointer;
           white-space: nowrap;
@@ -1932,19 +2214,19 @@ export const DashboardPage = () => {
 
         .copilot-input-form {
           display: flex;
-          gap: 0.3rem;
-          margin-top: 0.15rem;
+          gap: 0.25rem;
+          margin-top: 0.1rem;
         }
 
         .copilot-input {
           flex: 1;
           background: #080d19;
           border: 1px solid var(--border-subtle);
-          border-radius: 6px;
-          padding: 0.35rem 0.55rem;
+          border-radius: 4px;
+          padding: 0.25rem 0.45rem;
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.72rem;
+          font-size: 0.65rem;
           outline: none;
         }
 
@@ -1956,8 +2238,8 @@ export const DashboardPage = () => {
           background: var(--cyan);
           border: none;
           color: #050810;
-          padding: 0.35rem 0.6rem;
-          border-radius: 6px;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -1971,7 +2253,7 @@ export const DashboardPage = () => {
         }
 
         .copilot-send-btn:not(:disabled):hover {
-          box-shadow: 0 0 10px var(--cyan);
+          box-shadow: 0 0 8px var(--cyan);
         }
 
         /* -------------------------------------------------------------
