@@ -1069,8 +1069,8 @@ export const DashboardPage = () => {
         }
 
         .card-hdr-icon {
-          width: 20px;
-          height: 20px;
+          width: 22px;
+          height: 22px;
           border-radius: 5px;
           display: flex;
           align-items: center;
@@ -1085,9 +1085,9 @@ export const DashboardPage = () => {
         .purple-icon { background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); }
 
         .card-hdr-title {
-          font-size: 0.72rem;
+          font-size: 0.85rem;
           font-weight: 800;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.04em;
           color: #ffffff;
           white-space: nowrap;
           overflow: hidden;
@@ -1102,7 +1102,7 @@ export const DashboardPage = () => {
           border: none;
           color: var(--cyan);
           font-family: var(--font-main);
-          font-size: 0.64rem;
+          font-size: 0.65rem;
           font-weight: 700;
           cursor: pointer;
           white-space: nowrap;
@@ -1116,13 +1116,13 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           gap: 0.3rem;
-          font-size: 0.58rem;
+          font-size: 0.65rem;
           font-family: var(--font-mono);
-          font-weight: 700;
+          font-weight: 800;
           color: var(--cyan);
-          background: rgba(6, 182, 212, 0.1);
-          border: 1px solid rgba(6, 182, 212, 0.3);
-          padding: 0.08rem 0.35rem;
+          background: rgba(6, 182, 212, 0.12);
+          border: 1px solid rgba(6, 182, 212, 0.35);
+          padding: 0.1rem 0.4rem;
           border-radius: 9999px;
           white-space: nowrap;
         }
@@ -1305,7 +1305,7 @@ export const DashboardPage = () => {
         }
 
         .d-temp-main {
-          font-size: 0.95rem;
+          font-size: 1.25rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: #ffffff;
@@ -1313,7 +1313,7 @@ export const DashboardPage = () => {
         }
 
         .d-temp-sub {
-          font-size: 0.5rem;
+          font-size: 0.52rem;
           color: var(--text-muted);
         }
 
@@ -1326,7 +1326,7 @@ export const DashboardPage = () => {
         }
 
         .d-cond-title {
-          font-size: 0.72rem;
+          font-size: 0.78rem;
           font-weight: 800;
           color: #ffffff;
         }
@@ -1482,18 +1482,18 @@ export const DashboardPage = () => {
         }
 
         .hero-meta-title {
-          font-size: 0.78rem;
+          font-size: 0.88rem;
           font-weight: 800;
           color: #34d399;
           letter-spacing: 0.02em;
         }
 
         .hero-meta-badge {
-          font-size: 0.52rem;
+          font-size: 0.58rem;
           font-weight: 800;
           color: #34d399;
           background: rgba(16, 185, 129, 0.15);
-          padding: 0.08rem 0.3rem;
+          padding: 0.08rem 0.35rem;
           border-radius: 3px;
         }
 
@@ -1537,7 +1537,7 @@ export const DashboardPage = () => {
         }
 
         .s-name {
-          font-size: 0.72rem;
+          font-size: 0.74rem;
           font-weight: 700;
           color: #ffffff;
           overflow: hidden;
@@ -1552,7 +1552,7 @@ export const DashboardPage = () => {
         }
 
         .s-beds-count {
-          font-size: 0.64rem;
+          font-size: 0.78rem;
           font-weight: 800;
           font-family: var(--font-mono);
           white-space: nowrap;
@@ -1644,8 +1644,8 @@ export const DashboardPage = () => {
         }
 
         .t-stat-val {
-          font-size: 0.68rem;
-          font-weight: 700;
+          font-size: 0.80rem;
+          font-weight: 800;
           color: #f1f5f9;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1675,7 +1675,7 @@ export const DashboardPage = () => {
         }
 
         .urgency-head {
-          font-size: 0.66rem;
+          font-size: 0.76rem;
           font-weight: 800;
           color: #fca5a5;
         }
@@ -1729,7 +1729,7 @@ export const DashboardPage = () => {
         .h-score {
           font-family: var(--font-mono);
           font-weight: 800;
-          font-size: 0.58rem;
+          font-size: 0.68rem;
         }
 
         .h-track {
@@ -1763,7 +1763,7 @@ export const DashboardPage = () => {
         }
 
         .dial-banner-title {
-          font-size: 0.62rem;
+          font-size: 0.74rem;
           font-weight: 800;
           color: #fca5a5;
           letter-spacing: 0.02em;
@@ -1816,10 +1816,10 @@ export const DashboardPage = () => {
         }
 
         .alert-priority-badge {
-          font-size: 0.5rem;
+          font-size: 0.62rem;
           font-weight: 800;
-          padding: 0.06rem 0.25rem;
-          border-radius: 2px;
+          padding: 0.1rem 0.35rem;
+          border-radius: 3px;
         }
         .alert-priority-badge.crit { background: #ef4444; color: #ffffff; }
         .alert-priority-badge.warn { background: #f59e0b; color: #111827; }
@@ -1988,7 +1988,7 @@ export const DashboardPage = () => {
         }
 
         .hud-score-badge {
-          font-size: 0.64rem;
+          font-size: 0.88rem;
           font-weight: 800;
           font-family: var(--font-mono);
         }
@@ -2030,7 +2030,7 @@ export const DashboardPage = () => {
         }
 
         .h-val {
-          font-size: 0.64rem;
+          font-size: 0.72rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: #ffffff;
@@ -2106,7 +2106,7 @@ export const DashboardPage = () => {
         }
 
         .mini-stat-val {
-          font-size: 0.88rem;
+          font-size: 1.15rem;
           font-weight: 800;
           font-family: var(--font-mono);
           line-height: 1.1;

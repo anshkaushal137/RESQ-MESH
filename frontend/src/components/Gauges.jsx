@@ -81,15 +81,17 @@ export const CircularGauge = ({
 
         .circular-gauge-text {
           font-family: var(--font-mono);
-          font-size: 0.65rem;
+          font-size: 0.92rem;
           font-weight: 800;
           color: #ffffff;
+          line-height: 1;
         }
 
         .circular-gauge-sub {
-          font-size: 0.5rem;
+          font-size: 0.52rem;
           color: var(--text-muted);
           margin-top: 1px;
+          font-weight: 700;
         }
       `}</style>
     </div>
@@ -200,24 +202,24 @@ export const SemiCircularGauge = ({
 
         .semi-gauge-val {
           font-family: var(--font-mono);
-          font-size: 1.28rem;
-          font-weight: 800;
+          font-size: 1.65rem;
+          font-weight: 900;
           line-height: 1;
           letter-spacing: -0.02em;
         }
 
         .semi-gauge-max {
-          font-size: 0.65rem;
+          font-size: 0.78rem;
           color: var(--text-muted);
-          font-weight: 600;
+          font-weight: 700;
         }
 
         .semi-gauge-sev {
-          font-size: 0.6rem;
-          font-weight: 800;
+          font-size: 0.65rem;
+          font-weight: 900;
           letter-spacing: 0.06em;
           text-transform: uppercase;
-          margin-top: 2px;
+          margin-top: 3px;
         }
       `}</style>
     </div>
@@ -295,12 +297,12 @@ export const AlertLevelDial = ({
 
         .dial-lvl-num {
           font-family: var(--font-mono);
-          font-size: 0.72rem;
-          font-weight: 800;
+          font-size: 0.88rem;
+          font-weight: 900;
         }
 
         .dial-lvl-lbl {
-          font-size: 0.44rem;
+          font-size: 0.46rem;
           font-weight: 800;
           color: var(--text-muted);
           letter-spacing: 0.04em;
