@@ -3,7 +3,7 @@ import { useDisaster } from '../context/DisasterContext';
 import { RouteIcon, NavigationIcon, CheckIcon, AlertTriangleIcon, ChevronRightIcon, ShieldIcon } from './Icons';
 import { CircularGauge } from './Gauges';
 
-export const SafeRouteSection = ({ showFullDetails = false }) => {
+export const SafeRouteSection = ({ showFullDetails = false, compact = false }) => {
   const { safeRoutes, setActiveTab } = useDisaster();
   const [activeRouteId, setActiveRouteId] = useState(safeRoutes[0]?.id || 'RT-ALPHA');
 
@@ -15,8 +15,10 @@ export const SafeRouteSection = ({ showFullDetails = false }) => {
     return '#f59e0b';
   };
 
+  const isCompact = compact || !showFullDetails;
+
   return (
-    <div className="card-glass accent-cyan safe-route-section">
+    <div className={`card-glass accent-cyan safe-route-section ${isCompact ? 'is-compact' : ''}`}>
       <div className="card-header">
         <div className="card-header-title">
           <div className="header-icon-badge cyan">
@@ -45,7 +47,7 @@ export const SafeRouteSection = ({ showFullDetails = false }) => {
                 <div className="tab-btn-score-row">
                   <span className="tab-score-dot" style={{ backgroundColor: scoreCol }}></span>
                   <span className="tab-btn-score" style={{ color: scoreCol }}>
-                    Safety: {route.safetyScore}%
+                    {route.safetyScore}%
                   </span>
                 </div>
               </button>
@@ -58,10 +60,12 @@ export const SafeRouteSection = ({ showFullDetails = false }) => {
           <div className="route-detail-box">
             <div className="route-detail-header">
               <div className="route-title-wrap">
-                <span className="route-code-tag">{selectedRoute.id}</span>
-                <h4 className="route-title">{selectedRoute.name}</h4>
+                <div className="route-id-row">
+                  <span className="route-code-tag">{selectedRoute.id}</span>
+                  <h4 className="route-title">{selectedRoute.name.split(':')[1] || selectedRoute.name}</h4>
+                </div>
                 <span className="route-dest">
-                  Destination: <strong>{selectedRoute.destination}</strong>
+                  To: <strong>{selectedRoute.destination}</strong>
                 </span>
               </div>
 
@@ -69,20 +73,19 @@ export const SafeRouteSection = ({ showFullDetails = false }) => {
               <div className="corridor-safety-gauge-box">
                 <CircularGauge
                   value={selectedRoute.safetyScore}
-                  size={48}
-                  strokeWidth={4.5}
+                  size={36}
+                  strokeWidth={3.8}
                   color={getScoreColor(selectedRoute.safetyScore)}
                   label={`${selectedRoute.safetyScore}%`}
                 />
                 <div className="safety-gauge-meta">
-                  <span className="safety-gauge-title">CORRIDOR SAFETY</span>
+                  <span className="safety-gauge-title">AI SCORE</span>
                   <span
                     className="safety-gauge-status"
                     style={{ color: getScoreColor(selectedRoute.safetyScore) }}
                   >
-                    {selectedRoute.safetyScore >= 90 ? 'OPTIMAL SAFE' : 'PASSABLE'}
+                    {selectedRoute.safetyScore >= 90 ? 'OPTIMAL' : 'PASSABLE'}
                   </span>
-                  <span className="safety-gauge-zone">Active Rerouting</span>
                 </div>
               </div>
             </div>
@@ -90,66 +93,66 @@ export const SafeRouteSection = ({ showFullDetails = false }) => {
             {/* Quick Metrics Bar */}
             <div className="route-metrics-bar">
               <div className="r-metric">
-                <span className="r-lbl">Estimated Duration</span>
-                <span className="r-val">{selectedRoute.estimatedTime}</span>
+                <span className="r-lbl">Duration</span>
+                <span className="r-val">{selectedRoute.estimatedTime.split('(')[0]}</span>
               </div>
               <div className="r-metric">
                 <span className="r-lbl">Distance</span>
                 <span className="r-val">{selectedRoute.distance}</span>
               </div>
               <div className="r-metric">
-                <span className="r-lbl">Elevation Profile</span>
-                <span className="r-val text-cyan">{selectedRoute.elevationProfile}</span>
+                <span className="r-lbl">Profile</span>
+                <span className="r-val text-cyan">+32m Safe</span>
               </div>
               <div className="r-metric">
-                <span className="r-lbl">Corridor Status</span>
-                <span className="r-val text-emerald">{selectedRoute.status}</span>
+                <span className="r-lbl">Status</span>
+                <span className="r-val text-emerald">{selectedRoute.status.split('&')[0]}</span>
               </div>
             </div>
 
-            {/* Hazards Avoided Highlights with icon */}
-            <div className="hazards-avoided-box">
-              <div className="hazards-title">
-                <ShieldIcon className="w-3.5 h-3.5 text-emerald-400" />
-                <span>AI HAZARD AVOIDANCE MATRIX</span>
-              </div>
-              <ul className="hazards-list">
-                {selectedRoute.hazardsAvoided.map((item, idx) => (
-                  <li key={idx} className="hazard-avoided-item">
-                    <span className="avoided-check">✓</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Turn by Turn Directions with icon */}
-            <div className="turn-directions-section">
-              <div className="turn-header">
-                <NavigationIcon className="w-3 h-3 text-cyan" />
-                <span>TURN-BY-TURN GUIDANCE (OFFLINE CACHED)</span>
-              </div>
-              <div className="turn-steps">
-                {selectedRoute.turnByTurn.map((step) => (
-                  <div key={step.step} className="turn-step-item">
-                    <div className="step-num">{step.step}</div>
-                    <div className="step-text">{step.action}</div>
-                    <div className="step-tag">
-                      {step.safe ? (
-                        <span className="tag-safe">CLEAR</span>
-                      ) : (
-                        <span className="tag-caution">CAUTION</span>
-                      )}
-                    </div>
+            {/* Full Details Only when not compact */}
+            {!isCompact && (
+              <>
+                <div className="hazards-avoided-box">
+                  <div className="hazards-title">
+                    <ShieldIcon className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>AI HAZARD AVOIDANCE MATRIX</span>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <ul className="hazards-list">
+                    {selectedRoute.hazardsAvoided.map((item, idx) => (
+                      <li key={idx} className="hazard-avoided-item">
+                        <span className="avoided-check">✓</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="turn-directions-section">
+                  <div className="turn-header">
+                    <NavigationIcon className="w-3 h-3 text-cyan" />
+                    <span>TURN-BY-TURN GUIDANCE</span>
+                  </div>
+                  <div className="turn-steps">
+                    {selectedRoute.turnByTurn.map((step) => (
+                      <div key={step.step} className="turn-step-item">
+                        <div className="step-num">{step.step}</div>
+                        <div className="step-text">{step.action}</div>
+                        <div className="step-tag">
+                          {step.safe ? <span className="tag-safe">CLEAR</span> : <span className="tag-caution">CAUTION</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Start GPS Navigation Button */}
             <button className="start-nav-btn" onClick={() => setActiveTab('routes')}>
-              <NavigationIcon className="w-4 h-4" />
-              <span>LAUNCH LIVE ROUTE HUD & SATELLITE RADAR</span>
+              <NavigationIcon className="w-3.5 h-3.5" />
+              <span>{isCompact ? 'OPEN ROUTE HUD & SATELLITE RADAR' : 'LAUNCH LIVE ROUTE HUD & SATELLITE RADAR'}</span>
+              <ChevronRightIcon className="w-3.5 h-3.5 ml-auto" />
             </button>
           </div>
         )}
@@ -159,6 +162,69 @@ export const SafeRouteSection = ({ showFullDetails = false }) => {
         .safe-route-section {
           min-width: 0;
           width: 100%;
+        }
+
+        .safe-route-section.is-compact .card-header {
+          padding: 0.45rem 0.75rem;
+        }
+
+        .safe-route-section.is-compact .card-body {
+          padding: 0.55rem 0.75rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.45rem;
+        }
+
+        .safe-route-section.is-compact .route-picker-tabs {
+          margin-bottom: 0.25rem;
+          padding-bottom: 0.35rem;
+          gap: 0.35rem;
+        }
+
+        .safe-route-section.is-compact .route-tab-btn {
+          padding: 0.25rem 0.45rem;
+        }
+
+        .safe-route-section.is-compact .tab-btn-title {
+          font-size: 0.64rem;
+        }
+
+        .safe-route-section.is-compact .tab-btn-score {
+          font-size: 0.58rem;
+        }
+
+        .safe-route-section.is-compact .route-detail-box {
+          padding: 0.5rem 0.65rem;
+          gap: 0.4rem;
+        }
+
+        .safe-route-section.is-compact .route-title {
+          font-size: 0.72rem;
+        }
+
+        .safe-route-section.is-compact .route-metrics-bar {
+          padding: 0.25rem 0.45rem;
+          gap: 0.35rem;
+        }
+
+        .safe-route-section.is-compact .r-val {
+          font-size: 0.66rem;
+          font-weight: 800;
+        }
+
+        .safe-route-section.is-compact .r-lbl {
+          font-size: 0.54rem;
+        }
+
+        .safe-route-section.is-compact .start-nav-btn {
+          padding: 0.35rem 0.65rem;
+          font-size: 0.66rem;
+        }
+
+        .route-id-row {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
         }
 
         .route-picker-tabs {

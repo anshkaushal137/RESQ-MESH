@@ -203,3 +203,79 @@ export async function submitMissingPersonReport(data) {
   });
 }
 
+/**
+ * Incoming AI Triage Help Requests Mock Queue
+ */
+export const mockTriageQueue = [
+  {
+    id: 'TRG-8041',
+    urgency: 'CRITICAL',
+    type: 'Trapped / Water Rising (>1.2m)',
+    location: 'Sector 4, Bldg B (Ground Floor)',
+    peopleCount: 4,
+    timestamp: '2 mins ago',
+    eta: '6 mins',
+    assignedUnit: 'Rescue Boat Unit 02',
+    status: 'Unit En Route'
+  },
+  {
+    id: 'TRG-8042',
+    urgency: 'CRITICAL',
+    type: 'Severe Medical / Head Trauma',
+    location: '88 Riverview Lane, Apt 4',
+    peopleCount: 1,
+    timestamp: '5 mins ago',
+    eta: '8 mins',
+    assignedUnit: 'Ambulance Unit 07',
+    status: 'Paramedic Dispatch'
+  },
+  {
+    id: 'TRG-8043',
+    urgency: 'HIGH',
+    type: 'Elderly / Mobility Impaired Stranded',
+    location: '312 Elm Street, Flat 3A',
+    peopleCount: 2,
+    timestamp: '11 mins ago',
+    eta: '14 mins',
+    assignedUnit: 'Volunteer Squad 4',
+    status: 'Ground Team Moving'
+  },
+  {
+    id: 'TRG-8044',
+    urgency: 'HIGH',
+    type: 'Roof Stranded / Power Grid Failure',
+    location: 'Lowland Maritime Way #14',
+    peopleCount: 3,
+    timestamp: '19 mins ago',
+    eta: '18 mins',
+    assignedUnit: 'Helicopter Unit 01',
+    status: 'Aero Triage Queued'
+  },
+  {
+    id: 'TRG-8045',
+    urgency: 'MEDIUM',
+    type: 'Insulin & Clean Water Supply Needed',
+    location: '104 North Ridge Terrace',
+    peopleCount: 2,
+    timestamp: '28 mins ago',
+    eta: '25 mins',
+    assignedUnit: 'Mobile Supply Van 03',
+    status: 'Supply Scheduled'
+  }
+];
+
+/**
+ * Fetch incoming AI triage queue sorted by urgency
+ * @returns {Promise<Array>}
+ */
+export async function getTriageQueue() {
+  return new Promise((resolve) => {
+    const urgencyOrder = { CRITICAL: 1, HIGH: 2, MEDIUM: 3, LOW: 4 };
+    const sorted = [...mockTriageQueue].sort(
+      (a, b) => (urgencyOrder[a.urgency] || 99) - (urgencyOrder[b.urgency] || 99)
+    );
+    resolve(sorted);
+  });
+}
+
+

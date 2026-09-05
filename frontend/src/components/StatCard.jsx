@@ -104,31 +104,31 @@ export const StatCard = ({
       <style>{`
         .stat-card {
           border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-          padding: 0.85rem 1rem;
+          border-radius: var(--radius-sm);
+          padding: 0.45rem 0.75rem;
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
+          gap: 0.2rem;
           min-width: 0;
           width: 100%;
           transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .stat-card:hover {
-          transform: translateY(-2px);
+          transform: translateY(-1px);
           border-color: rgba(255, 255, 255, 0.2);
-          box-shadow: 0 8px 25px -4px rgba(0, 0, 0, 0.65);
+          box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.65);
         }
 
         .stat-top {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.5rem;
+          gap: 0.4rem;
         }
 
         .stat-title {
-          font-size: 0.68rem;
+          font-size: 0.62rem;
           font-weight: 800;
           letter-spacing: 0.05em;
           text-transform: uppercase;
@@ -139,9 +139,9 @@ export const StatCard = ({
         }
 
         .stat-icon-wrapper {
-          width: 28px;
-          height: 28px;
-          border-radius: 6px;
+          width: 22px;
+          height: 22px;
+          border-radius: 5px;
           border: 1px solid;
           display: flex;
           align-items: center;
@@ -149,25 +149,30 @@ export const StatCard = ({
           flex-shrink: 0;
         }
 
+        .stat-icon-wrapper svg {
+          width: 12px;
+          height: 12px;
+        }
+
         .stat-middle {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.4rem;
+          gap: 0.35rem;
           min-width: 0;
-          margin-top: 0.1rem;
+          margin: 0.05rem 0;
         }
 
         .stat-value {
-          font-size: 1.35rem;
-          font-weight: 800;
+          font-size: 1.22rem;
+          font-weight: 900;
           letter-spacing: -0.02em;
           color: #ffffff;
           font-family: var(--font-mono);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          line-height: 1.15;
+          line-height: 1.1;
         }
 
         .stat-gauge-wrap {
@@ -177,21 +182,22 @@ export const StatCard = ({
         .stat-bottom {
           display: flex;
           align-items: center;
-          flex-wrap: wrap;
-          gap: 0.4rem;
-          font-size: 0.68rem;
+          flex-wrap: nowrap;
+          gap: 0.35rem;
+          font-size: 0.60rem;
           min-width: 0;
-          margin-top: 0.1rem;
+          overflow: hidden;
         }
 
         .stat-trend {
           font-weight: 800;
           font-family: var(--font-mono);
-          font-size: 0.62rem;
-          padding: 0.12rem 0.4rem;
-          border-radius: 4px;
+          font-size: 0.56rem;
+          padding: 0.08rem 0.3rem;
+          border-radius: 3px;
           white-space: nowrap;
           letter-spacing: 0.02em;
+          flex-shrink: 0;
         }
 
         .stat-subtext {
@@ -199,7 +205,8 @@ export const StatCard = ({
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          font-size: 0.68rem;
+          font-size: 0.60rem;
+          font-weight: 600;
         }
       `}</style>
     </div>

@@ -3,11 +3,12 @@ import { useDisaster } from '../context/DisasterContext';
 import { ShelterIcon, MapPinIcon, NavigationIcon, PhoneCallIcon, ChevronRightIcon, CheckIcon, ShieldIcon } from './Icons';
 import { CircularGauge } from './Gauges';
 
-export const SheltersSection = ({ limit = null, showViewAll = true }) => {
+export const SheltersSection = ({ limit = null, showViewAll = true, compact = false }) => {
   const { shelters, setActiveTab } = useDisaster();
   const [navigatingShelter, setNavigatingShelter] = useState(null);
 
   const displayedShelters = limit ? shelters.slice(0, limit) : shelters;
+  const isCompact = compact || limit !== null;
 
   const totalCapacity = shelters.reduce((acc, s) => acc + s.capacityTotal, 0);
   const totalOccupied = shelters.reduce((acc, s) => acc + s.capacityOccupied, 0);
@@ -22,7 +23,7 @@ export const SheltersSection = ({ limit = null, showViewAll = true }) => {
   };
 
   return (
-    <div className="card-glass accent-success shelters-section">
+    <div className={`card-glass accent-success shelters-section ${isCompact ? 'is-compact' : ''}`}>
       <div className="card-header">
         <div className="card-header-title">
           <div className="header-icon-badge success">
@@ -44,8 +45,8 @@ export const SheltersSection = ({ limit = null, showViewAll = true }) => {
           <div className="system-gauge-left">
             <CircularGauge
               value={overallOccupancy}
-              size={44}
-              strokeWidth={4.5}
+              size={isCompact ? 30 : 44}
+              strokeWidth={isCompact ? 3.2 : 4.5}
               color={overallOccupancy > 85 ? 'var(--warning)' : '#10b981'}
               label={`${overallOccupancy}%`}
             />
@@ -58,7 +59,7 @@ export const SheltersSection = ({ limit = null, showViewAll = true }) => {
           </div>
           <div className="system-badge-pill">
             <ShieldIcon className="w-3.5 h-3.5 text-emerald-400" />
-            <span>HIGH-GROUND FLOOD CLEAR</span>
+            <span>HIGH-GROUND CLEAR</span>
           </div>
         </div>
 
@@ -86,7 +87,7 @@ export const SheltersSection = ({ limit = null, showViewAll = true }) => {
                   </span>
                 </div>
 
-                {/* Location row with clean Shield / Pin badge (no broken placeholder) */}
+                {/* Location row */}
                 <div className="shelter-loc-row">
                   <div className="loc-badge-icon" title="Verified Safe Shelter Location">
                     <MapPinIcon className="w-3.5 h-3.5 text-cyan" />
@@ -106,8 +107,8 @@ export const SheltersSection = ({ limit = null, showViewAll = true }) => {
                   <div className="shelter-gauge-container">
                     <CircularGauge
                       value={occupancyPct}
-                      size={42}
-                      strokeWidth={4}
+                      size={isCompact ? 32 : 42}
+                      strokeWidth={3.5}
                       color={occupancyPct > 85 ? 'var(--warning)' : '#10b981'}
                       label={`${occupancyPct}%`}
                     />
@@ -135,14 +136,16 @@ export const SheltersSection = ({ limit = null, showViewAll = true }) => {
                   </div>
                 )}
 
-                {/* Amenities Badges */}
-                <div className="amenities-wrap">
-                  {shelter.amenities.map((amenity, idx) => (
-                    <span key={idx} className="amenity-pill">
-                      ✓ {amenity}
-                    </span>
-                  ))}
-                </div>
+                {/* Amenities Badges only when not compact */}
+                {!isCompact && (
+                  <div className="amenities-wrap">
+                    {shelter.amenities.map((amenity, idx) => (
+                      <span key={idx} className="amenity-pill">
+                        ✓ {amenity}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Actions Bar */}
                 <div className="shelter-actions">
@@ -169,6 +172,53 @@ export const SheltersSection = ({ limit = null, showViewAll = true }) => {
           min-width: 0;
           width: 100%;
         }
+
+        .shelters-section.is-compact .card-header {
+          padding: 0.45rem 0.75rem;
+        }
+
+        .shelters-section.is-compact .card-body {
+          padding: 0.55rem 0.75rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.45rem;
+        }
+
+        .shelters-section.is-compact .shelter-system-bar {
+          padding: 0.35rem 0.65rem;
+          margin-bottom: 0.35rem;
+        }
+
+        .shelters-section.is-compact .shelters-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 0.4rem;
+        }
+
+        .shelters-section.is-compact .shelter-card {
+          padding: 0.45rem 0.65rem;
+          gap: 0.35rem;
+        }
+
+        .shelters-section.is-compact .shelter-name {
+          font-size: 0.74rem;
+        }
+
+        .shelters-section.is-compact .shelter-status-badge {
+          font-size: 0.56rem;
+          padding: 0.1rem 0.35rem;
+        }
+
+        .shelters-section.is-compact .shelter-gauge-container {
+          padding: 0.25rem 0.45rem;
+          gap: 0.45rem;
+        }
+
+        .shelters-section.is-compact .btn-navigate {
+          padding: 0.35rem 0.65rem;
+          font-size: 0.66rem;
+        }
+
 
         .shelter-system-bar {
           display: flex;
