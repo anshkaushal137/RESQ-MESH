@@ -278,4 +278,95 @@ export async function getTriageQueue() {
   });
 }
 
+/**
+ * Mock available resources for smart dispatch override
+ */
+export const mockDispatchResources = [
+  { id: 'boat-02', name: 'Rescue Boat Unit 02', type: 'Vessel / Inundation', eta: '6 mins', capacity: '4 Persons', status: 'Available' },
+  { id: 'boat-01', name: 'Rescue Boat Unit 01', type: 'Vessel / Shallow Draft', eta: '9 mins', capacity: '6 Persons', status: 'Available' },
+  { id: 'amb-07', name: 'Ambulance Unit 07', type: 'Advanced Trauma Paramedic', eta: '8 mins', capacity: '2 Patients', status: 'Available' },
+  { id: 'amb-04', name: 'Ambulance Unit 04', type: 'Basic Life Support', eta: '12 mins', capacity: '2 Patients', status: 'Available' },
+  { id: 'heli-01', name: 'Helicopter Unit 01', type: 'Aero Winch Extraction', eta: '15 mins', capacity: '4 Persons', status: 'Available' },
+  { id: 'vol-04', name: 'Volunteer Squad 4', type: 'Ground Search & Rescue', eta: '14 mins', capacity: 'Mobility Assist', status: 'Available' },
+  { id: 'vol-02', name: 'Volunteer Squad 2', type: 'Urban Debris Clearing', eta: '18 mins', capacity: 'Structural Gear', status: 'Available' },
+  { id: 'supply-03', name: 'Mobile Supply Van 03', type: 'Rations, Water & Insulin', eta: '22 mins', capacity: '500 Rations', status: 'Available' },
+  { id: 'evac-01', name: 'Tactical Evac Truck 01', type: 'High-Clearance Transport', eta: '16 mins', capacity: '12 Persons', status: 'Available' }
+];
+
+/**
+ * Mock rescue teams for reassign
+ */
+export const mockRescueTeams = [
+  { id: 'team-ndrf', name: 'NDRF Water Rescue Team Alpha', sector: 'Sector 4 / River Basin', channel: 'LoRa Ch 01 (868.1 MHz)' },
+  { id: 'team-coastguard', name: 'Coast Guard Marine Rapid Response', sector: 'Delta Shoreline', channel: 'LoRa Ch 04 (868.4 MHz)' },
+  { id: 'team-redcross', name: 'Red Cross Trauma & Paramedic Corp', sector: 'Central Riverview', channel: 'LoRa Ch 02 (868.2 MHz)' },
+  { id: 'team-sdrf', name: 'State Disaster Response Battalion 3', sector: 'Lowland Maritime Way', channel: 'LoRa Ch 05 (868.5 MHz)' },
+  { id: 'team-meshvolunteers', name: 'ResQ Mesh Volunteer Brigade', sector: 'North Civic Subdivisions', channel: 'LoRa Ch 03 (868.3 MHz)' }
+];
+
+/**
+ * Fetch available dispatch resources
+ * @returns {Promise<Array>}
+ */
+export async function getDispatchResources() {
+  return new Promise((resolve) => {
+    resolve([...mockDispatchResources]);
+  });
+}
+
+/**
+ * Approve, override, or reassign dispatch for a triage request
+ * @param {string} requestId - e.g. 'TRG-8041'
+ * @param {string} resourceId - Resource name or ID
+ * @param {Object} [options] - Action metadata { actionType, team, notes, customEta }
+ * @returns {Promise<Object>}
+ */
+export async function approveDispatch(requestId, resourceId, options = {}) {
+  // TODO: replace with real API call, e.g.:
+  // const res = await fetch(`/api/sos/triage/${requestId}/dispatch`, {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ resourceId, ...options })
+  // });
+  // return res.json();
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const now = new Date();
+      const targetReq = mockTriageQueue.find((r) => r.id === requestId);
+      const actionType = options.actionType || 'APPROVE';
+      const assignedUnit = resourceId || targetReq?.assignedUnit || 'Rescue Unit 01';
+      const assignedTeam = options.team || 'NDRF Rapid Response';
+
+      let updatedStatus = 'Dispatch Approved & En Route';
+      if (actionType === 'OVERRIDE') {
+        updatedStatus = `Manual Override: ${assignedUnit}`;
+      } else if (actionType === 'REASSIGN') {
+        updatedStatus = `Reassigned: ${assignedTeam}`;
+      }
+
+      if (targetReq) {
+        targetReq.assignedUnit = assignedUnit;
+        targetReq.status = updatedStatus;
+        if (options.customEta) {
+          targetReq.eta = options.customEta;
+        }
+      }
+
+      resolve({
+        success: true,
+        requestId,
+        assignedUnit,
+        assignedTeam,
+        actionType,
+        status: updatedStatus,
+        timestamp: now.toISOString(),
+        formattedTime: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        notes: options.notes || 'Automated smart dispatch command acknowledged across LoRa mesh relays.',
+        meshBroadcastAcks: 48
+      });
+    }, 280);
+  });
+}
+
 

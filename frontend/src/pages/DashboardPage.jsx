@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDisaster } from '../context/DisasterContext';
 import { StatCard } from '../components/StatCard';
+import { SmartDispatchModal } from '../components/SmartDispatchModal';
 import {
   AlertTriangleIcon,
   ShelterIcon,
@@ -33,6 +34,10 @@ export const DashboardPage = () => {
   const [resources, setResources] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
 
+  // Smart Dispatch Modal State
+  const [selectedTriageRequest, setSelectedTriageRequest] = useState(null);
+  const [dispatchModalOpen, setDispatchModalOpen] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     Promise.all([getTriageQueue(), getResourceAllocation()]).then(([triageData, resourceData]) => {
@@ -46,6 +51,25 @@ export const DashboardPage = () => {
       isMounted = false;
     };
   }, [scenario]);
+
+  const handleOpenDispatchModal = (req) => {
+    setSelectedTriageRequest(req);
+    setDispatchModalOpen(true);
+  };
+
+  const handleDispatchSuccess = (result) => {
+    setTriageQueue((prevQueue) =>
+      prevQueue.map((item) =>
+        item.id === result.requestId
+          ? {
+              ...item,
+              assignedUnit: result.assignedUnit,
+              status: result.status
+            }
+          : item
+      )
+    );
+  };
 
   const openSheltersCount = shelters.filter((s) => !s.status.includes('CLOSED')).length;
   const criticalAlertsCount = currentAlerts.filter((a) => a.priority === 'CRITICAL').length;
@@ -207,7 +231,20 @@ export const DashboardPage = () => {
                 filteredTriage.map((req) => {
                   const badge = getUrgencyBadgeStyle(req.urgency);
                   return (
-                    <div key={req.id} className={`triage-item urgency-${req.urgency.toLowerCase()}`}>
+                    <div
+                      key={req.id}
+                      className={`triage-item urgency-${req.urgency.toLowerCase()} is-dispatchable`}
+                      onClick={() => handleOpenDispatchModal(req)}
+                      role="button"
+                      tabIndex={0}
+                      title="Click to open Smart Dispatch Controller"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleOpenDispatchModal(req);
+                        }
+                      }}
+                    >
                       <div className="triage-item-main">
                         <div className="triage-item-line1">
                           <span
@@ -222,6 +259,10 @@ export const DashboardPage = () => {
                           </span>
                           <span className="triage-req-id">#{req.id}</span>
                           <strong className="triage-type-label">{req.type}</strong>
+                          <span className="triage-dispatch-pill">
+                            <span>Smart Dispatch</span>
+                            <ChevronRightIcon className="w-3 h-3" />
+                          </span>
                           <span className="triage-time-tag">
                             <ClockIcon className="w-3.5 h-3.5" />
                             {req.timestamp}
@@ -376,6 +417,14 @@ export const DashboardPage = () => {
           <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
         </div>
       </div>
+
+      {/* 5. Smart Dispatch Modal Popup */}
+      <SmartDispatchModal
+        isOpen={dispatchModalOpen}
+        request={selectedTriageRequest}
+        onClose={() => setDispatchModalOpen(false)}
+        onDispatchSuccess={handleDispatchSuccess}
+      />
 
       <style>{`
         .dashboard-clean-view {
@@ -622,7 +671,7 @@ export const DashboardPage = () => {
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
           padding: 0.85rem 1.15rem;
-          transition: border-color 0.2s ease, background 0.2s ease;
+          transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .triage-item.urgency-critical {
@@ -640,6 +689,45 @@ export const DashboardPage = () => {
         .triage-item:hover {
           border-color: rgba(6, 182, 212, 0.4);
           background: #0a1020;
+        }
+
+        .triage-item.is-dispatchable {
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .triage-item.is-dispatchable:hover {
+          transform: translateY(-2px);
+          border-color: rgba(6, 182, 212, 0.55);
+          box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+        }
+
+        .triage-item.is-dispatchable:active {
+          transform: translateY(0);
+        }
+
+        .triage-dispatch-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.25rem;
+          font-size: 0.64rem;
+          font-weight: 800;
+          color: var(--cyan);
+          background: rgba(6, 182, 212, 0.12);
+          border: 1px solid rgba(6, 182, 212, 0.3);
+          padding: 0.08rem 0.42rem;
+          border-radius: 4px;
+          opacity: 0.9;
+          transition: all 0.15s ease;
+          flex-shrink: 0;
+          letter-spacing: 0.02em;
+        }
+
+        .triage-item.is-dispatchable:hover .triage-dispatch-pill {
+          opacity: 1;
+          background: rgba(6, 182, 212, 0.28);
+          border-color: var(--cyan);
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.35);
         }
 
         .triage-item-main {
