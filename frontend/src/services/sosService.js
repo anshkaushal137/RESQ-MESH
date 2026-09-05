@@ -369,4 +369,62 @@ export async function approveDispatch(requestId, resourceId, options = {}) {
   });
 }
 
+/**
+ * Simulate a dynamic emergency surge event for hackathon demo & live dynamic re-optimization
+ * @param {Object} [customPayload] - Optional override parameters
+ * @returns {Promise<Object>} Surge event telemetry & AI dynamic reallocation plan
+ */
+export async function simulateSurgeEvent(customPayload = {}) {
+  // TODO: replace with real API call or WebSocket broadcast in production, e.g.:
+  // const res = await fetch('/api/sos/simulate-surge', { method: 'POST', body: JSON.stringify(customPayload) });
+  // return res.json();
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const surgeId = `TRG-${Math.floor(9100 + Math.random() * 899)}`;
+      const newTriageItem = {
+        id: surgeId,
+        urgency: 'CRITICAL',
+        type: 'Sudden Inundation Surge / 3 Families Stranded',
+        location: 'Zone 2: Lower Estuary Blvd (Sector 4B)',
+        peopleCount: 7,
+        timestamp: 'Just now',
+        eta: '9 mins',
+        assignedUnit: 'Rescue Boat Unit 02 (Redirected)',
+        status: 'AI Dynamic Reallocation Live',
+        ...customPayload
+      };
+
+      // Prepend to mockTriageQueue if not already existing
+      const existingIdx = mockTriageQueue.findIndex((t) => t.id === surgeId);
+      if (existingIdx >= 0) {
+        mockTriageQueue[existingIdx] = newTriageItem;
+      } else {
+        mockTriageQueue.unshift(newTriageItem);
+      }
+
+      resolve({
+        success: true,
+        surgeId,
+        eventTitle: 'SUDDEN SURGE DETECTED',
+        zone: 'Zone 2: Lower Estuary Blvd',
+        criticalRequestsCount: 3,
+        affectedPopulation: 7,
+        reallocationPlan: {
+          headline: 'Dynamic AI Reallocation Plan Ready',
+          recommendedAction: 'Rescue Boat Unit 02 redirected from Corridor Alpha to Zone 2 (new ETA 9 mins). 2 additional field volunteers dispatched.',
+          redirectedResource: 'Rescue Boat Unit 02',
+          previousCorridor: 'Corridor Alpha',
+          targetZone: 'Zone 2: Lower Estuary Blvd',
+          newEta: '9 mins',
+          additionalVolunteers: 2,
+          meshNodesSynced: 48
+        },
+        triageItem: newTriageItem
+      });
+    }, 280);
+  });
+}
+
+
 

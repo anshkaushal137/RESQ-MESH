@@ -44,10 +44,11 @@ export const StatCard = ({
   };
 
   const scheme = colorMap[color] || colorMap.cyan;
+  const isUrgent = color === 'danger' || color === 'warning';
 
   return (
     <div
-      className={`stat-card ${onClick ? 'is-clickable' : ''}`}
+      className={`stat-card ${onClick ? 'is-clickable' : ''} ${isUrgent ? 'is-urgent' : 'is-neutral'}`}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -62,9 +63,13 @@ export const StatCard = ({
           : undefined
       }
       style={{
-        borderTop: `2.5px solid ${scheme.text}`,
-        background: `radial-gradient(circle at 85% 0%, ${scheme.bg} 0%, rgba(13, 20, 36, 0.98) 70%), #0d1424`,
-        boxShadow: `0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05)`
+        borderTop: isUrgent ? `2.5px solid ${scheme.text}` : `1px solid var(--border-subtle)`,
+        background: isUrgent
+          ? `radial-gradient(circle at 85% 0%, ${scheme.bg} 0%, rgba(13, 20, 36, 0.98) 70%), #0d1424`
+          : `#0d1424`,
+        boxShadow: isUrgent
+          ? `0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05)`
+          : `0 4px 16px -2px rgba(0, 0, 0, 0.4)`
       }}
     >
       <div className="stat-top">
@@ -78,7 +83,7 @@ export const StatCard = ({
               color: scheme.text
             }}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-5 h-5" />
           </div>
         )}
       </div>
@@ -135,6 +140,10 @@ export const StatCard = ({
         .stat-card.is-clickable:hover {
           transform: translateY(-2px);
           border-color: rgba(255, 255, 255, 0.28);
+          box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.65);
+        }
+
+        .stat-card.is-urgent.is-clickable:hover {
           box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.65), 0 0 14px ${scheme.glow};
         }
 
@@ -161,8 +170,8 @@ export const StatCard = ({
         }
 
         .stat-icon-wrapper {
-          width: 32px;
-          height: 32px;
+          width: 34px;
+          height: 34px;
           border-radius: 7px;
           border: 1px solid;
           display: flex;
@@ -172,8 +181,8 @@ export const StatCard = ({
         }
 
         .stat-icon-wrapper svg {
-          width: 16px;
-          height: 16px;
+          width: 18px;
+          height: 18px;
         }
 
         .stat-middle {

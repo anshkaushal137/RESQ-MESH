@@ -249,9 +249,9 @@ body::before {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
   flex-shrink: 0;
 }
 
@@ -491,6 +491,8 @@ svg {
 .h-3\.5 { height: 14px !important; }
 .w-4 { width: 16px !important; }
 .h-4 { height: 16px !important; }
+.w-4\.5 { width: 18px !important; }
+.h-4\.5 { height: 18px !important; }
 .w-5 { width: 20px !important; }
 .h-5 { height: 20px !important; }
 .w-6 { width: 24px !important; }

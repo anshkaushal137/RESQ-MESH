@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDisaster } from '../context/DisasterContext';
 import { StatCard } from '../components/StatCard';
 import { SmartDispatchModal } from '../components/SmartDispatchModal';
+import { DynamicSurgeBanner } from '../components/DynamicSurgeBanner';
 import {
   AlertTriangleIcon,
   ShelterIcon,
@@ -22,7 +23,7 @@ import {
   SparklesIcon,
   LayersIcon
 } from '../components/Icons';
-import { getTriageQueue } from '../services/sosService';
+import { getTriageQueue, simulateSurgeEvent } from '../services/sosService';
 import { getResourceAllocation } from '../services/statsService';
 
 export const DashboardPage = () => {
@@ -37,6 +38,11 @@ export const DashboardPage = () => {
   // Smart Dispatch Modal State
   const [selectedTriageRequest, setSelectedTriageRequest] = useState(null);
   const [dispatchModalOpen, setDispatchModalOpen] = useState(false);
+
+  // Dynamic Surge Simulation State
+  const [surgeState, setSurgeState] = useState('DISMISSED'); // 'CALCULATING' | 'READY' | 'DISMISSED'
+  const [surgeData, setSurgeData] = useState(null);
+  const [isSimulatingSurge, setIsSimulatingSurge] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -69,6 +75,43 @@ export const DashboardPage = () => {
           : item
       )
     );
+  };
+
+  const handleSimulateSurge = async () => {
+    if (isSimulatingSurge) return;
+    setIsSimulatingSurge(true);
+    setSurgeState('CALCULATING');
+
+    try {
+      const result = await simulateSurgeEvent();
+      setSurgeData(result);
+
+      // Prepend the new critical surge request into the live triage queue
+      if (result.triageItem) {
+        setTriageQueue((prevQueue) => {
+          const exists = prevQueue.some((i) => i.id === result.triageItem.id);
+          if (exists) return prevQueue;
+          return [result.triageItem, ...prevQueue];
+        });
+      }
+
+      // 1.5s delay to show AI dynamic recalculation animation
+      setTimeout(() => {
+        setSurgeState('READY');
+        setIsSimulatingSurge(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to simulate surge event:', err);
+      setSurgeState('DISMISSED');
+      setIsSimulatingSurge(false);
+    }
+  };
+
+  const handleViewSurgeDetails = (data) => {
+    if (data?.triageItem) {
+      setSelectedTriageRequest(data.triageItem);
+      setDispatchModalOpen(true);
+    }
   };
 
   const openSheltersCount = shelters.filter((s) => !s.status.includes('CLOSED')).length;
@@ -194,6 +237,14 @@ export const DashboardPage = () => {
         </div>
       </div>
 
+      {/* Dynamic Emergency Surge Simulation Banner */}
+      <DynamicSurgeBanner
+        surgeState={surgeState}
+        surgeData={surgeData}
+        onViewDetails={handleViewSurgeDetails}
+        onDismiss={() => setSurgeState('DISMISSED')}
+      />
+
       {/* 3. Symmetrical 2-Column Command Grid: AI Triage Queue + Resource Allocation */}
       <div className="grid-dashboard">
         {/* Left Column: AI Triage Queue Card */}
@@ -201,23 +252,35 @@ export const DashboardPage = () => {
           <div className="card-header">
             <div className="card-header-title">
               <div className="header-icon-badge cyan">
-                <SparklesIcon className="w-4 h-4 text-cyan" />
+                <SparklesIcon className="w-4.5 h-4.5 text-cyan" />
               </div>
               <span>AI TRIAGE QUEUE</span>
             </div>
 
-            <div className="triage-filter-tabs">
-              {['ALL', 'CRITICAL', 'HIGH'].map((tab) => (
-                <button
-                  key={tab}
-                  className={`triage-filter-btn ${triageFilter === tab ? 'active' : ''}`}
-                  onClick={() => setTriageFilter(tab)}
-                >
-                  {tab}
-                  {tab === 'ALL' && ` (${triageQueue.length})`}
-                  {tab === 'CRITICAL' && ` (${triageQueue.filter((i) => i.urgency === 'CRITICAL').length})`}
-                </button>
-              ))}
+            <div className="triage-header-controls">
+              <button
+                className={`btn-simulate-surge ${isSimulatingSurge ? 'is-loading' : ''}`}
+                onClick={handleSimulateSurge}
+                disabled={isSimulatingSurge}
+                title="Trigger simulated sudden emergency surge to test AI dynamic re-optimization (Hackathon Demo)"
+              >
+                <span className="surge-bolt-icon">⚡</span>
+                <span>{isSimulatingSurge ? 'Simulating...' : 'Simulate Surge'}</span>
+              </button>
+
+              <div className="triage-filter-tabs">
+                {['ALL', 'CRITICAL', 'HIGH'].map((tab) => (
+                  <button
+                    key={tab}
+                    className={`triage-filter-btn ${triageFilter === tab ? 'active' : ''}`}
+                    onClick={() => setTriageFilter(tab)}
+                  >
+                    {tab}
+                    {tab === 'ALL' && ` (${triageQueue.length})`}
+                    {tab === 'CRITICAL' && ` (${triageQueue.filter((i) => i.urgency === 'CRITICAL').length})`}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -307,7 +370,7 @@ export const DashboardPage = () => {
           <div className="card-header">
             <div className="card-header-title">
               <div className="header-icon-badge success">
-                <LayersIcon className="w-4 h-4 text-emerald-400" />
+                <LayersIcon className="w-4.5 h-4.5 text-emerald-400" />
               </div>
               <span>RESOURCE ALLOCATION & FLEET</span>
             </div>
@@ -375,7 +438,7 @@ export const DashboardPage = () => {
       <div className="dashboard-quick-links">
         <div className="quick-link-tile" onClick={() => setActiveTab('map')}>
           <div className="quick-tile-icon cyan">
-            <MapIcon className="w-4 h-4" />
+            <MapIcon className="w-5 h-5" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">RISK MAP & RADAR</span>
@@ -386,7 +449,7 @@ export const DashboardPage = () => {
 
         <div className="quick-link-tile" onClick={() => setActiveTab('routes')}>
           <div className="quick-tile-icon emerald">
-            <RouteIcon className="w-4 h-4" />
+            <RouteIcon className="w-5 h-5" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">SAFE ROUTES</span>
@@ -397,7 +460,7 @@ export const DashboardPage = () => {
 
         <div className="quick-link-tile" onClick={() => setActiveTab('shelters')}>
           <div className="quick-tile-icon success">
-            <ShelterIcon className="w-4 h-4" />
+            <ShelterIcon className="w-5 h-5" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">SHELTERS DIRECTORY</span>
@@ -408,7 +471,7 @@ export const DashboardPage = () => {
 
         <div className="quick-link-tile" onClick={() => setActiveTab('alerts')}>
           <div className="quick-tile-icon warning">
-            <BellIcon className="w-4 h-4" />
+            <BellIcon className="w-5 h-5" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">EMERGENCY ALERTS</span>
@@ -616,7 +679,15 @@ export const DashboardPage = () => {
           height: 100%;
         }
 
-        .triage-card-body,
+        .triage-card-body {
+          padding: 1.10rem 1.35rem;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          flex: 1;
+          gap: 0.85rem;
+        }
+
         .resources-card-body {
           padding: 1.10rem 1.35rem;
           display: flex;
@@ -624,6 +695,48 @@ export const DashboardPage = () => {
           justify-content: space-between;
           flex: 1;
           gap: 0.95rem;
+        }
+
+        .triage-header-controls {
+          display: flex;
+          align-items: center;
+          gap: 0.50rem;
+          flex-wrap: wrap;
+        }
+
+        .btn-simulate-surge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          background: rgba(245, 158, 11, 0.14);
+          border: 1px solid rgba(245, 158, 11, 0.45);
+          color: #fcd34d;
+          font-family: var(--font-main);
+          font-size: 0.70rem;
+          font-weight: 800;
+          padding: 0.24rem 0.60rem;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          letter-spacing: 0.02em;
+          white-space: nowrap;
+        }
+
+        .btn-simulate-surge:hover:not(:disabled) {
+          background: rgba(245, 158, 11, 0.28);
+          border-color: #f59e0b;
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
+          transform: translateY(-1px);
+        }
+
+        .btn-simulate-surge.is-loading {
+          opacity: 0.75;
+          cursor: wait;
+        }
+
+        .surge-bolt-icon {
+          font-size: 0.78rem;
         }
 
         .triage-filter-tabs {
@@ -828,8 +941,11 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.85rem;
-          border-top: 1px solid var(--border-subtle);
+          padding: 0.70rem 1.05rem;
+          background: rgba(255, 255, 255, 0.025);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-sm);
+          margin-top: 0.15rem;
           font-size: 0.80rem;
         }
 
@@ -837,23 +953,33 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           gap: 0.45rem;
-          color: var(--text-muted);
+          color: #94a3b8;
+          font-size: 0.78rem;
+          font-weight: 600;
         }
 
         .btn-manage-sos {
           display: inline-flex;
           align-items: center;
-          gap: 0.35rem;
-          background: transparent;
-          border: none;
+          gap: 0.40rem;
+          background: rgba(6, 182, 212, 0.12);
+          border: 1px solid rgba(6, 182, 212, 0.35);
           color: var(--cyan);
-          font-size: 0.80rem;
+          font-size: 0.78rem;
           font-weight: 800;
+          padding: 0.28rem 0.75rem;
+          border-radius: 5px;
           cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-manage-sos:hover {
-          text-decoration: underline;
+          background: rgba(6, 182, 212, 0.25);
+          border-color: var(--cyan);
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(6, 182, 212, 0.35);
+          transform: translateY(-1px);
+          text-decoration: none;
         }
 
         /* Resource Allocation Card */
@@ -913,15 +1039,20 @@ export const DashboardPage = () => {
         }
 
         .res-tile-icon-wrap {
-          width: 32px;
-          height: 32px;
-          border-radius: 6px;
+          width: 36px;
+          height: 36px;
+          border-radius: 7px;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid var(--border-subtle);
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+        }
+
+        .res-tile-icon-wrap svg {
+          width: 20px;
+          height: 20px;
         }
 
         .res-type-name {
@@ -1059,19 +1190,24 @@ export const DashboardPage = () => {
 
         .quick-link-tile:hover {
           transform: translateY(-2px);
-          border-color: rgba(6, 182, 212, 0.4);
+          border-color: rgba(6, 182, 212, 0.45);
           background: #111a30;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
         }
 
         .quick-tile-icon {
-          width: 38px;
-          height: 38px;
-          border-radius: 8px;
+          width: 42px;
+          height: 42px;
+          border-radius: 9px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+        }
+
+        .quick-tile-icon svg {
+          width: 22px;
+          height: 22px;
         }
 
         .quick-tile-icon.cyan { background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35); color: var(--cyan); }
