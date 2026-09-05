@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDisaster } from '../context/DisasterContext';
 import {
   BellIcon,
   SearchIcon,
   CheckIcon,
   MapPinIcon,
-  AlertTriangleIcon,
   ClockIcon,
-  RadioIcon,
   ShieldIcon
 } from '../components/Icons';
 
@@ -234,7 +232,7 @@ export const AlertsPage = () => {
         .alerts-compact-view {
           display: flex;
           flex-direction: column;
-          gap: 0.8rem;
+          gap: 0.95rem;
           min-width: 0;
           width: 100%;
           max-width: 100%;
@@ -242,26 +240,27 @@ export const AlertsPage = () => {
 
         /* 1. Header Bar */
         .alerts-compact-header {
-          padding: 0.75rem 1.25rem;
+          padding: 0.90rem 1.35rem;
           display: flex;
           align-items: center;
           justify-content: space-between;
           border-radius: var(--radius-md);
-          gap: 0.75rem;
+          gap: 0.85rem;
           background: #090e1a;
+          border: 1px solid var(--border-subtle);
         }
 
         .header-left {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.85rem;
           min-width: 0;
         }
 
         .hdr-icon-wrap {
-          width: 32px;
-          height: 32px;
-          border-radius: 7px;
+          width: 36px;
+          height: 36px;
+          border-radius: 8px;
           background: rgba(239, 68, 68, 0.15);
           border: 1px solid rgba(239, 68, 68, 0.35);
           display: flex;
@@ -273,13 +272,13 @@ export const AlertsPage = () => {
         .hdr-titles {
           display: flex;
           align-items: baseline;
-          gap: 0.75rem;
+          gap: 0.85rem;
           min-width: 0;
           flex-wrap: wrap;
         }
 
         .hdr-main-title {
-          font-size: 1rem;
+          font-size: 1.10rem;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: 0.03em;
@@ -287,7 +286,7 @@ export const AlertsPage = () => {
         }
 
         .hdr-sub-tag {
-          font-size: 0.74rem;
+          font-size: 0.80rem;
           font-weight: 700;
           color: #fca5a5;
           font-family: var(--font-mono);
@@ -297,14 +296,14 @@ export const AlertsPage = () => {
         .btn-ack-compact {
           display: inline-flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.45rem;
           background: rgba(16, 185, 129, 0.12);
           border: 1px solid rgba(16, 185, 129, 0.35);
           color: #34d399;
           font-family: var(--font-main);
-          font-size: 0.76rem;
+          font-size: 0.80rem;
           font-weight: 700;
-          padding: 0.4rem 0.85rem;
+          padding: 0.45rem 0.95rem;
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -318,33 +317,34 @@ export const AlertsPage = () => {
 
         /* 2. Search & Filter Toolbar */
         .alerts-filter-toolbar {
-          padding: 0.75rem 1.25rem;
+          padding: 0.85rem 1.35rem;
           display: flex;
           flex-direction: column;
-          gap: 0.6rem;
+          gap: 0.70rem;
           border-radius: var(--radius-md);
           background: #090e1a;
+          border: 1px solid var(--border-subtle);
         }
 
         .toolbar-top-row {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.85rem;
+          gap: 0.95rem;
           flex-wrap: wrap;
         }
 
         .search-box-compact {
           flex: 1;
-          min-width: 240px;
-          max-width: 420px;
+          min-width: 250px;
+          max-width: 440px;
           display: flex;
           align-items: center;
-          gap: 0.55rem;
+          gap: 0.60rem;
           background: #050810;
           border: 1px solid var(--border-subtle);
           border-radius: 6px;
-          padding: 0.35rem 0.75rem;
+          padding: 0.42rem 0.85rem;
         }
 
         .search-input-compact {
@@ -353,7 +353,7 @@ export const AlertsPage = () => {
           border: none;
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.80rem;
+          font-size: 0.84rem;
           outline: none;
         }
 
@@ -361,35 +361,35 @@ export const AlertsPage = () => {
           background: transparent;
           border: none;
           color: #64748b;
-          font-size: 0.74rem;
+          font-size: 0.78rem;
           cursor: pointer;
         }
 
         .filter-group-inline {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.40rem;
           flex-wrap: wrap;
         }
 
         .toolbar-bottom-row {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.55rem;
           flex-wrap: wrap;
-          padding-top: 0.45rem;
+          padding-top: 0.55rem;
           border-top: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .category-pills-list {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.40rem;
           flex-wrap: wrap;
         }
 
         .filter-label-sm {
-          font-size: 0.64rem;
+          font-size: 0.68rem;
           font-weight: 800;
           letter-spacing: 0.04em;
           color: #64748b;
@@ -398,14 +398,14 @@ export const AlertsPage = () => {
         .filter-pill-sm {
           display: inline-flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.35rem;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid var(--border-subtle);
           color: var(--text-secondary);
           font-family: var(--font-main);
-          font-size: 0.70rem;
+          font-size: 0.74rem;
           font-weight: 700;
-          padding: 0.2rem 0.55rem;
+          padding: 0.24rem 0.65rem;
           border-radius: 9999px;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -432,7 +432,7 @@ export const AlertsPage = () => {
 
         .count-tag {
           font-family: var(--font-mono);
-          font-size: 0.64rem;
+          font-size: 0.68rem;
           opacity: 0.85;
         }
 
@@ -440,7 +440,7 @@ export const AlertsPage = () => {
         .alerts-grid-view {
           display: grid;
           grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 0.8rem;
+          gap: 0.95rem;
           width: 100%;
           align-items: stretch;
         }
@@ -452,10 +452,10 @@ export const AlertsPage = () => {
         }
 
         .alert-compact-card {
-          padding: 0.95rem 1.25rem;
+          padding: 1.10rem 1.35rem;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.60rem;
           border-radius: var(--radius-md);
           background: #0d1424;
           transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, opacity 0.25s ease;
@@ -508,23 +508,23 @@ export const AlertsPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 0.45rem;
+          gap: 0.50rem;
         }
 
         .meta-left {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.50rem;
           min-width: 0;
           flex-wrap: wrap;
         }
 
         .compact-type-badge {
-          font-size: 0.66rem;
+          font-size: 0.70rem;
           font-weight: 700;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid var(--border-subtle);
-          padding: 0.08rem 0.45rem;
+          padding: 0.10rem 0.50rem;
           border-radius: 4px;
           color: var(--text-secondary);
         }
@@ -532,8 +532,8 @@ export const AlertsPage = () => {
         .compact-time-tag {
           display: inline-flex;
           align-items: center;
-          gap: 0.25rem;
-          font-size: 0.66rem;
+          gap: 0.30rem;
+          font-size: 0.70rem;
           font-family: var(--font-mono);
           color: var(--text-muted);
         }
@@ -542,27 +542,27 @@ export const AlertsPage = () => {
           display: inline-flex;
           align-items: center;
           gap: 0.25rem;
-          font-size: 0.62rem;
+          font-size: 0.66rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: #34d399;
           background: rgba(16, 185, 129, 0.15);
           border: 1px solid rgba(16, 185, 129, 0.35);
-          padding: 0.08rem 0.35rem;
+          padding: 0.10rem 0.40rem;
           border-radius: 4px;
         }
 
         .ack-btn-compact {
           display: inline-flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.35rem;
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid var(--border-subtle);
           color: var(--text-secondary);
           font-family: var(--font-main);
-          font-size: 0.70rem;
+          font-size: 0.74rem;
           font-weight: 700;
-          padding: 0.22rem 0.55rem;
+          padding: 0.26rem 0.65rem;
           border-radius: 5px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -581,18 +581,18 @@ export const AlertsPage = () => {
         }
 
         .card-title-text {
-          font-size: 0.94rem;
+          font-size: 1.02rem;
           font-weight: 800;
           color: #ffffff;
-          line-height: 1.3;
+          line-height: 1.35;
           margin: 0;
         }
 
         .card-location-row {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.78rem;
+          gap: 0.40rem;
+          font-size: 0.82rem;
           color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;
@@ -604,37 +604,37 @@ export const AlertsPage = () => {
         }
 
         .card-summary-text {
-          font-size: 0.76rem;
+          font-size: 0.80rem;
           color: #cbd5e1;
-          line-height: 1.45;
+          line-height: 1.48;
           margin: 0;
         }
 
         .card-protocol-box {
           background: #060913;
           border: 1px solid var(--border-subtle);
-          border-radius: 5px;
-          padding: 0.45rem 0.7rem;
+          border-radius: 6px;
+          padding: 0.55rem 0.80rem;
           display: flex;
           flex-direction: column;
-          gap: 0.15rem;
+          gap: 0.20rem;
         }
 
         .protocol-hdr {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
-          font-size: 0.64rem;
+          gap: 0.35rem;
+          font-size: 0.68rem;
           font-weight: 800;
           color: var(--cyan);
           letter-spacing: 0.04em;
         }
 
         .protocol-body {
-          font-size: 0.74rem;
+          font-size: 0.78rem;
           font-weight: 600;
           color: #f1f5f9;
-          line-height: 1.35;
+          line-height: 1.40;
         }
 
         /* Empty State */

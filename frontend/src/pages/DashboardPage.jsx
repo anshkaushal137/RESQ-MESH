@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDisaster } from '../context/DisasterContext';
 import { StatCard } from '../components/StatCard';
 import {
@@ -75,15 +75,15 @@ export const DashboardPage = () => {
   const getResourceIcon = (iconName) => {
     switch (iconName) {
       case 'AmbulanceIcon':
-        return <AmbulanceIcon className="w-4 h-4 text-rose-400" />;
+        return <AmbulanceIcon className="w-5 h-5 text-rose-400" />;
       case 'BoatIcon':
-        return <BoatIcon className="w-4 h-4 text-cyan" />;
+        return <BoatIcon className="w-5 h-5 text-cyan" />;
       case 'UsersIcon':
-        return <UsersIcon className="w-4 h-4 text-emerald-400" />;
+        return <UsersIcon className="w-5 h-5 text-emerald-400" />;
       case 'PackageIcon':
-        return <PackageIcon className="w-4 h-4 text-amber-400" />;
+        return <PackageIcon className="w-5 h-5 text-amber-400" />;
       default:
-        return <HeartPulseIcon className="w-4 h-4 text-cyan" />;
+        return <HeartPulseIcon className="w-5 h-5 text-cyan" />;
     }
   };
 
@@ -230,7 +230,7 @@ export const DashboardPage = () => {
 
                         <div className="triage-item-line2">
                           <div className="triage-loc-block">
-                            <MapPinIcon className="w-3.5 h-3.5 text-cyan shrink-0" />
+                            <MapPinIcon className="w-4 h-4 text-cyan shrink-0" />
                             <span>{req.location}</span>
                             <span className="triage-people-pill">
                               {req.peopleCount} {req.peopleCount > 1 ? 'people' : 'person'}
@@ -250,7 +250,7 @@ export const DashboardPage = () => {
 
             <div className="triage-card-footer">
               <div className="triage-footer-note">
-                <RadioIcon className="w-3.5 h-3.5 text-cyan" />
+                <RadioIcon className="w-4 h-4 text-cyan" />
                 <span>LoRa Mesh Triangulated ({triageQueue.length} Signals)</span>
               </div>
               <button className="btn-manage-sos" onClick={() => setActiveTab('sos')}>
@@ -340,7 +340,7 @@ export const DashboardPage = () => {
             <span className="quick-tile-title">RISK MAP & RADAR</span>
             <span className="quick-tile-sub">Live Doppler & Threat GIS</span>
           </div>
-          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
+          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
         </div>
 
         <div className="quick-link-tile" onClick={() => setActiveTab('routes')}>
@@ -351,7 +351,7 @@ export const DashboardPage = () => {
             <span className="quick-tile-title">SAFE ROUTES</span>
             <span className="quick-tile-sub">Corridor Alpha (96% Safe)</span>
           </div>
-          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
+          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
         </div>
 
         <div className="quick-link-tile" onClick={() => setActiveTab('shelters')}>
@@ -362,7 +362,7 @@ export const DashboardPage = () => {
             <span className="quick-tile-title">SHELTERS DIRECTORY</span>
             <span className="quick-tile-sub">{totalOpenBeds} Beds Available</span>
           </div>
-          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
+          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
         </div>
 
         <div className="quick-link-tile" onClick={() => setActiveTab('alerts')}>
@@ -373,7 +373,7 @@ export const DashboardPage = () => {
             <span className="quick-tile-title">EMERGENCY ALERTS</span>
             <span className="quick-tile-sub">{criticalAlertsCount} Critical Broadcasts</span>
           </div>
-          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
+          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
         </div>
       </div>
 
@@ -381,7 +381,7 @@ export const DashboardPage = () => {
         .dashboard-clean-view {
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
+          gap: 1rem;
           min-width: 0;
           width: 100%;
           max-width: 100%;
@@ -392,12 +392,12 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.85rem 1.25rem;
+          padding: 1.05rem 1.45rem;
           background: #090e1a;
           border: 1px solid rgba(239, 68, 68, 0.35);
-          border-left: 4.5px solid var(--danger);
+          border-left: 5px solid var(--danger);
           border-radius: var(--radius-md);
-          gap: 1rem;
+          gap: 1.25rem;
           flex-wrap: nowrap;
           box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
         }
@@ -405,7 +405,7 @@ export const DashboardPage = () => {
         .threat-strip-left {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.95rem;
           flex-shrink: 0;
         }
 
@@ -414,12 +414,12 @@ export const DashboardPage = () => {
           align-items: baseline;
           background: rgba(239, 68, 68, 0.16);
           border: 1px solid rgba(239, 68, 68, 0.45);
-          padding: 0.25rem 0.7rem;
-          border-radius: 7px;
+          padding: 0.35rem 0.85rem;
+          border-radius: 8px;
         }
 
         .threat-score-num {
-          font-size: 1.85rem;
+          font-size: 2.20rem;
           font-weight: 900;
           color: #ef4444;
           font-family: var(--font-mono);
@@ -427,29 +427,29 @@ export const DashboardPage = () => {
         }
 
         .threat-score-denom {
-          font-size: 0.78rem;
+          font-size: 0.90rem;
           font-weight: 700;
           color: #94a3b8;
-          margin-left: 2px;
+          margin-left: 3px;
         }
 
         .threat-severity-tag {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          font-size: 0.75rem;
+          gap: 0.45rem;
+          font-size: 0.82rem;
           font-weight: 800;
           background: rgba(239, 68, 68, 0.25);
           border: 1px solid var(--danger);
           color: #ffffff;
-          padding: 0.28rem 0.65rem;
-          border-radius: 5px;
+          padding: 0.35rem 0.80rem;
+          border-radius: 6px;
           letter-spacing: 0.05em;
         }
 
         .threat-pulse-dot {
-          width: 7px;
-          height: 7px;
+          width: 8px;
+          height: 8px;
           border-radius: 50%;
           background: var(--danger);
           box-shadow: 0 0 8px var(--danger);
@@ -459,7 +459,7 @@ export const DashboardPage = () => {
         .threat-strip-center {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.35rem;
           flex: 1;
           min-width: 0;
         }
@@ -467,22 +467,22 @@ export const DashboardPage = () => {
         .threat-headline-row {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.6rem;
           flex-wrap: nowrap;
           overflow: hidden;
         }
 
         .threat-level-highlight {
-          font-size: 0.95rem;
+          font-size: 1.08rem;
           font-weight: 800;
           color: #ffffff;
           white-space: nowrap;
         }
 
         .threat-status-highlight {
-          font-size: 0.74rem;
+          font-size: 0.82rem;
           font-weight: 800;
-          padding: 0.1rem 0.5rem;
+          padding: 0.15rem 0.60rem;
           border-radius: 4px;
           background: rgba(239, 68, 68, 0.2);
           border: 1px solid rgba(239, 68, 68, 0.4);
@@ -492,7 +492,7 @@ export const DashboardPage = () => {
         }
 
         .threat-urgency-highlight {
-          font-size: 0.78rem;
+          font-size: 0.88rem;
           font-weight: 700;
           color: #e2e8f0;
           white-space: nowrap;
@@ -502,14 +502,14 @@ export const DashboardPage = () => {
 
         .threat-divider {
           color: #475569;
-          font-size: 0.75rem;
+          font-size: 0.85rem;
         }
 
         .threat-subline-row {
           display: flex;
           align-items: center;
-          gap: 0.55rem;
-          font-size: 0.72rem;
+          gap: 0.65rem;
+          font-size: 0.80rem;
           color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;
@@ -531,14 +531,14 @@ export const DashboardPage = () => {
         .btn-open-gis-map {
           display: inline-flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.55rem;
           background: linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(6, 182, 212, 0.12) 100%);
           border: 1px solid var(--cyan);
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.80rem;
+          font-size: 0.86rem;
           font-weight: 800;
-          padding: 0.5rem 1rem;
+          padding: 0.60rem 1.25rem;
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -569,17 +569,17 @@ export const DashboardPage = () => {
 
         .triage-card-body,
         .resources-card-body {
-          padding: 0.85rem 1.15rem;
+          padding: 1.10rem 1.35rem;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           flex: 1;
-          gap: 0.75rem;
+          gap: 0.95rem;
         }
 
         .triage-filter-tabs {
           display: flex;
-          gap: 0.3rem;
+          gap: 0.35rem;
           background: #060913;
           padding: 3px;
           border-radius: 6px;
@@ -590,9 +590,9 @@ export const DashboardPage = () => {
           background: transparent;
           border: none;
           color: #64748b;
-          font-size: 0.66rem;
+          font-size: 0.72rem;
           font-weight: 800;
-          padding: 0.22rem 0.55rem;
+          padding: 0.26rem 0.65rem;
           border-radius: 4px;
           cursor: pointer;
           transition: all 0.15s ease;
@@ -607,13 +607,13 @@ export const DashboardPage = () => {
         .triage-list {
           display: flex;
           flex-direction: column;
-          gap: 0.6rem;
+          gap: 0.75rem;
         }
 
         .triage-empty {
-          font-size: 0.78rem;
+          font-size: 0.84rem;
           color: var(--text-muted);
-          padding: 1.25rem;
+          padding: 1.5rem;
           text-align: center;
         }
 
@@ -621,20 +621,20 @@ export const DashboardPage = () => {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.65rem 0.95rem;
+          padding: 0.85rem 1.15rem;
           transition: border-color 0.2s ease, background 0.2s ease;
         }
 
         .triage-item.urgency-critical {
-          border-left: 3.5px solid var(--danger);
+          border-left: 4px solid var(--danger);
         }
 
         .triage-item.urgency-high {
-          border-left: 3.5px solid var(--warning);
+          border-left: 4px solid var(--warning);
         }
 
         .triage-item.urgency-medium {
-          border-left: 3.5px solid var(--cyan);
+          border-left: 4px solid var(--cyan);
         }
 
         .triage-item:hover {
@@ -645,28 +645,28 @@ export const DashboardPage = () => {
         .triage-item-main {
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
+          gap: 0.45rem;
         }
 
         .triage-item-line1 {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.60rem;
           min-width: 0;
         }
 
         .triage-badge {
-          font-size: 0.64rem;
+          font-size: 0.70rem;
           font-weight: 900;
           letter-spacing: 0.04em;
-          padding: 0.12rem 0.45rem;
+          padding: 0.16rem 0.55rem;
           border-radius: 3px;
           border: 1px solid;
           flex-shrink: 0;
         }
 
         .triage-req-id {
-          font-size: 0.72rem;
+          font-size: 0.78rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: var(--text-muted);
@@ -674,7 +674,7 @@ export const DashboardPage = () => {
         }
 
         .triage-type-label {
-          font-size: 0.84rem;
+          font-size: 0.94rem;
           font-weight: 800;
           color: #ffffff;
           white-space: nowrap;
@@ -686,8 +686,8 @@ export const DashboardPage = () => {
         .triage-time-tag {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
-          font-size: 0.68rem;
+          gap: 0.35rem;
+          font-size: 0.74rem;
           color: var(--text-muted);
           flex-shrink: 0;
           margin-left: auto;
@@ -697,15 +697,15 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.74rem;
+          font-size: 0.80rem;
           color: #94a3b8;
-          gap: 0.6rem;
+          gap: 0.70rem;
         }
 
         .triage-loc-block {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.45rem;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -713,10 +713,10 @@ export const DashboardPage = () => {
         }
 
         .triage-people-pill {
-          font-size: 0.64rem;
+          font-size: 0.70rem;
           font-weight: 800;
           background: rgba(255, 255, 255, 0.06);
-          padding: 0.1rem 0.45rem;
+          padding: 0.14rem 0.55rem;
           border-radius: 4px;
           color: #cbd5e1;
           flex-shrink: 0;
@@ -725,10 +725,10 @@ export const DashboardPage = () => {
         .triage-dispatch-info {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.45rem;
           color: var(--cyan);
           font-weight: 700;
-          font-size: 0.72rem;
+          font-size: 0.78rem;
           flex-shrink: 0;
         }
 
@@ -740,15 +740,15 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.6rem;
+          padding-top: 0.85rem;
           border-top: 1px solid var(--border-subtle);
-          font-size: 0.74rem;
+          font-size: 0.80rem;
         }
 
         .triage-footer-note {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.45rem;
           color: var(--text-muted);
         }
 
@@ -759,7 +759,7 @@ export const DashboardPage = () => {
           background: transparent;
           border: none;
           color: var(--cyan);
-          font-size: 0.74rem;
+          font-size: 0.80rem;
           font-weight: 800;
           cursor: pointer;
         }
@@ -772,19 +772,19 @@ export const DashboardPage = () => {
         .fleet-status-pill {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.4rem;
           background: rgba(16, 185, 129, 0.12);
           border: 1px solid rgba(16, 185, 129, 0.35);
           color: #34d399;
-          font-size: 0.64rem;
+          font-size: 0.70rem;
           font-weight: 800;
-          padding: 0.18rem 0.55rem;
+          padding: 0.22rem 0.65rem;
           border-radius: 9999px;
         }
 
         .pulse-fleet-dot {
-          width: 6px;
-          height: 6px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
           background: #10b981;
           box-shadow: 0 0 6px #10b981;
@@ -793,17 +793,17 @@ export const DashboardPage = () => {
         .resources-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 0.65rem;
+          gap: 0.85rem;
         }
 
         .resource-tile {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.65rem 0.95rem;
+          padding: 0.85rem 1.15rem;
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
+          gap: 0.55rem;
           transition: border-color 0.2s ease;
         }
 
@@ -820,14 +820,14 @@ export const DashboardPage = () => {
         .res-tile-type-row {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.55rem;
           min-width: 0;
         }
 
         .res-tile-icon-wrap {
-          width: 26px;
-          height: 26px;
-          border-radius: 5px;
+          width: 32px;
+          height: 32px;
+          border-radius: 6px;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid var(--border-subtle);
           display: flex;
@@ -837,8 +837,8 @@ export const DashboardPage = () => {
         }
 
         .res-type-name {
-          font-size: 0.80rem;
-          font-weight: 700;
+          font-size: 0.90rem;
+          font-weight: 800;
           color: #e2e8f0;
           white-space: nowrap;
           overflow: hidden;
@@ -853,20 +853,20 @@ export const DashboardPage = () => {
         }
 
         .res-deployed-num {
-          font-size: 1.35rem;
+          font-size: 1.55rem;
           font-weight: 900;
           color: #ffffff;
         }
 
         .res-total-num {
-          font-size: 0.74rem;
+          font-size: 0.84rem;
           font-weight: 700;
           color: #64748b;
         }
 
         .res-progress-track {
           width: 100%;
-          height: 5px;
+          height: 7px;
           background: rgba(255, 255, 255, 0.06);
           border-radius: 9999px;
           overflow: hidden;
@@ -897,7 +897,7 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.68rem;
+          font-size: 0.76rem;
           color: var(--text-muted);
         }
 
@@ -915,18 +915,18 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.55rem 0.85rem;
+          padding: 0.70rem 1.10rem;
           background: rgba(6, 182, 212, 0.06);
           border: 1px solid rgba(6, 182, 212, 0.2);
           border-radius: 6px;
-          font-size: 0.74rem;
+          font-size: 0.80rem;
           color: #cbd5e1;
         }
 
         .fleet-banner-left {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.5rem;
         }
 
         .fleet-banner-left strong {
@@ -936,11 +936,11 @@ export const DashboardPage = () => {
         .fleet-action-link {
           display: inline-flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.35rem;
           background: transparent;
           border: none;
           color: var(--cyan);
-          font-size: 0.72rem;
+          font-size: 0.78rem;
           font-weight: 800;
           cursor: pointer;
         }
@@ -953,18 +953,18 @@ export const DashboardPage = () => {
         .dashboard-quick-links {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 0.8rem;
+          gap: 0.95rem;
           width: 100%;
         }
 
         .quick-link-tile {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.90rem;
           background: #0d1424;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-md);
-          padding: 0.75rem 1rem;
+          padding: 0.95rem 1.25rem;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -977,9 +977,9 @@ export const DashboardPage = () => {
         }
 
         .quick-tile-icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 7px;
+          width: 38px;
+          height: 38px;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -999,7 +999,7 @@ export const DashboardPage = () => {
         }
 
         .quick-tile-title {
-          font-size: 0.75rem;
+          font-size: 0.84rem;
           font-weight: 800;
           letter-spacing: 0.04em;
           color: #ffffff;
@@ -1009,7 +1009,7 @@ export const DashboardPage = () => {
         }
 
         .quick-tile-sub {
-          font-size: 0.68rem;
+          font-size: 0.76rem;
           color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;

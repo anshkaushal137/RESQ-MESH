@@ -1,4 +1,3 @@
-import React from 'react';
 import { CircularGauge } from './Gauges';
 
 export const StatCard = ({
@@ -90,8 +89,8 @@ export const StatCard = ({
           <div className="stat-gauge-wrap">
             <CircularGauge
               value={gaugeValue}
-              size={40}
-              strokeWidth={4}
+              size={44}
+              strokeWidth={4.5}
               color={scheme.text}
               label={`${gaugeValue}%`}
             />
@@ -119,10 +118,10 @@ export const StatCard = ({
         .stat-card {
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-md);
-          padding: 0.8rem 1.1rem;
+          padding: 0.95rem 1.25rem;
           display: flex;
           flex-direction: column;
-          gap: 0.35rem;
+          gap: 0.45rem;
           min-width: 0;
           width: 100%;
           transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease;
@@ -151,7 +150,7 @@ export const StatCard = ({
         }
 
         .stat-title {
-          font-size: 0.72rem;
+          font-size: 0.78rem;
           font-weight: 800;
           letter-spacing: 0.05em;
           text-transform: uppercase;
@@ -162,8 +161,8 @@ export const StatCard = ({
         }
 
         .stat-icon-wrapper {
-          width: 28px;
-          height: 28px;
+          width: 32px;
+          height: 32px;
           border-radius: 7px;
           border: 1px solid;
           display: flex;
@@ -173,8 +172,8 @@ export const StatCard = ({
         }
 
         .stat-icon-wrapper svg {
-          width: 15px;
-          height: 15px;
+          width: 16px;
+          height: 16px;
         }
 
         .stat-middle {
@@ -183,12 +182,12 @@ export const StatCard = ({
           justify-content: space-between;
           gap: 0.45rem;
           min-width: 0;
-          margin: 0.12rem 0;
+          margin: 0.15rem 0;
         }
 
         .stat-value {
-          font-size: 1.55rem;
-          font-weight: 800;
+          font-size: 1.80rem;
+          font-weight: 900;
           letter-spacing: -0.02em;
           color: #ffffff;
           font-family: var(--font-mono);
@@ -206,8 +205,8 @@ export const StatCard = ({
           display: flex;
           align-items: center;
           flex-wrap: nowrap;
-          gap: 0.45rem;
-          font-size: 0.72rem;
+          gap: 0.5rem;
+          font-size: 0.78rem;
           min-width: 0;
           overflow: hidden;
         }
@@ -215,8 +214,8 @@ export const StatCard = ({
         .stat-trend {
           font-weight: 800;
           font-family: var(--font-mono);
-          font-size: 0.64rem;
-          padding: 0.12rem 0.4rem;
+          font-size: 0.70rem;
+          padding: 0.15rem 0.5rem;
           border-radius: 4px;
           white-space: nowrap;
           letter-spacing: 0.02em;
@@ -228,7 +227,7 @@ export const StatCard = ({
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          font-size: 0.70rem;
+          font-size: 0.76rem;
           font-weight: 600;
         }
       `}</style>
