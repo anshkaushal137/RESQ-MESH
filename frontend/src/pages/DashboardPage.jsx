@@ -53,7 +53,7 @@ export const DashboardPage = () => {
   const totalOpenBeds = shelters.reduce((acc, s) => acc + s.bedsAvailable, 0);
   const openBedsPct = totalCapacity > 0 ? Math.round((totalOpenBeds / totalCapacity) * 100) : 30;
 
-  // Filter triage queue: strictly top 2 items by default for clean breathing room & at-a-glance scanning
+  // Filter triage queue: strictly top 2 items by default
   const filteredTriage = (triageFilter === 'ALL'
     ? triageQueue
     : triageQueue.filter((item) => item.urgency === triageFilter)
@@ -165,7 +165,7 @@ export const DashboardPage = () => {
           <button className="btn-open-gis-map" onClick={() => setActiveTab('map')}>
             <MapIcon className="w-4 h-4" />
             <span>OPEN RISK MAP & GIS RADAR</span>
-            <ChevronRightIcon className="w-3.5 h-3.5" />
+            <ChevronRightIcon className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -223,7 +223,7 @@ export const DashboardPage = () => {
                           <span className="triage-req-id">#{req.id}</span>
                           <strong className="triage-type-label">{req.type}</strong>
                           <span className="triage-time-tag">
-                            <ClockIcon className="w-3 h-3" />
+                            <ClockIcon className="w-3.5 h-3.5" />
                             {req.timestamp}
                           </span>
                         </div>
@@ -334,46 +334,46 @@ export const DashboardPage = () => {
       <div className="dashboard-quick-links">
         <div className="quick-link-tile" onClick={() => setActiveTab('map')}>
           <div className="quick-tile-icon cyan">
-            <MapIcon className="w-3.5 h-3.5" />
+            <MapIcon className="w-4 h-4" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">RISK MAP & RADAR</span>
             <span className="quick-tile-sub">Live Doppler & Threat GIS</span>
           </div>
-          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
         </div>
 
         <div className="quick-link-tile" onClick={() => setActiveTab('routes')}>
           <div className="quick-tile-icon emerald">
-            <RouteIcon className="w-3.5 h-3.5" />
+            <RouteIcon className="w-4 h-4" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">SAFE ROUTES</span>
             <span className="quick-tile-sub">Corridor Alpha (96% Safe)</span>
           </div>
-          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
         </div>
 
         <div className="quick-link-tile" onClick={() => setActiveTab('shelters')}>
           <div className="quick-tile-icon success">
-            <ShelterIcon className="w-3.5 h-3.5" />
+            <ShelterIcon className="w-4 h-4" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">SHELTERS DIRECTORY</span>
             <span className="quick-tile-sub">{totalOpenBeds} Beds Available</span>
           </div>
-          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
         </div>
 
         <div className="quick-link-tile" onClick={() => setActiveTab('alerts')}>
           <div className="quick-tile-icon warning">
-            <BellIcon className="w-3.5 h-3.5" />
+            <BellIcon className="w-4 h-4" />
           </div>
           <div className="quick-tile-info">
             <span className="quick-tile-title">EMERGENCY ALERTS</span>
             <span className="quick-tile-sub">{criticalAlertsCount} Critical Broadcasts</span>
           </div>
-          <ChevronRightIcon className="w-3 h-3 quick-tile-arrow" />
+          <ChevronRightIcon className="w-3.5 h-3.5 quick-tile-arrow" />
         </div>
       </div>
 
@@ -381,7 +381,7 @@ export const DashboardPage = () => {
         .dashboard-clean-view {
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 0.85rem;
           min-width: 0;
           width: 100%;
           max-width: 100%;
@@ -392,10 +392,10 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.65rem 1.15rem;
+          padding: 0.85rem 1.25rem;
           background: #090e1a;
           border: 1px solid rgba(239, 68, 68, 0.35);
-          border-left: 4px solid var(--danger);
+          border-left: 4.5px solid var(--danger);
           border-radius: var(--radius-md);
           gap: 1rem;
           flex-wrap: nowrap;
@@ -405,7 +405,7 @@ export const DashboardPage = () => {
         .threat-strip-left {
           display: flex;
           align-items: center;
-          gap: 0.65rem;
+          gap: 0.75rem;
           flex-shrink: 0;
         }
 
@@ -414,12 +414,12 @@ export const DashboardPage = () => {
           align-items: baseline;
           background: rgba(239, 68, 68, 0.16);
           border: 1px solid rgba(239, 68, 68, 0.45);
-          padding: 0.2rem 0.6rem;
-          border-radius: 6px;
+          padding: 0.25rem 0.7rem;
+          border-radius: 7px;
         }
 
         .threat-score-num {
-          font-size: 1.55rem;
+          font-size: 1.85rem;
           font-weight: 900;
           color: #ef4444;
           font-family: var(--font-mono);
@@ -427,7 +427,7 @@ export const DashboardPage = () => {
         }
 
         .threat-score-denom {
-          font-size: 0.68rem;
+          font-size: 0.78rem;
           font-weight: 700;
           color: #94a3b8;
           margin-left: 2px;
@@ -436,20 +436,20 @@ export const DashboardPage = () => {
         .threat-severity-tag {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
-          font-size: 0.68rem;
+          gap: 0.4rem;
+          font-size: 0.75rem;
           font-weight: 800;
           background: rgba(239, 68, 68, 0.25);
           border: 1px solid var(--danger);
           color: #ffffff;
-          padding: 0.2rem 0.5rem;
-          border-radius: 4px;
+          padding: 0.28rem 0.65rem;
+          border-radius: 5px;
           letter-spacing: 0.05em;
         }
 
         .threat-pulse-dot {
-          width: 6px;
-          height: 6px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
           background: var(--danger);
           box-shadow: 0 0 8px var(--danger);
@@ -459,7 +459,7 @@ export const DashboardPage = () => {
         .threat-strip-center {
           display: flex;
           flex-direction: column;
-          gap: 0.15rem;
+          gap: 0.25rem;
           flex: 1;
           min-width: 0;
         }
@@ -467,22 +467,22 @@ export const DashboardPage = () => {
         .threat-headline-row {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.5rem;
           flex-wrap: nowrap;
           overflow: hidden;
         }
 
         .threat-level-highlight {
-          font-size: 0.85rem;
+          font-size: 0.95rem;
           font-weight: 800;
           color: #ffffff;
           white-space: nowrap;
         }
 
         .threat-status-highlight {
-          font-size: 0.68rem;
+          font-size: 0.74rem;
           font-weight: 800;
-          padding: 0.08rem 0.45rem;
+          padding: 0.1rem 0.5rem;
           border-radius: 4px;
           background: rgba(239, 68, 68, 0.2);
           border: 1px solid rgba(239, 68, 68, 0.4);
@@ -492,7 +492,7 @@ export const DashboardPage = () => {
         }
 
         .threat-urgency-highlight {
-          font-size: 0.72rem;
+          font-size: 0.78rem;
           font-weight: 700;
           color: #e2e8f0;
           white-space: nowrap;
@@ -502,14 +502,14 @@ export const DashboardPage = () => {
 
         .threat-divider {
           color: #475569;
-          font-size: 0.7rem;
+          font-size: 0.75rem;
         }
 
         .threat-subline-row {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          font-size: 0.66rem;
+          gap: 0.55rem;
+          font-size: 0.72rem;
           color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;
@@ -536,9 +536,9 @@ export const DashboardPage = () => {
           border: 1px solid var(--cyan);
           color: #ffffff;
           font-family: var(--font-main);
-          font-size: 0.74rem;
+          font-size: 0.80rem;
           font-weight: 800;
-          padding: 0.4rem 0.85rem;
+          padding: 0.5rem 1rem;
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.2s ease;
@@ -548,7 +548,7 @@ export const DashboardPage = () => {
         .btn-open-gis-map:hover {
           background: var(--cyan);
           color: #050810;
-          box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+          box-shadow: 0 0 14px rgba(6, 182, 212, 0.5);
           transform: translateY(-1px);
         }
 
@@ -569,20 +569,20 @@ export const DashboardPage = () => {
 
         .triage-card-body,
         .resources-card-body {
-          padding: 0.65rem 0.95rem;
+          padding: 0.85rem 1.15rem;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           flex: 1;
-          gap: 0.55rem;
+          gap: 0.75rem;
         }
 
         .triage-filter-tabs {
           display: flex;
-          gap: 0.25rem;
+          gap: 0.3rem;
           background: #060913;
-          padding: 2px;
-          border-radius: 5px;
+          padding: 3px;
+          border-radius: 6px;
           border: 1px solid var(--border-subtle);
         }
 
@@ -590,10 +590,10 @@ export const DashboardPage = () => {
           background: transparent;
           border: none;
           color: #64748b;
-          font-size: 0.60rem;
+          font-size: 0.66rem;
           font-weight: 800;
-          padding: 0.18rem 0.45rem;
-          border-radius: 3px;
+          padding: 0.22rem 0.55rem;
+          border-radius: 4px;
           cursor: pointer;
           transition: all 0.15s ease;
         }
@@ -607,13 +607,13 @@ export const DashboardPage = () => {
         .triage-list {
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
+          gap: 0.6rem;
         }
 
         .triage-empty {
-          font-size: 0.72rem;
+          font-size: 0.78rem;
           color: var(--text-muted);
-          padding: 0.85rem;
+          padding: 1.25rem;
           text-align: center;
         }
 
@@ -621,20 +621,20 @@ export const DashboardPage = () => {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.5rem 0.75rem;
+          padding: 0.65rem 0.95rem;
           transition: border-color 0.2s ease, background 0.2s ease;
         }
 
         .triage-item.urgency-critical {
-          border-left: 3px solid var(--danger);
+          border-left: 3.5px solid var(--danger);
         }
 
         .triage-item.urgency-high {
-          border-left: 3px solid var(--warning);
+          border-left: 3.5px solid var(--warning);
         }
 
         .triage-item.urgency-medium {
-          border-left: 3px solid var(--cyan);
+          border-left: 3.5px solid var(--cyan);
         }
 
         .triage-item:hover {
@@ -645,28 +645,28 @@ export const DashboardPage = () => {
         .triage-item-main {
           display: flex;
           flex-direction: column;
-          gap: 0.25rem;
+          gap: 0.35rem;
         }
 
         .triage-item-line1 {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
+          gap: 0.5rem;
           min-width: 0;
         }
 
         .triage-badge {
-          font-size: 0.58rem;
+          font-size: 0.64rem;
           font-weight: 900;
           letter-spacing: 0.04em;
-          padding: 0.1rem 0.35rem;
+          padding: 0.12rem 0.45rem;
           border-radius: 3px;
           border: 1px solid;
           flex-shrink: 0;
         }
 
         .triage-req-id {
-          font-size: 0.65rem;
+          font-size: 0.72rem;
           font-weight: 800;
           font-family: var(--font-mono);
           color: var(--text-muted);
@@ -674,7 +674,7 @@ export const DashboardPage = () => {
         }
 
         .triage-type-label {
-          font-size: 0.74rem;
+          font-size: 0.84rem;
           font-weight: 800;
           color: #ffffff;
           white-space: nowrap;
@@ -686,8 +686,8 @@ export const DashboardPage = () => {
         .triage-time-tag {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
-          font-size: 0.60rem;
+          gap: 0.3rem;
+          font-size: 0.68rem;
           color: var(--text-muted);
           flex-shrink: 0;
           margin-left: auto;
@@ -697,15 +697,15 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.65rem;
+          font-size: 0.74rem;
           color: #94a3b8;
-          gap: 0.5rem;
+          gap: 0.6rem;
         }
 
         .triage-loc-block {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.4rem;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -713,11 +713,11 @@ export const DashboardPage = () => {
         }
 
         .triage-people-pill {
-          font-size: 0.58rem;
+          font-size: 0.64rem;
           font-weight: 800;
           background: rgba(255, 255, 255, 0.06);
-          padding: 0.08rem 0.35rem;
-          border-radius: 3px;
+          padding: 0.1rem 0.45rem;
+          border-radius: 4px;
           color: #cbd5e1;
           flex-shrink: 0;
         }
@@ -725,10 +725,10 @@ export const DashboardPage = () => {
         .triage-dispatch-info {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.4rem;
           color: var(--cyan);
           font-weight: 700;
-          font-size: 0.64rem;
+          font-size: 0.72rem;
           flex-shrink: 0;
         }
 
@@ -740,26 +740,26 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.45rem;
+          padding-top: 0.6rem;
           border-top: 1px solid var(--border-subtle);
-          font-size: 0.65rem;
+          font-size: 0.74rem;
         }
 
         .triage-footer-note {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.4rem;
           color: var(--text-muted);
         }
 
         .btn-manage-sos {
           display: inline-flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.35rem;
           background: transparent;
           border: none;
           color: var(--cyan);
-          font-size: 0.68rem;
+          font-size: 0.74rem;
           font-weight: 800;
           cursor: pointer;
         }
@@ -772,19 +772,19 @@ export const DashboardPage = () => {
         .fleet-status-pill {
           display: flex;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.35rem;
           background: rgba(16, 185, 129, 0.12);
           border: 1px solid rgba(16, 185, 129, 0.35);
           color: #34d399;
-          font-size: 0.58rem;
+          font-size: 0.64rem;
           font-weight: 800;
-          padding: 0.15rem 0.45rem;
+          padding: 0.18rem 0.55rem;
           border-radius: 9999px;
         }
 
         .pulse-fleet-dot {
-          width: 5px;
-          height: 5px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           background: #10b981;
           box-shadow: 0 0 6px #10b981;
@@ -793,17 +793,17 @@ export const DashboardPage = () => {
         .resources-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 0.5rem;
+          gap: 0.65rem;
         }
 
         .resource-tile {
           background: #080d1a;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
-          padding: 0.5rem 0.75rem;
+          padding: 0.65rem 0.95rem;
           display: flex;
           flex-direction: column;
-          gap: 0.3rem;
+          gap: 0.45rem;
           transition: border-color 0.2s ease;
         }
 
@@ -820,14 +820,14 @@ export const DashboardPage = () => {
         .res-tile-type-row {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.45rem;
           min-width: 0;
         }
 
         .res-tile-icon-wrap {
-          width: 22px;
-          height: 22px;
-          border-radius: 4px;
+          width: 26px;
+          height: 26px;
+          border-radius: 5px;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid var(--border-subtle);
           display: flex;
@@ -837,7 +837,7 @@ export const DashboardPage = () => {
         }
 
         .res-type-name {
-          font-size: 0.72rem;
+          font-size: 0.80rem;
           font-weight: 700;
           color: #e2e8f0;
           white-space: nowrap;
@@ -853,20 +853,20 @@ export const DashboardPage = () => {
         }
 
         .res-deployed-num {
-          font-size: 1.15rem;
+          font-size: 1.35rem;
           font-weight: 900;
           color: #ffffff;
         }
 
         .res-total-num {
-          font-size: 0.65rem;
+          font-size: 0.74rem;
           font-weight: 700;
           color: #64748b;
         }
 
         .res-progress-track {
           width: 100%;
-          height: 4px;
+          height: 5px;
           background: rgba(255, 255, 255, 0.06);
           border-radius: 9999px;
           overflow: hidden;
@@ -897,7 +897,7 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          font-size: 0.60rem;
+          font-size: 0.68rem;
           color: var(--text-muted);
         }
 
@@ -915,18 +915,18 @@ export const DashboardPage = () => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.38rem 0.65rem;
+          padding: 0.55rem 0.85rem;
           background: rgba(6, 182, 212, 0.06);
           border: 1px solid rgba(6, 182, 212, 0.2);
-          border-radius: 5px;
-          font-size: 0.65rem;
+          border-radius: 6px;
+          font-size: 0.74rem;
           color: #cbd5e1;
         }
 
         .fleet-banner-left {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.45rem;
         }
 
         .fleet-banner-left strong {
@@ -936,11 +936,11 @@ export const DashboardPage = () => {
         .fleet-action-link {
           display: inline-flex;
           align-items: center;
-          gap: 0.25rem;
+          gap: 0.3rem;
           background: transparent;
           border: none;
           color: var(--cyan);
-          font-size: 0.64rem;
+          font-size: 0.72rem;
           font-weight: 800;
           cursor: pointer;
         }
@@ -953,18 +953,18 @@ export const DashboardPage = () => {
         .dashboard-quick-links {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 0.65rem;
+          gap: 0.8rem;
           width: 100%;
         }
 
         .quick-link-tile {
           display: flex;
           align-items: center;
-          gap: 0.6rem;
+          gap: 0.75rem;
           background: #0d1424;
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-md);
-          padding: 0.5rem 0.75rem;
+          padding: 0.75rem 1rem;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -977,9 +977,9 @@ export const DashboardPage = () => {
         }
 
         .quick-tile-icon {
-          width: 26px;
-          height: 26px;
-          border-radius: 6px;
+          width: 32px;
+          height: 32px;
+          border-radius: 7px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -999,7 +999,7 @@ export const DashboardPage = () => {
         }
 
         .quick-tile-title {
-          font-size: 0.66rem;
+          font-size: 0.75rem;
           font-weight: 800;
           letter-spacing: 0.04em;
           color: #ffffff;
@@ -1009,7 +1009,7 @@ export const DashboardPage = () => {
         }
 
         .quick-tile-sub {
-          font-size: 0.58rem;
+          font-size: 0.68rem;
           color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;
