@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useDisaster } from '../context/DisasterContext';
 import { StatCard } from '../components/StatCard';
-import { SheltersSection } from '../components/SheltersSection';
-import { SafeRouteSection } from '../components/SafeRouteSection';
 import {
   AlertTriangleIcon,
   ShelterIcon,
-  RouteIcon,
   ActivityIcon,
   RadioIcon,
   MapIcon,
@@ -54,7 +51,7 @@ export const DashboardPage = () => {
   const totalOpenBeds = shelters.reduce((acc, s) => acc + s.bedsAvailable, 0);
   const openBedsPct = totalCapacity > 0 ? Math.round((totalOpenBeds / totalCapacity) * 100) : 30;
 
-  // Filter triage queue: strictly top 2 items by default for clean breathing room
+  // Filter triage queue: strictly top 2 items by default for clean breathing room & at-a-glance scanning
   const filteredTriage = (triageFilter === 'ALL'
     ? triageQueue
     : triageQueue.filter((item) => item.urgency === triageFilter)
@@ -90,7 +87,7 @@ export const DashboardPage = () => {
 
   return (
     <div className="dashboard-clean-view">
-      {/* Top 4 Operations Stat Counters */}
+      {/* 1. Top 4 Operations Stat Counters */}
       <div className="grid-stats">
         <StatCard
           title="Incident Threat Index"
@@ -100,6 +97,7 @@ export const DashboardPage = () => {
           trend="LIVE DIAL"
           color="danger"
           gaugeValue={scenario.riskScore}
+          onClick={() => setActiveTab('map')}
         />
         <StatCard
           title="Active Alerts"
@@ -108,6 +106,7 @@ export const DashboardPage = () => {
           icon={ActivityIcon}
           trend="+2 Broadcast"
           color="warning"
+          onClick={() => setActiveTab('alerts')}
         />
         <StatCard
           title="Operational Shelters"
@@ -117,6 +116,7 @@ export const DashboardPage = () => {
           trend="Safe Ridge"
           color="success"
           gaugeValue={openBedsPct}
+          onClick={() => setActiveTab('shelters')}
         />
         <StatCard
           title="Response Units Online"
@@ -125,10 +125,11 @@ export const DashboardPage = () => {
           icon={UsersIcon}
           trend="48 Mesh Nodes"
           color="cyan"
+          onClick={() => setActiveTab('routes')}
         />
       </div>
 
-      {/* Unified Executive Incident Command Strip */}
+      {/* 2. Unified Executive Incident Command Strip (One-Line Risk Summary) */}
       <div className="card-glass command-threat-strip">
         <div className="threat-strip-left">
           <div className="threat-score-box">
@@ -167,177 +168,163 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* Symmetrical 2-Column Command Grid */}
+      {/* 3. Symmetrical 2-Column Command Grid: AI Triage Queue + Resource Allocation */}
       <div className="grid-dashboard">
-        {/* =========================================================================
-            Column 1: AI Triage Queue (Top 2) & Safe Corridors Preview
-            ========================================================================= */}
-        <div className="dashboard-col">
-          {/* AI Triage Queue Card */}
-          <div className="card-glass triage-card">
-            <div className="card-header">
-              <div className="card-header-title">
-                <div className="header-icon-badge cyan">
-                  <SparklesIcon className="w-4 h-4 text-cyan" />
-                </div>
-                <span>AI TRIAGE QUEUE</span>
+        {/* Left Column: AI Triage Queue Card */}
+        <div className="card-glass triage-card">
+          <div className="card-header">
+            <div className="card-header-title">
+              <div className="header-icon-badge cyan">
+                <SparklesIcon className="w-4 h-4 text-cyan" />
               </div>
-
-              <div className="triage-filter-tabs">
-                {['ALL', 'CRITICAL', 'HIGH'].map((tab) => (
-                  <button
-                    key={tab}
-                    className={`triage-filter-btn ${triageFilter === tab ? 'active' : ''}`}
-                    onClick={() => setTriageFilter(tab)}
-                  >
-                    {tab}
-                    {tab === 'ALL' && ` (${triageQueue.length})`}
-                    {tab === 'CRITICAL' && ` (${triageQueue.filter((i) => i.urgency === 'CRITICAL').length})`}
-                  </button>
-                ))}
-              </div>
+              <span>AI TRIAGE QUEUE</span>
             </div>
 
-            <div className="card-body triage-card-body">
-              <div className="triage-list">
-                {loadingData ? (
-                  <div className="triage-empty">Loading prioritized distress queue...</div>
-                ) : filteredTriage.length === 0 ? (
-                  <div className="triage-empty">No incoming requests in this category.</div>
-                ) : (
-                  filteredTriage.map((req) => {
-                    const badge = getUrgencyBadgeStyle(req.urgency);
-                    return (
-                      <div key={req.id} className={`triage-item urgency-${req.urgency.toLowerCase()}`}>
-                        <div className="triage-item-main">
-                          <div className="triage-item-line1">
-                            <span
-                              className="triage-badge"
-                              style={{
-                                backgroundColor: badge.bg,
-                                borderColor: badge.border,
-                                color: badge.text
-                              }}
-                            >
-                              {req.urgency}
-                            </span>
-                            <span className="triage-req-id">#{req.id}</span>
-                            <strong className="triage-type-label">{req.type}</strong>
-                            <span className="triage-time-tag">
-                              <ClockIcon className="w-3 h-3" />
-                              {req.timestamp}
-                            </span>
-                          </div>
-
-                          <div className="triage-item-line2">
-                            <div className="triage-loc-block">
-                              <MapPinIcon className="w-3.5 h-3.5 text-cyan shrink-0" />
-                              <span>{req.location}</span>
-                              <span className="triage-people-pill">{req.peopleCount} {req.peopleCount > 1 ? 'people' : 'person'}</span>
-                            </div>
-                            <div className="triage-dispatch-info">
-                              <span>{req.assignedUnit}</span>
-                              <span className="eta-tag">ETA: {req.eta}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              <div className="triage-card-footer">
-                <div className="triage-footer-note">
-                  <RadioIcon className="w-3.5 h-3.5 text-cyan" />
-                  <span>LoRa Mesh Triangulated ({triageQueue.length} Total Distress Signals)</span>
-                </div>
-                <button className="btn-manage-sos" onClick={() => setActiveTab('sos')}>
-                  <span>View all in SOS Center ({triageQueue.length})</span>
-                  <ChevronRightIcon className="w-3.5 h-3.5" />
+            <div className="triage-filter-tabs">
+              {['ALL', 'CRITICAL', 'HIGH'].map((tab) => (
+                <button
+                  key={tab}
+                  className={`triage-filter-btn ${triageFilter === tab ? 'active' : ''}`}
+                  onClick={() => setTriageFilter(tab)}
+                >
+                  {tab}
+                  {tab === 'ALL' && ` (${triageQueue.length})`}
+                  {tab === 'CRITICAL' && ` (${triageQueue.filter((i) => i.urgency === 'CRITICAL').length})`}
                 </button>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Safe Evacuation Corridors Quick Preview */}
-          <SafeRouteSection compact={true} />
-        </div>
-
-        {/* =========================================================================
-            Column 2: Resource Allocation & Shelter Capacity Preview
-            ========================================================================= */}
-        <div className="dashboard-col">
-          {/* Resource Allocation Card */}
-          <div className="card-glass resources-card">
-            <div className="card-header">
-              <div className="card-header-title">
-                <div className="header-icon-badge success">
-                  <LayersIcon className="w-4 h-4 text-emerald-400" />
-                </div>
-                <span>RESOURCE ALLOCATION & FLEET</span>
-              </div>
-              <div className="fleet-status-pill">
-                <span className="pulse-fleet-dot"></span>
-                <span>MESH SYNCED</span>
-              </div>
-            </div>
-
-            <div className="card-body resources-card-body">
-              {/* Resource 4-Grid Cards */}
-              <div className="resources-grid">
-                {resources.map((res) => {
-                  const pct = Math.round((res.deployed / res.total) * 100);
+          <div className="card-body triage-card-body">
+            <div className="triage-list">
+              {loadingData ? (
+                <div className="triage-empty">Loading prioritized distress queue...</div>
+              ) : filteredTriage.length === 0 ? (
+                <div className="triage-empty">No incoming requests in this category.</div>
+              ) : (
+                filteredTriage.map((req) => {
+                  const badge = getUrgencyBadgeStyle(req.urgency);
                   return (
-                    <div key={res.id} className="resource-tile">
-                      <div className="res-tile-top">
-                        <div className="res-tile-type-row">
-                          <div className="res-tile-icon-wrap">
-                            {getResourceIcon(res.icon)}
+                    <div key={req.id} className={`triage-item urgency-${req.urgency.toLowerCase()}`}>
+                      <div className="triage-item-main">
+                        <div className="triage-item-line1">
+                          <span
+                            className="triage-badge"
+                            style={{
+                              backgroundColor: badge.bg,
+                              borderColor: badge.border,
+                              color: badge.text
+                            }}
+                          >
+                            {req.urgency}
+                          </span>
+                          <span className="triage-req-id">#{req.id}</span>
+                          <strong className="triage-type-label">{req.type}</strong>
+                          <span className="triage-time-tag">
+                            <ClockIcon className="w-3 h-3" />
+                            {req.timestamp}
+                          </span>
+                        </div>
+
+                        <div className="triage-item-line2">
+                          <div className="triage-loc-block">
+                            <MapPinIcon className="w-3.5 h-3.5 text-cyan shrink-0" />
+                            <span>{req.location}</span>
+                            <span className="triage-people-pill">
+                              {req.peopleCount} {req.peopleCount > 1 ? 'people' : 'person'}
+                            </span>
                           </div>
-                          <span className="res-type-name">{res.type}</span>
+                          <div className="triage-dispatch-info">
+                            <span>{req.assignedUnit}</span>
+                            <span className="eta-tag">ETA: {req.eta}</span>
+                          </div>
                         </div>
-                        <div className="res-tile-numbers">
-                          <span className="res-deployed-num">{res.deployed}</span>
-                          <span className="res-total-num">/{res.total}</span>
-                        </div>
-                      </div>
-
-                      {/* Clean Progress Bar */}
-                      <div className="res-progress-track">
-                        <div
-                          className={`res-progress-fill ${res.color}`}
-                          style={{ width: `${pct}%` }}
-                        ></div>
-                      </div>
-
-                      <div className="res-tile-footer">
-                        <span className="res-avail-tag">
-                          <strong>{res.available}</strong> Available
-                        </span>
-                        <span className="res-pct-text">{pct}% Active</span>
                       </div>
                     </div>
                   );
-                })}
-              </div>
+                })
+              )}
+            </div>
 
-              {/* Overall Resource Health Bar */}
-              <div className="resource-fleet-banner">
-                <div className="fleet-banner-left">
-                  <ShieldIcon className="w-4 h-4 text-cyan" />
-                  <span>Fleet Readiness: <strong>76% Mobilized</strong> • 0 Deficits Detected</span>
-                </div>
-                <button className="fleet-action-link" onClick={() => setActiveTab('map')}>
-                  <span>Inspect Fleet</span>
-                  <ChevronRightIcon className="w-3.5 h-3.5" />
-                </button>
+            <div className="triage-card-footer">
+              <div className="triage-footer-note">
+                <RadioIcon className="w-3.5 h-3.5 text-cyan" />
+                <span>LoRa Mesh Triangulated ({triageQueue.length} Signals)</span>
               </div>
+              <button className="btn-manage-sos" onClick={() => setActiveTab('sos')}>
+                <span>View all in SOS Center ({triageQueue.length})</span>
+                <ChevronRightIcon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Resource Allocation & Fleet Readiness Card */}
+        <div className="card-glass resources-card">
+          <div className="card-header">
+            <div className="card-header-title">
+              <div className="header-icon-badge success">
+                <LayersIcon className="w-4 h-4 text-emerald-400" />
+              </div>
+              <span>RESOURCE ALLOCATION & FLEET</span>
+            </div>
+            <div className="fleet-status-pill">
+              <span className="pulse-fleet-dot"></span>
+              <span>MESH SYNCED</span>
             </div>
           </div>
 
-          {/* Operational Shelters Compact Preview */}
-          <SheltersSection limit={2} compact={true} showViewAll={true} />
+          <div className="card-body resources-card-body">
+            {/* Resource 4-Grid Cards */}
+            <div className="resources-grid">
+              {resources.map((res) => {
+                const pct = Math.round((res.deployed / res.total) * 100);
+                return (
+                  <div key={res.id} className="resource-tile">
+                    <div className="res-tile-top">
+                      <div className="res-tile-type-row">
+                        <div className="res-tile-icon-wrap">
+                          {getResourceIcon(res.icon)}
+                        </div>
+                        <span className="res-type-name">{res.type}</span>
+                      </div>
+                      <div className="res-tile-numbers">
+                        <span className="res-deployed-num">{res.deployed}</span>
+                        <span className="res-total-num">/{res.total}</span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="res-progress-track">
+                      <div
+                        className={`res-progress-fill ${res.color}`}
+                        style={{ width: `${pct}%` }}
+                      ></div>
+                    </div>
+
+                    <div className="res-tile-footer">
+                      <span className="res-avail-tag">
+                        <strong>{res.available}</strong> Available
+                      </span>
+                      <span className="res-pct-text">{pct}% Active</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Overall Resource Health Bar */}
+            <div className="resource-fleet-banner">
+              <div className="fleet-banner-left">
+                <ShieldIcon className="w-4 h-4 text-cyan" />
+                <span>Fleet Readiness: <strong>76% Mobilized</strong> • 0 Deficits</span>
+              </div>
+              <button className="fleet-action-link" onClick={() => setActiveTab('map')}>
+                <span>Inspect Fleet</span>
+                <ChevronRightIcon className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -523,18 +510,21 @@ export const DashboardPage = () => {
           }
         }
 
-        .dashboard-col {
+        /* 2-Column Command Grid */
+        .triage-card,
+        .resources-card {
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
-          min-width: 0;
+          height: 100%;
         }
 
-        /* AI Triage Queue Card */
-        .triage-card-body {
+        .triage-card-body,
+        .resources-card-body {
           padding: 0.75rem 0.95rem;
           display: flex;
           flex-direction: column;
+          justify-content: space-between;
+          flex: 1;
           gap: 0.65rem;
         }
 
@@ -730,13 +720,6 @@ export const DashboardPage = () => {
         }
 
         /* Resource Allocation Card */
-        .resources-card-body {
-          padding: 0.75rem 0.95rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.65rem;
-        }
-
         .fleet-status-pill {
           display: flex;
           align-items: center;
@@ -922,6 +905,3 @@ export const DashboardPage = () => {
 };
 
 export default DashboardPage;
-
-
-

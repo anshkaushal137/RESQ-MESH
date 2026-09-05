@@ -8,38 +8,39 @@ export const StatCard = ({
   icon: Icon,
   trend,
   color = 'cyan',
-  gaugeValue = null
+  gaugeValue = null,
+  onClick
 }) => {
   const colorMap = {
     cyan: {
       bg: 'rgba(6, 182, 212, 0.12)',
       border: 'rgba(6, 182, 212, 0.35)',
       text: 'var(--cyan)',
-      glow: 'rgba(6, 182, 212, 0.15)'
+      glow: 'rgba(6, 182, 212, 0.25)'
     },
     danger: {
       bg: 'rgba(239, 68, 68, 0.12)',
       border: 'rgba(239, 68, 68, 0.35)',
       text: 'var(--danger)',
-      glow: 'rgba(239, 68, 68, 0.15)'
+      glow: 'rgba(239, 68, 68, 0.25)'
     },
     warning: {
       bg: 'rgba(245, 158, 11, 0.12)',
       border: 'rgba(245, 158, 11, 0.35)',
       text: 'var(--warning)',
-      glow: 'rgba(245, 158, 11, 0.15)'
+      glow: 'rgba(245, 158, 11, 0.25)'
     },
     success: {
       bg: 'rgba(16, 185, 129, 0.12)',
       border: 'rgba(16, 185, 129, 0.35)',
       text: 'var(--success)',
-      glow: 'rgba(16, 185, 129, 0.15)'
+      glow: 'rgba(16, 185, 129, 0.25)'
     },
     purple: {
       bg: 'rgba(139, 92, 246, 0.12)',
       border: 'rgba(139, 92, 246, 0.35)',
       text: 'var(--purple)',
-      glow: 'rgba(139, 92, 246, 0.15)'
+      glow: 'rgba(139, 92, 246, 0.25)'
     }
   };
 
@@ -47,7 +48,20 @@ export const StatCard = ({
 
   return (
     <div
-      className="stat-card"
+      className={`stat-card ${onClick ? 'is-clickable' : ''}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       style={{
         borderTop: `2px solid ${scheme.text}`,
         background: `radial-gradient(circle at 85% 0%, ${scheme.bg} 0%, rgba(13, 20, 36, 0.98) 70%), #0d1424`,
@@ -111,13 +125,22 @@ export const StatCard = ({
           gap: 0.3rem;
           min-width: 0;
           width: 100%;
-          transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+          transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .stat-card:hover {
+        .stat-card.is-clickable {
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .stat-card.is-clickable:hover {
           transform: translateY(-2px);
-          border-color: rgba(255, 255, 255, 0.2);
-          box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.6);
+          border-color: rgba(255, 255, 255, 0.28);
+          box-shadow: 0 6px 24px -2px rgba(0, 0, 0, 0.65), 0 0 14px ${scheme.glow};
+        }
+
+        .stat-card.is-clickable:active {
+          transform: translateY(0);
         }
 
         .stat-top {
@@ -212,4 +235,5 @@ export const StatCard = ({
     </div>
   );
 };
+
 export default StatCard;
