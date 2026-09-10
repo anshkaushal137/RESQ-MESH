@@ -3,11 +3,10 @@ import { useDisaster } from '../context/DisasterContext';
 import { StatCard } from '../components/StatCard';
 import { SmartDispatchModal } from '../components/SmartDispatchModal';
 import { DynamicSurgeBanner } from '../components/DynamicSurgeBanner';
+import { ResourceDetailModal } from '../components/ResourceDetailModal';
 import {
   AlertTriangleIcon,
   ShelterIcon,
-  RouteIcon,
-  BellIcon,
   ActivityIcon,
   RadioIcon,
   MapIcon,
@@ -39,6 +38,11 @@ export const DashboardPage = () => {
   const [selectedTriageRequest, setSelectedTriageRequest] = useState(null);
   const [dispatchModalOpen, setDispatchModalOpen] = useState(false);
 
+  // Resource Detail & Fleet Inspection Modal State
+  const [resourceModalOpen, setResourceModalOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState(null);
+  const [resourceModalMode, setResourceModalMode] = useState('SINGLE'); // 'SINGLE' | 'FLEET'
+
   // Dynamic Surge Simulation State
   const [surgeState, setSurgeState] = useState('DISMISSED'); // 'CALCULATING' | 'READY' | 'DISMISSED'
   const [surgeData, setSurgeData] = useState(null);
@@ -61,6 +65,18 @@ export const DashboardPage = () => {
   const handleOpenDispatchModal = (req) => {
     setSelectedTriageRequest(req);
     setDispatchModalOpen(true);
+  };
+
+  const handleOpenResourceModal = (res) => {
+    setSelectedResource(res);
+    setResourceModalMode('SINGLE');
+    setResourceModalOpen(true);
+  };
+
+  const handleOpenFleetInspection = () => {
+    setSelectedResource(null);
+    setResourceModalMode('FLEET');
+    setResourceModalOpen(true);
   };
 
   const handleDispatchSuccess = (result) => {
@@ -386,7 +402,20 @@ export const DashboardPage = () => {
               {resources.map((res) => {
                 const pct = Math.round((res.deployed / res.total) * 100);
                 return (
-                  <div key={res.id} className="resource-tile">
+                  <div
+                    key={res.id}
+                    className="resource-tile is-clickable"
+                    onClick={() => handleOpenResourceModal(res)}
+                    role="button"
+                    tabIndex={0}
+                    title={`Click to inspect ${res.type} unit assignments & telemetry`}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleOpenResourceModal(res);
+                      }
+                    }}
+                  >
                     <div className="res-tile-top">
                       <div className="res-tile-type-row">
                         <div className="res-tile-icon-wrap">
@@ -425,7 +454,11 @@ export const DashboardPage = () => {
                 <ShieldIcon className="w-4 h-4 text-cyan" />
                 <span>Fleet Readiness: <strong>76% Mobilized</strong> • 0 Deficits</span>
               </div>
-              <button className="fleet-action-link" onClick={() => setActiveTab('map')}>
+              <button
+                className="fleet-action-link"
+                onClick={handleOpenFleetInspection}
+                title="Inspect consolidated fleet telemetry across all resource categories"
+              >
                 <span>Inspect Fleet</span>
                 <ChevronRightIcon className="w-3.5 h-3.5" />
               </button>
@@ -434,59 +467,21 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* 4. Quick Module Previews & Navigation Bar */}
-      <div className="dashboard-quick-links">
-        <div className="quick-link-tile" onClick={() => setActiveTab('map')}>
-          <div className="quick-tile-icon cyan">
-            <MapIcon className="w-5 h-5" />
-          </div>
-          <div className="quick-tile-info">
-            <span className="quick-tile-title">RISK MAP & RADAR</span>
-            <span className="quick-tile-sub">Live Doppler & Threat GIS</span>
-          </div>
-          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
-        </div>
-
-        <div className="quick-link-tile" onClick={() => setActiveTab('routes')}>
-          <div className="quick-tile-icon emerald">
-            <RouteIcon className="w-5 h-5" />
-          </div>
-          <div className="quick-tile-info">
-            <span className="quick-tile-title">SAFE ROUTES</span>
-            <span className="quick-tile-sub">Corridor Alpha (96% Safe)</span>
-          </div>
-          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
-        </div>
-
-        <div className="quick-link-tile" onClick={() => setActiveTab('shelters')}>
-          <div className="quick-tile-icon success">
-            <ShelterIcon className="w-5 h-5" />
-          </div>
-          <div className="quick-tile-info">
-            <span className="quick-tile-title">SHELTERS DIRECTORY</span>
-            <span className="quick-tile-sub">{totalOpenBeds} Beds Available</span>
-          </div>
-          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
-        </div>
-
-        <div className="quick-link-tile" onClick={() => setActiveTab('alerts')}>
-          <div className="quick-tile-icon warning">
-            <BellIcon className="w-5 h-5" />
-          </div>
-          <div className="quick-tile-info">
-            <span className="quick-tile-title">EMERGENCY ALERTS</span>
-            <span className="quick-tile-sub">{criticalAlertsCount} Critical Broadcasts</span>
-          </div>
-          <ChevronRightIcon className="w-4 h-4 quick-tile-arrow" />
-        </div>
-      </div>
-
-      {/* 5. Smart Dispatch Modal Popup */}
+      {/* 4. Smart Dispatch Modal Popup */}
       <SmartDispatchModal
         isOpen={dispatchModalOpen}
         request={selectedTriageRequest}
         onClose={() => setDispatchModalOpen(false)}
         onDispatchSuccess={handleDispatchSuccess}
+      />
+
+      {/* 5. Resource Allocation & Fleet Inspection Modal Popup */}
+      <ResourceDetailModal
+        isOpen={resourceModalOpen}
+        resource={selectedResource}
+        allResources={resources}
+        mode={resourceModalMode}
+        onClose={() => setResourceModalOpen(false)}
       />
 
       <style>{`
@@ -1018,11 +1013,28 @@ export const DashboardPage = () => {
           display: flex;
           flex-direction: column;
           gap: 0.55rem;
-          transition: border-color 0.2s ease;
+          transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
         }
 
-        .resource-tile:hover {
-          border-color: rgba(6, 182, 212, 0.3);
+        .resource-tile.is-clickable {
+          cursor: pointer;
+          user-select: none;
+        }
+
+        .resource-tile.is-clickable:hover {
+          border-color: rgba(6, 182, 212, 0.55);
+          background: #0d1527;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.55), 0 0 12px rgba(6, 182, 212, 0.15);
+        }
+
+        .resource-tile.is-clickable:active {
+          transform: translateY(0);
+        }
+
+        .resource-tile.is-clickable:focus-visible {
+          outline: 2px solid var(--cyan);
+          outline-offset: 2px;
         }
 
         .res-tile-top {
@@ -1156,111 +1168,24 @@ export const DashboardPage = () => {
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          background: transparent;
-          border: none;
+          background: rgba(6, 182, 212, 0.12);
+          border: 1px solid rgba(6, 182, 212, 0.35);
           color: var(--cyan);
-          font-size: 0.78rem;
+          font-size: 0.76rem;
           font-weight: 800;
-          cursor: pointer;
-        }
-
-        .fleet-action-link:hover {
-          text-decoration: underline;
-        }
-
-        /* 4. Quick Module Previews & Navigation Bar */
-        .dashboard-quick-links {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 0.95rem;
-          width: 100%;
-        }
-
-        .quick-link-tile {
-          display: flex;
-          align-items: center;
-          gap: 0.90rem;
-          background: #0d1424;
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-          padding: 0.95rem 1.25rem;
+          padding: 0.24rem 0.65rem;
+          border-radius: 5px;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .quick-link-tile:hover {
-          transform: translateY(-2px);
-          border-color: rgba(6, 182, 212, 0.45);
-          background: #111a30;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-        }
-
-        .quick-tile-icon {
-          width: 42px;
-          height: 42px;
-          border-radius: 9px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .quick-tile-icon svg {
-          width: 22px;
-          height: 22px;
-        }
-
-        .quick-tile-icon.cyan { background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.35); color: var(--cyan); }
-        .quick-tile-icon.emerald { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; }
-        .quick-tile-icon.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; }
-        .quick-tile-icon.warning { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); color: var(--warning); }
-
-        .quick-tile-info {
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-          flex: 1;
-        }
-
-        .quick-tile-title {
-          font-size: 0.84rem;
-          font-weight: 800;
-          letter-spacing: 0.04em;
+        .fleet-action-link:hover {
+          background: rgba(6, 182, 212, 0.25);
+          border-color: var(--cyan);
           color: #ffffff;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .quick-tile-sub {
-          font-size: 0.76rem;
-          color: var(--text-secondary);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .quick-tile-arrow {
-          color: #64748b;
-          flex-shrink: 0;
-          transition: transform 0.2s ease, color 0.2s ease;
-        }
-
-        .quick-link-tile:hover .quick-tile-arrow {
-          color: var(--cyan);
-          transform: translateX(2px);
-        }
-
-        @media (max-width: 960px) {
-          .dashboard-quick-links {
-            grid-template-columns: repeat(2, 1fr);
-          }
-        }
-
-        @media (max-width: 580px) {
-          .dashboard-quick-links {
-            grid-template-columns: 1fr;
-          }
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.35);
+          transform: translateY(-1px);
+          text-decoration: none;
         }
       `}</style>
     </div>

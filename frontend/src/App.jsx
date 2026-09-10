@@ -96,6 +96,8 @@ const AppContent = () => {
           z-index: 38;
           backdrop-filter: blur(8px);
           width: 100%;
+          cursor: default;
+          user-select: text;
         }
 
         .ticker-inner {

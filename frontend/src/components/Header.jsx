@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDisaster } from '../context/DisasterContext';
-import { ShieldIcon, SirenIcon, RadioIcon, AlertTriangleIcon, MenuIcon, BellIcon } from './Icons';
+import { LogoShieldIcon, RadioIcon, MenuIcon, BellIcon } from './Icons';
 import { DISASTER_SCENARIOS } from '../data/mockData';
 
 export const Header = ({ onToggleSidebar }) => {
@@ -8,10 +8,6 @@ export const Header = ({ onToggleSidebar }) => {
     scenarioKey,
     switchScenario,
     scenario,
-    setSosModalOpen,
-    sosActive,
-    audioSirenEnabled,
-    setAudioSirenEnabled,
     currentAlerts,
     acknowledgedAlerts,
     setActiveTab
@@ -47,11 +43,11 @@ export const Header = ({ onToggleSidebar }) => {
 
           <div className="brand-badge" onClick={() => setActiveTab('dashboard')} style={{ cursor: 'pointer' }}>
             <div className="brand-logo-glow">
-              <ShieldIcon className="w-5 h-5 text-cyan" />
+              <LogoShieldIcon className="w-5 h-5" />
             </div>
             <div className="brand-text-block">
               <div className="brand-title">
-                RESQ <span>MESH</span>
+                ResQ <span>Mesh</span>
               </div>
               <div className="brand-sub">AI Emergency Command</div>
             </div>
@@ -80,7 +76,7 @@ export const Header = ({ onToggleSidebar }) => {
           </div>
         </div>
 
-        {/* Right: Live Running Timer, Commander Profile, Notification Bell, SOS Panic Button */}
+        {/* Right: Live Running Timer, Mesh Status, Notification Bell */}
         <div className="header-right">
           {/* Live Badge with Running Timer */}
           <div className="live-timer-badge" title="Live incident tracking runtime">
@@ -95,15 +91,6 @@ export const Header = ({ onToggleSidebar }) => {
             <span className="mesh-text">48 MESH</span>
           </div>
 
-          {/* Siren Alert Toggle */}
-          <button
-            className={`siren-toggle-btn ${audioSirenEnabled ? 'active' : ''}`}
-            onClick={() => setAudioSirenEnabled(!audioSirenEnabled)}
-            title={audioSirenEnabled ? 'Emergency Siren Active' : 'Enable Siren Broadcasts'}
-          >
-            <SirenIcon className={`w-3.5 h-3.5 ${audioSirenEnabled ? 'text-danger' : 'text-slate-400'}`} />
-          </button>
-
           {/* Notification Bell with Badge */}
           <button 
             className="notif-bell-btn" 
@@ -114,26 +101,6 @@ export const Header = ({ onToggleSidebar }) => {
             {unreadAlertsCount > 0 && (
               <span className="notif-badge">{unreadAlertsCount}</span>
             )}
-          </button>
-
-          {/* Commander / User Profile Badge */}
-          <div className="commander-profile-badge" title="Disaster Operations Commander">
-            <div className="commander-avatar">
-              <span>⚡</span>
-            </div>
-            <div className="commander-info">
-              <span className="commander-name">CMD. DISPATCH</span>
-              <span className="commander-role">SECTOR 04</span>
-            </div>
-          </div>
-
-          {/* SOS Panic Action Button */}
-          <button
-            className={`btn-sos ${sosActive ? 'pulse-beacon' : ''}`}
-            onClick={() => setSosModalOpen(true)}
-          >
-            <AlertTriangleIcon className="w-3.5 h-3.5" />
-            <span>{sosActive ? 'SOS ACTIVE' : 'EMERGENCY SOS'}</span>
           </button>
         </div>
       </div>
@@ -211,15 +178,17 @@ export const Header = ({ onToggleSidebar }) => {
         }
 
         .brand-title {
-          font-size: 0.92rem;
-          font-weight: 800;
-          letter-spacing: 0.06em;
+          font-family: 'Poppins', 'Montserrat', sans-serif;
+          font-size: 0.98rem;
+          font-weight: 700;
+          letter-spacing: 0.04em;
           color: #ffffff;
           line-height: 1.1;
         }
 
         .brand-title span {
           color: var(--cyan);
+          font-weight: 700;
         }
 
         .brand-sub {
@@ -293,7 +262,7 @@ export const Header = ({ onToggleSidebar }) => {
         .header-right {
           display: flex;
           align-items: center;
-          gap: 0.6rem;
+          gap: 1rem;
           flex-shrink: 0;
         }
 
@@ -301,7 +270,7 @@ export const Header = ({ onToggleSidebar }) => {
           display: flex;
           align-items: center;
           gap: 0.4rem;
-          padding: 0.25rem 0.6rem;
+          padding: 0.25rem 0.65rem;
           background: rgba(239, 68, 68, 0.12);
           border: 1px solid rgba(239, 68, 68, 0.35);
           border-radius: 9999px;
@@ -336,7 +305,7 @@ export const Header = ({ onToggleSidebar }) => {
           display: flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.25rem 0.55rem;
+          padding: 0.25rem 0.6rem;
           background: rgba(6, 182, 212, 0.08);
           border: 1px solid rgba(6, 182, 212, 0.25);
           border-radius: 9999px;
@@ -345,28 +314,6 @@ export const Header = ({ onToggleSidebar }) => {
           font-weight: 700;
           color: var(--cyan);
           white-space: nowrap;
-        }
-
-        .siren-toggle-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 30px;
-          height: 30px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .siren-toggle-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        .siren-toggle-btn.active {
-          background: var(--danger-bg);
-          border-color: var(--danger-border);
         }
 
         .notif-bell-btn {
@@ -386,6 +333,7 @@ export const Header = ({ onToggleSidebar }) => {
         .notif-bell-btn:hover {
           background: rgba(255, 255, 255, 0.08);
           color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.15);
         }
 
         .notif-badge {
@@ -406,51 +354,8 @@ export const Header = ({ onToggleSidebar }) => {
           border: 1.5px solid #090e18;
         }
 
-        .commander-profile-badge {
-          display: flex;
-          align-items: center;
-          gap: 0.45rem;
-          padding: 0.22rem 0.55rem;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
-          user-select: none;
-        }
-
-        .commander-avatar {
-          width: 22px;
-          height: 22px;
-          border-radius: 5px;
-          background: rgba(6, 182, 212, 0.2);
-          border: 1px solid var(--cyan);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.65rem;
-        }
-
-        .commander-info {
-          display: flex;
-          flex-direction: column;
-          line-height: 1;
-        }
-
-        .commander-name {
-          font-size: 0.62rem;
-          font-weight: 800;
-          letter-spacing: 0.04em;
-          color: #ffffff;
-        }
-
-        .commander-role {
-          font-size: 0.52rem;
-          color: var(--cyan);
-          font-weight: 700;
-          margin-top: 1px;
-        }
-
         @media (max-width: 1024px) {
-          .mesh-status-indicator, .commander-profile-badge {
+          .mesh-status-indicator {
             display: none;
           }
         }

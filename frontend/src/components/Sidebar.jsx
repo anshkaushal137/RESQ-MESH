@@ -122,16 +122,16 @@ export const Sidebar = ({ isOpen, onClose }) => {
           <button
             className={`sidebar-sos-trigger ${sosActive ? 'is-active' : ''}`}
             onClick={() => setSosModalOpen(true)}
-            title="Trigger emergency SOS distress beacon"
+            title="Trigger quick emergency SOS distress beacon"
           >
             <div className="sos-btn-icon-wrap">
               <AlertTriangleIcon className="w-4 h-4" />
             </div>
             <div className="sos-btn-text-block">
               <span className="sos-btn-headline">
-                {sosActive ? 'SOS ACTIVE' : 'SEND DISTRESS SOS'}
+                {sosActive ? 'SOS ACTIVE' : 'Quick SOS Beacon'}
               </span>
-              <span className="sos-btn-sub">Direct Mesh Dispatch</span>
+              <span className="sos-btn-sub">Instant Distress Signal</span>
             </div>
           </button>
         </div>
