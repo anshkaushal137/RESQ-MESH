@@ -786,7 +786,7 @@ export const SosPage = () => {
                   aria-label="Press to send distress signal"
                 >
                   <div className="massive-icon-pulse">
-                    <AlertTriangleIcon className="w-12 h-12" />
+                    <AlertTriangleIcon className="w-6 h-6" />
                   </div>
                   <span className="massive-text">PRESS TO SEND DISTRESS SIGNAL</span>
                   <span className="massive-sub">INSTANT GPS LOCK & DIRECT RESCUE DISPATCH</span>
@@ -1624,8 +1624,8 @@ export const SosPage = () => {
         .sos-instruction-box {
           width: 100%;
           max-width: 520px;
-          margin-bottom: 2rem;
-          padding: 0.85rem 1rem;
+          margin-bottom: 1.25rem;
+          padding: 0.75rem 1rem;
           background: rgba(15, 23, 42, 0.6);
           border: 1px solid var(--border-subtle);
           border-radius: var(--radius-sm);
@@ -1634,40 +1634,40 @@ export const SosPage = () => {
         .sos-explainer {
           font-size: 0.88rem;
           color: #cbd5e1;
-          line-height: 1.55;
+          line-height: 1.5;
           margin: 0;
         }
 
-        /* Clickable Distress Signal Button */
+        /* Clickable Distress Signal Button - Compact Prominent Height (~50% original) */
         .btn-sos-massive {
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 0.75rem;
+          gap: 0.35rem;
           width: 100%;
           max-width: 440px;
-          min-height: 190px;
-          padding: 1.5rem 1rem;
+          min-height: 88px;
+          padding: 0.75rem 1.25rem;
           background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
           border: 2px solid rgba(255, 255, 255, 0.35);
-          border-radius: var(--radius-xl);
+          border-radius: var(--radius-lg);
           color: #ffffff;
           cursor: pointer;
-          box-shadow: 0 10px 40px rgba(239, 68, 68, 0.5);
+          box-shadow: 0 8px 30px rgba(239, 68, 68, 0.5);
           transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
         }
 
         .btn-sos-massive:hover {
-          transform: translateY(-4px) scale(1.02);
-          box-shadow: 0 15px 50px rgba(239, 68, 68, 0.75);
+          transform: translateY(-2px) scale(1.01);
+          box-shadow: 0 12px 40px rgba(239, 68, 68, 0.75);
           border-color: #ffffff;
         }
 
         .btn-sos-massive:active {
-          transform: translateY(-1px) scale(0.99);
+          transform: translateY(0) scale(0.99);
         }
 
         .massive-icon-pulse {
@@ -1678,19 +1678,21 @@ export const SosPage = () => {
         }
 
         .massive-text {
-          font-size: 1.25rem;
+          font-size: 1.05rem;
           font-weight: 900;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.05em;
           font-family: var(--font-main);
           color: #ffffff;
           text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+          line-height: 1.2;
         }
 
         .massive-sub {
-          font-size: 0.75rem;
+          font-size: 0.68rem;
           font-weight: 700;
           color: #fca5a5;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.06em;
+          line-height: 1.2;
         }
 
         .radar-beacon-active {
