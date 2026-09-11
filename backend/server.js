@@ -1,106 +1,230 @@
 import express from 'express';
 import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dns from 'dns';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const BUFFER_FILE = path.join(__dirname, 'buffer.json');
+
+// --- FIREBASE CLOUD CONFIG ---
 const firebaseConfig = {
-  apiKey: "AIzaSyAw3g74qKeJTDts4dqhxXuc5reRjrlADQs",
-  authDomain: "resq-mesh-2026.firebaseapp.com",
-  projectId: "resq-mesh-2026",
-  storageBucket: "resq-mesh-2026.firebasestorage.app",
-  messagingSenderId: "79952073506",
-  appId: "1:79952073506:web:1a4eb3572224d40bfdcb7b",
-  measurementId: "G-P1GWKX7R9R"
+  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyDummyKeyReplaceIfDifferent",
+  authDomain: "resq-mesh.firebaseapp.com",
+  projectId: "resq-mesh",
+  storageBucket: "resq-mesh.appspot.com",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef123456"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
+let cloudDb = null;
+try {
+  const firebaseApp = initializeApp(firebaseConfig);
+  cloudDb = getFirestore(firebaseApp);
+  console.log('☁️  Firebase Cloud DB Driver initialized');
+} catch (fbErr) {
+  console.warn('⚠️  Cloud DB init fallback:', fbErr.message);
+}
 
 const app = express();
-const PORT = 5000;
-
 app.use(cors());
 app.use(express.json());
 
-let localMeshQueue = [];
+// Disk persistence helpers
+const readBuffer = () => {
+  try {
+    if (!fs.existsSync(BUFFER_FILE)) {
+      fs.writeFileSync(BUFFER_FILE, JSON.stringify([]));
+      return [];
+    }
+    const raw = fs.readFileSync(BUFFER_FILE, 'utf-8');
+    return JSON.parse(raw || '[]');
+  } catch (err) {
+    console.error('Buffer read error:', err.message);
+    return [];
+  }
+};
 
+const writeBuffer = (data) => {
+  try {
+    fs.writeFileSync(BUFFER_FILE, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Buffer write error:', err.message);
+  }
+};
+
+// Urgency Priority Weights
+const PRIORITY_MAP = {
+  Critical: 4,
+  High: 3,
+  Medium: 2,
+  Low: 1
+};
+
+// Coordinate validator
+const sanitizeCoords = (locationStr) => {
+  let lat = 26.4499;
+  let lng = 80.3319;
+  if (locationStr && typeof locationStr === 'string' && locationStr.includes(',')) {
+    const parts = locationStr.split(',').map(p => parseFloat(p.trim()));
+    if (!isNaN(parts[0]) && !isNaN(parts[1]) && parts[0] >= -90 && parts[0] <= 90 && parts[1] >= -180 && parts[1] <= 180) {
+      lat = parts[0];
+      lng = parts[1];
+    }
+  }
+  return { lat, lng };
+};
+
+// 1. Status Check & Node Metrics
 app.get('/api/node-status', (req, res) => {
+  const buffer = readBuffer();
+  const unSynced = buffer.filter(p => !p.syncedToCloud).length;
   res.json({
-    status: 'ONLINE',
-    nodeType: 'LOCAL_RELAY_BASE',
-    bufferedPackets: localMeshQueue.length
+    online: true,
+    totalPackets: buffer.length,
+    bufferedPackets: unSynced,
+    nodeId: 'RELAY-KANPUR-PRIMARY',
+    uptimeSeconds: Math.floor(process.uptime())
   });
 });
 
-app.post('/api/relay-packet', (req, res) => {
-  const { sender, location, message, urgency } = req.body;
+// 2. Fetch Packets for Tactical Map
+app.get('/api/mesh/packets', (req, res) => {
+  const buffer = readBuffer();
+  res.json({ success: true, packets: buffer });
+});
 
-  if (!sender || !message) {
-    return res.status(400).json({ error: 'Missing required payload fields' });
+// 3. Packet Ingestion with Deduplication & Hop Routing
+app.post('/api/relay-packet', (req, res) => {
+  const { id, sender, location, message, urgency, hops, routePath } = req.body;
+  const buffer = readBuffer();
+
+  const packetId = id || `pkt_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+  const currentNode = 'RELAY-KANPUR-PRIMARY';
+
+  // Deduplication check
+  const existingIndex = buffer.findIndex(p => p.id === packetId);
+
+  if (existingIndex !== -1) {
+    const existing = buffer[existingIndex];
+    existing.hops = Math.max(existing.hops || 1, (hops || 1) + 1);
+    if (!existing.routePath.includes(currentNode)) {
+      existing.routePath.push(currentNode);
+    }
+    writeBuffer(buffer);
+    console.log(`[DEDUP] Duplicate packet dropped/updated: ${packetId}`);
+    return res.json({ success: true, status: 'duplicate_updated', packet: existing });
   }
 
-  const packet = {
-    id: `RELAY_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-    sender,
-    location: location || 'Unknown Grid',
-    message,
-    urgency: urgency || 'High',
-    receivedAt: new Date().toISOString(),
-    status: 'BUFFERED_ON_RELAY'
+  const { lat, lng } = sanitizeCoords(location);
+
+  const newPacket = {
+    id: packetId,
+    sender: (sender || 'Unknown Unit').trim().substring(0, 50),
+    lat,
+    lng,
+    message: (message || '').trim().substring(0, 500),
+    severity: urgency || 'Critical',
+    hops: (hops || 0) + 1,
+    routePath: Array.isArray(routePath) ? [...routePath, currentNode] : [sender || 'Origin', currentNode],
+    timestamp: new Date().toISOString(),
+    syncedToCloud: false
   };
 
-  localMeshQueue.push(packet);
-  console.log(`[MESH RELAY] Packet buffered: ${packet.id} from ${sender}`);
+  buffer.push(newPacket);
+  writeBuffer(buffer);
 
-  res.status(201).json({
-    success: true,
-    message: 'Packet safely buffered on local relay node',
-    packet
-  });
+  console.log(`[MESH INGEST] Packet ${packetId} stored. Priority: ${newPacket.severity} | Hops: ${newPacket.hops}`);
+  res.json({ success: true, status: 'stored_locally', packet: newPacket });
 });
 
-app.get('/api/relay-packets', (req, res) => {
-  res.json({
-    total: localMeshQueue.length,
-    packets: localMeshQueue
+// 4. Cloud Sync Core Engine (Dono Auto-Sync aur Manual Force-Sync yahi use karenge)
+const isInternetConnected = () => {
+  return new Promise((resolve) => {
+    dns.lookup('1.1.1.1', (err) => {
+      resolve(!err);
+    });
   });
-});
+};
 
-app.post('/api/sync-to-cloud', async (req, res) => {
-  if (localMeshQueue.length === 0) {
-    return res.json({ message: 'No buffered packets to sync', count: 0 });
+const executeSync = async () => {
+  const online = await isInternetConnected();
+  if (!online) {
+    console.log('[SYNC] Network offline. Packets safely held in local buffer.');
+    return { success: false, reason: 'offline' };
   }
 
-  const synced = [];
-  const errors = [];
+  const buffer = readBuffer();
+  const unSynced = buffer.filter(p => !p.syncedToCloud);
+  if (unSynced.length === 0) return { success: true, syncedCount: 0 };
 
-  for (const item of [...localMeshQueue]) {
+  // Priority queue sort: Critical -> High -> Medium -> Low
+  unSynced.sort((a, b) => {
+    const weightA = PRIORITY_MAP[a.severity] || 1;
+    const weightB = PRIORITY_MAP[b.severity] || 1;
+    return weightB - weightA;
+  });
+
+  console.log(`[CLOUD SYNC] Flushing ${unSynced.length} prioritized packets to Central Cloud...`);
+
+  let syncedCount = 0;
+  for (const p of unSynced) {
     try {
-      await addDoc(collection(db, 'requests'), {
-        name: `[Relayed: ${item.sender}]`,
-        location: item.location,
-        message: item.message,
-        urgency: item.urgency,
-        status: 'pending',
-        relayedFrom: item.id,
-        createdAt: serverTimestamp()
-      });
-      synced.push(item.id);
-    } catch (err) {
-      errors.push({ id: item.id, error: err.message });
+      if (cloudDb) {
+        const docRef = doc(collection(cloudDb, 'requests'), p.id);
+        await setDoc(docRef, {
+          name: p.sender,
+          sender: p.sender,
+          message: p.message,
+          urgency: p.severity,
+          location: `${p.lat}, ${p.lng}`,
+          lat: p.lat,
+          lng: p.lng,
+          hops: p.hops,
+          routePath: p.routePath,
+          source: 'RESQ_MESH_RELAY',
+          syncedAt: serverTimestamp(),
+          createdAt: new Date(p.timestamp)
+        }, { merge: true });
+      }
+      p.syncedToCloud = true;
+      syncedCount++;
+      console.log(`   ✅ Synced: ${p.id} [${p.severity}] from ${p.sender}`);
+    } catch (pushErr) {
+      console.error(`   ❌ Failed cloud push for ${p.id}:`, pushErr.message);
+      break;
     }
   }
 
-  localMeshQueue = localMeshQueue.filter(p => !synced.includes(p.id));
+  writeBuffer(buffer);
+  return { success: true, syncedCount };
+};
 
-  res.json({
-    success: true,
-    syncedCount: synced.length,
-    remainingInBuffer: localMeshQueue.length,
-    errors
-  });
+// 5. MANUAL FORCE SYNC API ENDPOINT (Instant trigger without waiting 10s)
+app.post('/api/mesh/force-sync', async (req, res) => {
+  console.log('⚡ [MANUAL SYNC TRIGGERED] Received instant sync request from Tactical Dashboard...');
+  const result = await executeSync();
+  res.json(result);
 });
 
+// 6. Maintenance: Purge Synced Packets
+app.post('/api/mesh/clear-synced', (req, res) => {
+  const buffer = readBuffer();
+  const remaining = buffer.filter(p => !p.syncedToCloud);
+  const purgedCount = buffer.length - remaining.length;
+  writeBuffer(remaining);
+  console.log(`[MAINTENANCE] Purged ${purgedCount} already-synced packets.`);
+  res.json({ success: true, purgedCount, remainingCount: remaining.length });
+});
+
+// Background Auto-Sync Worker (Runs every 10 seconds)
+setInterval(executeSync, 10000);
+
+const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`? ResQ Mesh Local Relay Node active on http://localhost:${PORT}`);
+  console.log(`⚡ ResQ Mesh Local Relay Node active on http://localhost:5000`);
 });

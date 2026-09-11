@@ -1,0 +1,38 @@
+[
+  {
+    "id": "pkt-1788679199685-565",
+    "nodeId": "Alpha-Rescue-1",
+    "type": "ALERT",
+    "severity": "Critical",
+    "message": "Medical supplies required immediately.",
+    "lat": 26.4499,
+    "lng": 80.3319,
+    "hops": 1,
+    "syncedToCloud": true,
+    "timestamp": "2026-09-06T07:19:59.685Z"
+  },
+  {
+    "id": "pkt-1788595720325-827",
+    "nodeId": "Alpha Rescue",
+    "type": "ALERT",
+    "severity": "Critical",
+    "message": "Final test for buffer disk write",
+    "lat": 26.4499,
+    "lng": 80.3319,
+    "hops": 1,
+    "syncedToCloud": true,
+    "timestamp": "2026-09-05T08:08:40.326Z"
+  },
+  {
+    "id": "pkt-init-001",
+    "nodeId": "NODE-RELAY-01",
+    "type": "ALERT",
+    "severity": "MEDIUM",
+    "message": "ResQ-Mesh Local Node Synchronized",
+    "lat": 26.4499,
+    "lng": 80.3319,
+    "hops": 1,
+    "syncedToCloud": true,
+    "timestamp": "2026-09-05T07:59:47.562Z"
+  }
+]
