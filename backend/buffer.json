@@ -1,38 +1,59 @@
 [
   {
-    "id": "pkt-1788679199685-565",
-    "nodeId": "Alpha-Rescue-1",
-    "type": "ALERT",
+    "id": "pkt_1788754506689_ymkhn",
+    "sender": "Patrol Unit 4",
+    "lat": 26.47,
+    "lng": 80.32,
+    "message": "Severe flood breach, 6 survivors trapped on rooftop. Need immediate rescue boat.",
     "severity": "Critical",
-    "message": "Medical supplies required immediately.",
-    "lat": 26.4499,
-    "lng": 80.3319,
     "hops": 1,
-    "syncedToCloud": true,
-    "timestamp": "2026-09-06T07:19:59.685Z"
+    "routePath": [
+      "Patrol Unit 4",
+      "RELAY-KANPUR-PRIMARY"
+    ],
+    "timestamp": "2026-09-07T04:15:06.693Z",
+    "syncedToCloud": false
   },
   {
-    "id": "pkt-1788595720325-827",
-    "nodeId": "Alpha Rescue",
-    "type": "ALERT",
-    "severity": "Critical",
-    "message": "Final test for buffer disk write",
+    "id": "pkt_1789125487123_9im4c",
+    "sender": "Field-Unit-Alpha",
     "lat": 26.4499,
     "lng": 80.3319,
+    "message": "Critical flood emergency, 6 survivors trapped with water rising fast",
+    "urgency": "Critical",
+    "priorityWeight": 4,
+    "tags": [
+      "Flood",
+      "Fire",
+      "Earthquake/Collapse"
+    ],
+    "survivorCount": 6,
     "hops": 1,
-    "syncedToCloud": true,
-    "timestamp": "2026-09-05T08:08:40.326Z"
+    "routePath": [
+      "RELAY-KANPUR-PRIMARY"
+    ],
+    "timestamp": "2026-09-11T11:18:07.432Z",
+    "syncedToCloud": false,
+    "aiProcessed": true
   },
   {
-    "id": "pkt-init-001",
-    "nodeId": "NODE-RELAY-01",
-    "type": "ALERT",
-    "severity": "MEDIUM",
-    "message": "ResQ-Mesh Local Node Synchronized",
-    "lat": 26.4499,
-    "lng": 80.3319,
+    "id": "pkt_1789125702508_2lsre",
+    "sender": "Unit-Medic-02",
+    "lat": 26.46,
+    "lng": 80.32,
+    "message": "Medical emergency, 2 injured people with severe bleeding and fracture",
+    "urgency": "High",
+    "priorityWeight": 3,
+    "tags": [
+      "Medical"
+    ],
+    "survivorCount": 2,
     "hops": 1,
-    "syncedToCloud": true,
-    "timestamp": "2026-09-05T07:59:47.562Z"
+    "routePath": [
+      "RELAY-KANPUR-PRIMARY"
+    ],
+    "timestamp": "2026-09-11T11:21:42.517Z",
+    "syncedToCloud": false,
+    "aiProcessed": true
   }
 ]

@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
@@ -10,7 +10,6 @@ import { getFirestore, collection, setDoc, doc, serverTimestamp } from 'firebase
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const BUFFER_FILE = path.join(__dirname, 'buffer.json');
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000/predict';
 
 // --- FIREBASE CLOUD CONFIG ---
 const firebaseConfig = {
@@ -26,9 +25,9 @@ let cloudDb = null;
 try {
   const firebaseApp = initializeApp(firebaseConfig);
   cloudDb = getFirestore(firebaseApp);
-  console.log('Firebase Cloud DB Driver initialized');
+  console.log('☁️  Firebase Cloud DB Driver initialized');
 } catch (fbErr) {
-  console.warn('Cloud DB init fallback:', fbErr.message);
+  console.warn('⚠️  Cloud DB init fallback:', fbErr.message);
 }
 
 const app = express();
@@ -80,23 +79,6 @@ const sanitizeCoords = (locationStr) => {
   return { lat, lng };
 };
 
-// AI Classification Helper
-const inferWithAI = async (messageText) => {
-  try {
-    const response = await fetch(AI_SERVICE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: messageText || '' }),
-      signal: AbortSignal.timeout(2500)
-    });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    return await response.json();
-  } catch (err) {
-    console.warn(`[AI SERVICE OFFLINE/FALLBACK]: ${err.message}`);
-    return null;
-  }
-};
-
 // 1. Status Check & Node Metrics
 app.get('/api/node-status', (req, res) => {
   const buffer = readBuffer();
@@ -116,8 +98,8 @@ app.get('/api/mesh/packets', (req, res) => {
   res.json({ success: true, packets: buffer });
 });
 
-// 3. Packet Ingestion with Deduplication, Hop Routing & AI Enrichment
-app.post('/api/relay-packet', async (req, res) => {
+// 3. Packet Ingestion with Deduplication & Hop Routing
+app.post('/api/relay-packet', (req, res) => {
   const { id, sender, location, message, urgency, hops, routePath } = req.body;
   const buffer = readBuffer();
 
@@ -139,40 +121,110 @@ app.post('/api/relay-packet', async (req, res) => {
   }
 
   const { lat, lng } = sanitizeCoords(location);
-  const msgContent = (message || '').trim().substring(0, 500);
-
-  // Call Python FastAPI AI service
-  const aiResult = await inferWithAI(msgContent);
-
-  const finalUrgency = aiResult?.priority || urgency || 'Medium';
-  const finalTags = aiResult?.tags || ['General SOS'];
-  const survivorCount = aiResult?.survivor_count || 1;
 
   const newPacket = {
     id: packetId,
     sender: (sender || 'Unknown Unit').trim().substring(0, 50),
     lat,
     lng,
-    message: msgContent,
-    urgency: finalUrgency,
-    priorityWeight: PRIORITY_MAP[finalUrgency] || 2,
-    tags: finalTags,
-    survivorCount,
-    hops: hops || 1,
-    routePath: Array.isArray(routePath) ? [...routePath, currentNode] : [currentNode],
+    message: (message || '').trim().substring(0, 500),
+    severity: urgency || 'Critical',
+    hops: (hops || 0) + 1,
+    routePath: Array.isArray(routePath) ? [...routePath, currentNode] : [sender || 'Origin', currentNode],
     timestamp: new Date().toISOString(),
-    syncedToCloud: false,
-    aiProcessed: Boolean(aiResult)
+    syncedToCloud: false
   };
 
   buffer.push(newPacket);
   writeBuffer(buffer);
 
-  console.log(`[INGEST] Packet ${packetId} processed. Urgency: ${finalUrgency} | Tags: ${finalTags.join(', ')}`);
-  return res.json({ success: true, status: 'packet_relayed', packet: newPacket });
+  console.log(`[MESH INGEST] Packet ${packetId} stored. Priority: ${newPacket.severity} | Hops: ${newPacket.hops}`);
+  res.json({ success: true, status: 'stored_locally', packet: newPacket });
 });
 
-const PORT = process.env.PORT || 5000;
+// 4. Cloud Sync Core Engine (Dono Auto-Sync aur Manual Force-Sync yahi use karenge)
+const isInternetConnected = () => {
+  return new Promise((resolve) => {
+    dns.lookup('1.1.1.1', (err) => {
+      resolve(!err);
+    });
+  });
+};
+
+const executeSync = async () => {
+  const online = await isInternetConnected();
+  if (!online) {
+    console.log('[SYNC] Network offline. Packets safely held in local buffer.');
+    return { success: false, reason: 'offline' };
+  }
+
+  const buffer = readBuffer();
+  const unSynced = buffer.filter(p => !p.syncedToCloud);
+  if (unSynced.length === 0) return { success: true, syncedCount: 0 };
+
+  // Priority queue sort: Critical -> High -> Medium -> Low
+  unSynced.sort((a, b) => {
+    const weightA = PRIORITY_MAP[a.severity] || 1;
+    const weightB = PRIORITY_MAP[b.severity] || 1;
+    return weightB - weightA;
+  });
+
+  console.log(`[CLOUD SYNC] Flushing ${unSynced.length} prioritized packets to Central Cloud...`);
+
+  let syncedCount = 0;
+  for (const p of unSynced) {
+    try {
+      if (cloudDb) {
+        const docRef = doc(collection(cloudDb, 'requests'), p.id);
+        await setDoc(docRef, {
+          name: p.sender,
+          sender: p.sender,
+          message: p.message,
+          urgency: p.severity,
+          location: `${p.lat}, ${p.lng}`,
+          lat: p.lat,
+          lng: p.lng,
+          hops: p.hops,
+          routePath: p.routePath,
+          source: 'RESQ_MESH_RELAY',
+          syncedAt: serverTimestamp(),
+          createdAt: new Date(p.timestamp)
+        }, { merge: true });
+      }
+      p.syncedToCloud = true;
+      syncedCount++;
+      console.log(`   ✅ Synced: ${p.id} [${p.severity}] from ${p.sender}`);
+    } catch (pushErr) {
+      console.error(`   ❌ Failed cloud push for ${p.id}:`, pushErr.message);
+      break;
+    }
+  }
+
+  writeBuffer(buffer);
+  return { success: true, syncedCount };
+};
+
+// 5. MANUAL FORCE SYNC API ENDPOINT (Instant trigger without waiting 10s)
+app.post('/api/mesh/force-sync', async (req, res) => {
+  console.log('⚡ [MANUAL SYNC TRIGGERED] Received instant sync request from Tactical Dashboard...');
+  const result = await executeSync();
+  res.json(result);
+});
+
+// 6. Maintenance: Purge Synced Packets
+app.post('/api/mesh/clear-synced', (req, res) => {
+  const buffer = readBuffer();
+  const remaining = buffer.filter(p => !p.syncedToCloud);
+  const purgedCount = buffer.length - remaining.length;
+  writeBuffer(remaining);
+  console.log(`[MAINTENANCE] Purged ${purgedCount} already-synced packets.`);
+  res.json({ success: true, purgedCount, remainingCount: remaining.length });
+});
+
+// Background Auto-Sync Worker (Runs every 10 seconds)
+setInterval(executeSync, 10000);
+
+const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`ResQ-Mesh Backend Relay active on port ${PORT}`);
+  console.log(`⚡ ResQ Mesh Local Relay Node active on http://localhost:5000`);
 });
