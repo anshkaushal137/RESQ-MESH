@@ -40,7 +40,7 @@ const RiskMapPage = ({ incidents = [], mapPins = [] }) => {
       <div style={{ background: "rgba(15, 23, 42, 0.8)", border: "1px solid rgba(6, 182, 212, 0.3)", borderRadius: "8px", padding: "14px 20px", marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
           <div style={{ color: "#ef4444", fontWeight: "bold", fontSize: "12px", letterSpacing: "1px" }}>ACTIVE INCIDENT</div>
-          <div style={{ color: "#fff", fontSize: "16px", fontWeight: "bold", marginTop: "2px" }}>Super Cyclone "Amphan-X" & Storm Surge — Severe Category 4</div>
+          <div style={{ color: "#fff", fontSize: "16px", fontWeight: "bold", marginTop: "2px" }}>Super Cyclone "Amphan-X" & Storm Surge â€” Severe Category 4</div>
           <div style={{ color: "#94a3b8", fontSize: "12px" }}>Immediate Mandatory Evacuation (Coastal Sector 4 & Lower Delta Basin)</div>
         </div>
         <div style={{ textAlign: "right" }}>
