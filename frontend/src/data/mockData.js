@@ -1,4 +1,4 @@
-// Comprehensive Mock Data for ResQ Mesh Emergency Platform
+﻿// Comprehensive Mock Data for ResQ Mesh Emergency Platform
 
 export const DISASTER_SCENARIOS = {
   'cyclone-surge': {
@@ -195,100 +195,155 @@ export const EMERGENCY_ALERTS = [
   }
 ];
 
-export const SHELTERS = [
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) *
+      Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return (R * c).toFixed(1);
+}
+
+export let SHELTERS = [
   {
     id: 'SHL-01',
-    name: 'North Central Civic Center (Primary Safe Hub)',
-    type: 'Mega Shelter & Triage Base',
-    distance: '1.2 km',
+    name: 'District Multi-Specialty Emergency Hospital Base',
+    type: 'Primary Emergency Medical Hub',
+    distance: 'Scanning GPS...',
     elevation: '42m (High Ground Safe Zone)',
     capacityTotal: 1200,
-    capacityOccupied: 780,
+    capacityOccupied: 740,
     status: 'OPEN & ACCEPTING',
     statusColor: '#10b981',
-    address: '740 Grand Avenue, North Ridge Safe Zone',
-    contact: '+1 (800) 555-RESQ (Ext 1)',
-    coordinates: { lat: 18.5204, lng: 73.8567 },
+    address: 'Regional Emergency Sector Corridor',
+    contact: '+91 112 (Disaster Helpline)',
+    coordinates: { lat: 28.4744, lng: 77.5040 },
     amenities: [
-      'Level-2 Medical Triage',
-      'Backup Diesel Generators (72hr)',
-      'Clean Water & Hot Meals',
-      'Pet Shelter Area',
-      'Wheelchair Accessible',
-      'Child Safe Zone',
-      'Mesh Radio Beacon'
-    ],
-    suppliesStatus: 'Plentiful (3-Day Buffer)',
-    doctorOnSite: true,
-    bedsAvailable: 420
+      'Level-2 Medical Trauma Triage',
+      'Backup Diesel Microgrid (72hr)',
+      'Clean Potable Water & Rations',
+      'Mesh Radio Beacon Active'
+    ]
   },
   {
     id: 'SHL-02',
-    name: 'St. Jude Memorial Arena Shelter',
-    type: 'Regional Evacuation Point',
-    distance: '2.8 km',
-    elevation: '38m (Safe Elevation)',
+    name: 'Government Engineering Institute Safe Relief Shelter',
+    type: 'High-Capacity Evacuation Sanctuary',
+    distance: 'Scanning GPS...',
+    elevation: '45m (High Ground Peak)',
     capacityTotal: 850,
-    capacityOccupied: 740,
-    status: 'NEAR CAPACITY (87%)',
-    statusColor: '#f59e0b',
-    address: '120 Stadium Way, West Hills District',
-    contact: '+1 (800) 555-RESQ (Ext 2)',
-    coordinates: { lat: 18.5312, lng: 73.8421 },
+    capacityOccupied: 430,
+    status: 'OPEN & ACCEPTING',
+    statusColor: '#10b981',
+    address: 'Institutional Knowledge Park Perimeter',
+    contact: '+91 108 (Medical Dispatch)',
+    coordinates: { lat: 28.4630, lng: 77.4980 },
     amenities: [
-      'First Aid Station',
-      'Food & Baby Formula',
-      'Emergency Blankets & Cots',
-      'Mobile Phone Charging Kiosk',
-      'Sanitation Showers'
-    ],
-    suppliesStatus: 'Moderate',
-    doctorOnSite: true,
-    bedsAvailable: 110
+      'First Aid Station & Cots',
+      'Food & Baby Nutrition Packs',
+      'Mobile Solar Charging Kiosk',
+      'Community Family Dormitories'
+    ]
   },
   {
     id: 'SHL-03',
-    name: 'Summit Heights High School Shelter',
-    type: 'Community Relief Center',
-    distance: '4.1 km',
-    elevation: '55m (Peak Safe Elevation)',
-    capacityTotal: 600,
-    capacityOccupied: 210,
+    name: 'Civic Sports Complex & Triage Stadium',
+    type: 'Mega Evacuation Ground',
+    distance: 'Scanning GPS...',
+    elevation: '39m (Elevated Compound)',
+    capacityTotal: 1600,
+    capacityOccupied: 520,
     status: 'OPEN & ACCEPTING',
     statusColor: '#10b981',
-    address: '950 Summit Ridge Road',
-    contact: '+1 (800) 555-RESQ (Ext 3)',
-    coordinates: { lat: 18.5489, lng: 73.8694 },
+    address: 'Central Sports Sector Zone',
+    contact: '+91 1077 (Relief Control)',
+    coordinates: { lat: 28.4800, lng: 77.5100 },
     amenities: [
-      'Basic Medical Aid',
-      'Solar Microgrid',
-      'Packaged Food Rations',
-      'Clean Potable Water Tanks',
-      'Family Dormitories'
-    ],
-    suppliesStatus: 'Plentiful',
-    doctorOnSite: false,
-    bedsAvailable: 390
-  },
-  {
-    id: 'SHL-04',
-    name: 'Lowland Maritime Terminal (Former Shelter)',
-    type: 'Waterfront Transit Point',
-    distance: '3.4 km',
-    elevation: '2.5m (HIGH RISK)',
-    capacityTotal: 400,
-    capacityOccupied: 0,
-    status: 'CLOSED & EVACUATED (FLOOD RISK)',
-    statusColor: '#ef4444',
-    address: '1 Harbor View Blvd',
-    contact: 'DECOMMISSIONED',
-    coordinates: { lat: 18.4981, lng: 73.8123 },
-    amenities: ['NO SERVICES - INUNDATED'],
-    suppliesStatus: 'None (Evacuated)',
-    doctorOnSite: false,
-    bedsAvailable: 0
+      'Helipad Emergency Landing',
+      'Mass Potable Water Distribution',
+      'Doctor & Paramedic Team On Site',
+      'All-Terrain Ambulance Bay'
+    ]
   }
 ];
+
+if (typeof window !== "undefined" && navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const uLat = position.coords.latitude;
+      const uLng = position.coords.longitude;
+
+      try {
+        const query = `
+          [out:json][timeout:12];
+          (
+            node["amenity"="hospital"](around:7500,${uLat},${uLng});
+            node["amenity"="college"](around:7500,${uLat},${uLng});
+            node["amenity"="school"](around:7500,${uLat},${uLng});
+            node["leisure"="stadium"](around:7500,${uLat},${uLng});
+            node["amenity"="community_centre"](around:7500,${uLat},${uLng});
+          );
+          out center 8;
+        `;
+
+        const res = await fetch("https://overpass-api.de/api/interpreter", {
+          method: "POST",
+          body: query
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const livePoints = (data.elements || [])
+            .filter((el) => el.tags && (el.tags.name || el.tags["name:en"]))
+            .map((el, i) => {
+              const name = el.tags.name || el.tags["name:en"];
+              const dist = calculateDistanceKm(uLat, uLng, el.lat, el.lon);
+              const isHosp = el.tags.amenity === "hospital";
+              const totalBeds = 500 + (i * 120);
+              const occBeds = Math.floor(totalBeds * 0.62);
+
+              return {
+                id: `LIVE-${el.id || i}`,
+                name: name,
+                type: i === 0 ? "Primary Safe Hub (Nearest)" : (isHosp ? "Medical Trauma Hub" : "Designated Community Shelter"),
+                distance: `${dist} km`,
+                elevation: `${Math.floor(Math.random() * 20) + 38}m (Safe Elevation)`,
+                capacityTotal: totalBeds,
+                capacityOccupied: occBeds,
+                status: 'OPEN & ACCEPTING',
+                statusColor: '#10b981',
+                address: `Real GPS: ${el.lat.toFixed(4)}° N, ${el.lon.toFixed(4)}° E`,
+                contact: isHosp ? 'Dial 108 / 112 (Live Emergency Dispatch)' : 'Civil Defense Volunteer Post',
+                coordinates: { lat: el.lat, lng: el.lon },
+                amenities: [
+                  isHosp ? 'Emergency Doctor Team On Duty' : 'First Aid Medical Kit',
+                  'Backup Generator & Microgrid',
+                  'Clean Drinking Water Distribution',
+                  'P2P LoRa Mesh Relay Terminal'
+                ]
+              };
+            })
+            .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+
+          if (livePoints.length > 0) {
+            SHELTERS.length = 0;
+            livePoints.forEach((p) => SHELTERS.push(p));
+            window.dispatchEvent(new CustomEvent("resq-shelters-updated"));
+          }
+        }
+      } catch (err) {
+        console.warn("Live OpenStreetMap GPS shelter sync failed, keeping regional hubs.", err);
+      }
+    },
+    () => {},
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
 
 export const SAFE_ROUTES = [
   {
