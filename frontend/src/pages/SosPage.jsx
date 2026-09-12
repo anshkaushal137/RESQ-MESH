@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { useDisaster } from '../context/DisasterContext';
-import { 
-  AlertTriangleIcon, 
-  RadioIcon, 
-  MapPinIcon, 
-  PhoneCallIcon, 
-  ShieldIcon, 
-  CheckIcon, 
-  UserCheckIcon, 
-  LifebuoyIcon, 
-  UserSearchIcon, 
-  ClockIcon, 
-  CrosshairIcon, 
-  XIcon 
+import {
+  AlertTriangleIcon,
+  RadioIcon,
+  MapPinIcon,
+  PhoneCallIcon,
+  ShieldIcon,
+  CheckIcon,
+  UserCheckIcon,
+  LifebuoyIcon,
+  UserSearchIcon,
+  ClockIcon,
+  CrosshairIcon,
+  XIcon
 } from '../components/Icons';
+import LocationPicker from '../components/LocationPicker';
 import { markSelfSafe, submitHelpRequest, submitMissingPersonReport } from '../services/sosService';
 
 export const SosPage = () => {
@@ -21,7 +22,7 @@ export const SosPage = () => {
 
   // Primary Status Cards State
   const [activeFormTab, setActiveFormTab] = useState(null); // 'safe' | 'help' | 'missing' | null
-  
+
   // "I'm Safe" state
   const [safeStatus, setSafeStatus] = useState(null); // { message, timestamp, referenceId }
   const [safeLoading, setSafeLoading] = useState(false);
@@ -32,10 +33,9 @@ export const SosPage = () => {
     peopleCount: 1,
     emergencyType: 'Trapped',
     notes: '',
-    coords: null
+    coords: null,
+    floorLandmark: ''
   });
-  const [helpLocating, setHelpLocating] = useState(false);
-  const [helpLocationStatus, setHelpLocationStatus] = useState('');
   const [helpSubmitting, setHelpSubmitting] = useState(false);
   const [helpConfirmation, setHelpConfirmation] = useState(null);
 
@@ -70,28 +70,34 @@ export const SosPage = () => {
     'Other'
   ];
 
-  // Geolocation helper
-  const handleGetLocation = (formType) => {
-    const isHelp = formType === 'help';
-    if (isHelp) {
-      setHelpLocating(true);
-      setHelpLocationStatus('Acquiring GPS coordinates...');
-    } else {
-      setMissingLocating(true);
-      setMissingLocationStatus('Acquiring GPS coordinates...');
-    }
+  // Location handler for LocationPicker
+  const handleLocationPicked = (loc) => {
+    if (!loc) return;
+    const fullLocText = [loc.displayName || `${loc.area}, ${loc.city}`, loc.floorLandmark]
+      .filter(Boolean)
+      .join(' | Floor/Landmark: ');
+
+    setHelpForm((prev) => ({
+      ...prev,
+      location: fullLocText,
+      floorLandmark: loc.floorLandmark || '',
+      coords: {
+        lat: loc.lat,
+        lng: loc.lon
+      }
+    }));
+  };
+
+  // Missing person geolocation helper
+  const handleGetMissingLocation = () => {
+    setMissingLocating(true);
+    setMissingLocationStatus('Acquiring GPS coordinates...');
 
     if (!navigator.geolocation) {
       const fallback = '18.5204° N, 73.8567° E (Simulated Lock)';
-      if (isHelp) {
-        setHelpForm((prev) => ({ ...prev, location: fallback, coords: { lat: 18.5204, lng: 73.8567 } }));
-        setHelpLocating(false);
-        setHelpLocationStatus('GPS not supported in browser. Mock coordinates applied.');
-      } else {
-        setMissingForm((prev) => ({ ...prev, lastKnownLocation: fallback, coords: { lat: 18.5204, lng: 73.8567 } }));
-        setMissingLocating(false);
-        setMissingLocationStatus('GPS not supported in browser. Mock coordinates applied.');
-      }
+      setMissingForm((prev) => ({ ...prev, lastKnownLocation: fallback, coords: { lat: 18.5204, lng: 73.8567 } }));
+      setMissingLocating(false);
+      setMissingLocationStatus('GPS not supported in browser. Mock coordinates applied.');
       return;
     }
 
@@ -99,44 +105,24 @@ export const SosPage = () => {
       (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;
         const locStr = `${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E (±${Math.round(accuracy)}m)`;
-        if (isHelp) {
-          setHelpForm((prev) => ({
-            ...prev,
-            location: locStr,
-            coords: { lat: latitude, lng: longitude, accuracy }
-          }));
-          setHelpLocating(false);
-          setHelpLocationStatus(`GPS Locked (±${Math.round(accuracy)}m)`);
-        } else {
-          setMissingForm((prev) => ({
-            ...prev,
-            lastKnownLocation: locStr,
-            coords: { lat: latitude, lng: longitude, accuracy }
-          }));
-          setMissingLocating(false);
-          setMissingLocationStatus(`GPS Locked (±${Math.round(accuracy)}m)`);
-        }
+        setMissingForm((prev) => ({
+          ...prev,
+          lastKnownLocation: locStr,
+          coords: { lat: latitude, lng: longitude, accuracy }
+        }));
+        setMissingLocating(false);
+        setMissingLocationStatus(`GPS Locked (±${Math.round(accuracy)}m)`);
       },
       (err) => {
         console.warn('Geolocation error:', err);
         const fallback = '18.5204° N, 73.8567° E (Mesh Node Lock)';
-        if (isHelp) {
-          setHelpForm((prev) => ({
-            ...prev,
-            location: prev.location || fallback,
-            coords: { lat: 18.5204, lng: 73.8567 }
-          }));
-          setHelpLocating(false);
-          setHelpLocationStatus('GPS permission denied. Using mesh relay coordinate lock.');
-        } else {
-          setMissingForm((prev) => ({
-            ...prev,
-            lastKnownLocation: prev.lastKnownLocation || fallback,
-            coords: { lat: 18.5204, lng: 73.8567 }
-          }));
-          setMissingLocating(false);
-          setMissingLocationStatus('GPS permission denied. Using mesh relay coordinate lock.');
-        }
+        setMissingForm((prev) => ({
+          ...prev,
+          lastKnownLocation: prev.lastKnownLocation || fallback,
+          coords: { lat: 18.5204, lng: 73.8567 }
+        }));
+        setMissingLocating(false);
+        setMissingLocationStatus('GPS permission denied. Using mesh relay coordinate lock.');
       },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
@@ -160,7 +146,7 @@ export const SosPage = () => {
   const handleHelpSubmit = async (e) => {
     e.preventDefault();
     if (!helpForm.location.trim()) {
-      setHelpLocationStatus('Please specify your location or click "Use My Current Location".');
+      alert('Please search your location or use GPS to select your position.');
       return;
     }
 
@@ -225,11 +211,11 @@ export const SosPage = () => {
         </div>
       </div>
 
-      {/* FEATURE 2: Three Primary Status Option Cards */}
+      {/* Primary Status Option Cards */}
       <section className="status-options-section" aria-label="Emergency Status Actions">
         <div className="status-cards-grid">
-          {/* Card 1: I'm Safe (Green theme) */}
-          <div 
+          {/* Card 1: I'm Safe */}
+          <div
             className={`status-option-card card-glass safe-card ${activeFormTab === 'safe' ? 'active-tab' : ''} ${safeStatus ? 'is-marked-safe' : ''}`}
             onClick={() => {
               setActiveFormTab('safe');
@@ -249,7 +235,7 @@ export const SosPage = () => {
               Check in as unharmed & broadcast your safe status to emergency contacts and mesh relays.
             </p>
             <div className="status-card-footer">
-              <button 
+              <button
                 type="button"
                 className="btn-status-action btn-safe"
                 onClick={(e) => {
@@ -263,8 +249,8 @@ export const SosPage = () => {
             </div>
           </div>
 
-          {/* Card 2: I Need Help (Orange theme) */}
-          <div 
+          {/* Card 2: I Need Help */}
+          <div
             className={`status-option-card card-glass help-card ${activeFormTab === 'help' ? 'active-tab' : ''}`}
             onClick={() => setActiveFormTab(activeFormTab === 'help' ? null : 'help')}
           >
@@ -279,7 +265,7 @@ export const SosPage = () => {
               Request immediate extraction, supplies, medical aid, or structural rescue assistance.
             </p>
             <div className="status-card-footer">
-              <button 
+              <button
                 type="button"
                 className="btn-status-action btn-help"
                 onClick={(e) => {
@@ -292,8 +278,8 @@ export const SosPage = () => {
             </div>
           </div>
 
-          {/* Card 3: Someone is Missing (Red theme) */}
-          <div 
+          {/* Card 3: Someone is Missing */}
+          <div
             className={`status-option-card card-glass missing-card ${activeFormTab === 'missing' ? 'active-tab' : ''}`}
             onClick={() => setActiveFormTab(activeFormTab === 'missing' ? null : 'missing')}
           >
@@ -308,7 +294,7 @@ export const SosPage = () => {
               Report missing family members or neighbors for rapid search deployment across local responders.
             </p>
             <div className="status-card-footer">
-              <button 
+              <button
                 type="button"
                 className="btn-status-action btn-missing"
                 onClick={(e) => {
@@ -349,9 +335,9 @@ export const SosPage = () => {
                 </span>
               </div>
             </div>
-            <button 
-              className="conf-close-btn" 
-              onClick={() => setActiveFormTab(null)} 
+            <button
+              className="conf-close-btn"
+              onClick={() => setActiveFormTab(null)}
               title="Dismiss confirmation"
             >
               <XIcon className="w-4 h-4" />
@@ -359,7 +345,7 @@ export const SosPage = () => {
           </div>
         )}
 
-        {/* 2. "I Need Help" Form & Confirmation */}
+        {/* 2. "I Need Help" Form */}
         {activeFormTab === 'help' && (
           <div className="status-form-container card-glass help-form-card">
             <div className="form-card-header">
@@ -404,20 +390,19 @@ export const SosPage = () => {
                 </div>
 
                 <div className="conf-actions-row">
-                  <button 
-                    type="button" 
-                    className="btn-form-secondary" 
+                  <button
+                    type="button"
+                    className="btn-form-secondary"
                     onClick={() => {
                       setHelpConfirmation(null);
-                      setHelpForm({ location: '', peopleCount: 1, emergencyType: 'Trapped', notes: '', coords: null });
-                      setHelpLocationStatus('');
+                      setHelpForm({ location: '', peopleCount: 1, emergencyType: 'Trapped', notes: '', coords: null, floorLandmark: '' });
                     }}
                   >
                     Submit Another Request
                   </button>
-                  <button 
-                    type="button" 
-                    className="btn-form-primary" 
+                  <button
+                    type="button"
+                    className="btn-form-primary"
                     onClick={() => setActiveFormTab(null)}
                   >
                     Done / Return to SOS Center
@@ -430,40 +415,13 @@ export const SosPage = () => {
                   Provide essential details so rescue responders and LoRa mesh triage stations can locate and assist you rapidly.
                 </p>
 
-                {/* Location Input with Geolocation Button */}
+                {/* Blinkit-Style Dynamic Autocomplete & GPS Picker */}
                 <div className="form-group">
                   <label className="form-label">
                     <span>Location / Address / Floor <span className="text-danger">*</span></span>
-                    <span className="label-tip">GPS coordinates or identifiable landmark</span>
+                    <span className="label-tip">Live suggestions & GPS auto-lock</span>
                   </label>
-                  <div className="location-input-group">
-                    <div className="input-with-icon">
-                      <MapPinIcon className="w-4 h-4 input-icon text-amber-400" />
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="e.g. 2nd Floor Balcony, Near Metro Pillar 142 or GPS coordinates" 
-                        value={helpForm.location}
-                        onChange={(e) => setHelpForm({ ...helpForm, location: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <button 
-                      type="button" 
-                      className={`btn-geolocation ${helpLocating ? 'locating' : ''}`}
-                      onClick={() => handleGetLocation('help')}
-                      disabled={helpLocating}
-                      title="Use device GPS location"
-                    >
-                      <CrosshairIcon className="w-4 h-4" />
-                      <span>{helpLocating ? 'Acquiring GPS...' : 'Use My Current Location'}</span>
-                    </button>
-                  </div>
-                  {helpLocationStatus && (
-                    <span className="location-status-badge">
-                      {helpLocationStatus}
-                    </span>
-                  )}
+                  <LocationPicker onLocationSelect={handleLocationPicked} />
                 </div>
 
                 {/* Grid: People Affected & Emergency Type */}
@@ -472,11 +430,11 @@ export const SosPage = () => {
                     <label className="form-label">
                       <span>Number of People Affected <span className="text-danger">*</span></span>
                     </label>
-                    <input 
-                      type="number" 
-                      className="form-input" 
-                      min="1" 
-                      max="100" 
+                    <input
+                      type="number"
+                      className="form-input"
+                      min="1"
+                      max="100"
                       value={helpForm.peopleCount}
                       onChange={(e) => setHelpForm({ ...helpForm, peopleCount: e.target.value })}
                       required
@@ -487,8 +445,8 @@ export const SosPage = () => {
                     <label className="form-label">
                       <span>Emergency Type <span className="text-danger">*</span></span>
                     </label>
-                    <select 
-                      className="form-select" 
+                    <select
+                      className="form-select"
                       value={helpForm.emergencyType}
                       onChange={(e) => setHelpForm({ ...helpForm, emergencyType: e.target.value })}
                       required
@@ -506,9 +464,9 @@ export const SosPage = () => {
                     <span>Optional Notes</span>
                     <span className="label-tip">Special needs, injuries, battery level, or hazards</span>
                   </label>
-                  <textarea 
-                    className="form-textarea" 
-                    rows="3" 
+                  <textarea
+                    className="form-textarea"
+                    rows="3"
                     placeholder="e.g., 1 elderly person unable to walk, rising water at 3 feet, phone battery critical..."
                     value={helpForm.notes}
                     onChange={(e) => setHelpForm({ ...helpForm, notes: e.target.value })}
@@ -517,15 +475,15 @@ export const SosPage = () => {
 
                 {/* Form Actions */}
                 <div className="form-actions-bar">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn-form-cancel"
                     onClick={() => setActiveFormTab(null)}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn-form-submit btn-submit-help"
                     disabled={helpSubmitting}
                   >
@@ -537,7 +495,7 @@ export const SosPage = () => {
           </div>
         )}
 
-        {/* 3. "Someone is Missing" Form & Confirmation */}
+        {/* 3. "Someone is Missing" Form */}
         {activeFormTab === 'missing' && (
           <div className="status-form-container card-glass missing-form-card">
             <div className="form-card-header">
@@ -582,9 +540,9 @@ export const SosPage = () => {
                 </div>
 
                 <div className="conf-actions-row">
-                  <button 
-                    type="button" 
-                    className="btn-form-secondary" 
+                  <button
+                    type="button"
+                    className="btn-form-secondary"
                     onClick={() => {
                       setMissingConfirmation(null);
                       setMissingForm({ name: '', lastKnownLocation: '', description: '', reporterName: '', reporterPhone: '', coords: null });
@@ -593,9 +551,9 @@ export const SosPage = () => {
                   >
                     File Another Report
                   </button>
-                  <button 
-                    type="button" 
-                    className="btn-form-primary" 
+                  <button
+                    type="button"
+                    className="btn-form-primary"
                     onClick={() => setActiveFormTab(null)}
                   >
                     Done / Return to SOS Center
@@ -613,10 +571,10 @@ export const SosPage = () => {
                   <label className="form-label">
                     <span>Missing Person's Name <span className="text-danger">*</span></span>
                   </label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    placeholder="Full legal or commonly known name" 
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Full legal or commonly known name"
                     value={missingForm.name}
                     onChange={(e) => setMissingForm({ ...missingForm, name: e.target.value })}
                     required
@@ -632,18 +590,18 @@ export const SosPage = () => {
                   <div className="location-input-group">
                     <div className="input-with-icon">
                       <MapPinIcon className="w-4 h-4 input-icon text-rose-400" />
-                      <input 
-                        type="text" 
-                        className="form-input" 
-                        placeholder="e.g. Near St. Jude Arena or Market Square" 
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="e.g. Near St. Jude Arena or Market Square"
                         value={missingForm.lastKnownLocation}
                         onChange={(e) => setMissingForm({ ...missingForm, lastKnownLocation: e.target.value })}
                       />
                     </div>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className={`btn-geolocation ${missingLocating ? 'locating' : ''}`}
-                      onClick={() => handleGetLocation('missing')}
+                      onClick={handleGetMissingLocation}
                       disabled={missingLocating}
                       title="Use device GPS location"
                     >
@@ -664,9 +622,9 @@ export const SosPage = () => {
                     <span>Description <span className="text-danger">*</span></span>
                     <span className="label-tip">Age, appearance, clothing, height, when last seen</span>
                   </label>
-                  <textarea 
-                    className="form-textarea" 
-                    rows="3" 
+                  <textarea
+                    className="form-textarea"
+                    rows="3"
                     placeholder="e.g., Age 14, wearing blue waterproof jacket, grey backpack, last seen near Victoria Bridge at 9:30 AM..."
                     value={missingForm.description}
                     onChange={(e) => setMissingForm({ ...missingForm, description: e.target.value })}
@@ -680,10 +638,10 @@ export const SosPage = () => {
                     <label className="form-label">
                       <span>Reporter's Name</span>
                     </label>
-                    <input 
-                      type="text" 
-                      className="form-input" 
-                      placeholder="Your name" 
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="Your name"
                       value={missingForm.reporterName}
                       onChange={(e) => setMissingForm({ ...missingForm, reporterName: e.target.value })}
                     />
@@ -693,10 +651,10 @@ export const SosPage = () => {
                     <label className="form-label">
                       <span>Reporter's Phone</span>
                     </label>
-                    <input 
-                      type="tel" 
-                      className="form-input" 
-                      placeholder="e.g. +91 98765 43210" 
+                    <input
+                      type="tel"
+                      className="form-input"
+                      placeholder="e.g. +91 98765 43210"
                       value={missingForm.reporterPhone}
                       onChange={(e) => setMissingForm({ ...missingForm, reporterPhone: e.target.value })}
                     />
@@ -705,15 +663,15 @@ export const SosPage = () => {
 
                 {/* Form Actions */}
                 <div className="form-actions-bar">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn-form-cancel"
                     onClick={() => setActiveFormTab(null)}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn-form-submit btn-submit-missing"
                     disabled={missingSubmitting}
                   >
@@ -726,9 +684,8 @@ export const SosPage = () => {
         )}
       </section>
 
-      {/* Main SOS Action Center & Information Layout */}
+      {/* Main SOS Action Center */}
       <div className="sos-grid-layout">
-        {/* Left Column: Big SOS Action Card (FEATURE 1: Bug Fix & Clickable Distress Signal) */}
         <div className="card-glass sos-trigger-card">
           <div className="sos-action-header">
             <span className="action-tag">LIFE SAFETY BEACON</span>
@@ -771,7 +728,6 @@ export const SosPage = () => {
               </div>
             ) : (
               <div className="idle-broadcast-wrapper">
-                {/* Instructional Text with Clean Spacing (Fixed Bug: No overlap) */}
                 <div className="sos-instruction-box">
                   <p className="sos-explainer">
                     Press the button below if you are in immediate life-threatening danger, trapped, injured, or surrounded by rising flood water.
@@ -779,9 +735,8 @@ export const SosPage = () => {
                   </p>
                 </div>
 
-                {/* Prominent, Clearly Clickable Distress Button */}
-                <button 
-                  className="btn-sos-massive" 
+                <button
+                  className="btn-sos-massive"
                   onClick={() => setSosModalOpen(true)}
                   aria-label="Press to send distress signal"
                 >
@@ -796,9 +751,8 @@ export const SosPage = () => {
           </div>
         </div>
 
-        {/* Right Column: Direct Helplines & Offline Survival Protocols (KEPT UNCHANGED) */}
+        {/* Right Column: Helplines & Protocols */}
         <div className="sos-secondary-col">
-          {/* Direct Emergency Hotlines */}
           <div className="card-glass contacts-card">
             <h3 className="card-title-sm">
               <PhoneCallIcon className="w-4 h-4 text-cyan" />
@@ -820,7 +774,6 @@ export const SosPage = () => {
             </div>
           </div>
 
-          {/* Immediate Survival Protocol */}
           <div className="card-glass protocols-card">
             <h3 className="card-title-sm">
               <ShieldIcon className="w-4 h-4 text-emerald-400" />
@@ -921,7 +874,6 @@ export const SosPage = () => {
           line-height: 1.45;
         }
 
-        /* Status Options Section */
         .status-options-section {
           display: flex;
           flex-direction: column;
@@ -1104,7 +1056,6 @@ export const SosPage = () => {
           color: #450a0a;
         }
 
-        /* Confirmation Banner for I'm Safe */
         .confirmation-panel {
           padding: 1.25rem 1.5rem;
           display: flex;
@@ -1223,7 +1174,6 @@ export const SosPage = () => {
           background: rgba(255, 255, 255, 0.1);
         }
 
-        /* Form Card Styling */
         .status-form-container {
           padding: 1.75rem;
           border-radius: var(--radius-md);
@@ -1467,7 +1417,6 @@ export const SosPage = () => {
           box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
         }
 
-        /* Form Confirmation View */
         .form-confirmation-view {
           display: flex;
           flex-direction: column;
@@ -1568,7 +1517,6 @@ export const SosPage = () => {
           background: #38bdf8;
         }
 
-        /* Main SOS Action Center & Grid Layout */
         .sos-grid-layout {
           display: grid;
           grid-template-columns: 1.2fr 1fr;
@@ -1620,7 +1568,6 @@ export const SosPage = () => {
           align-items: center;
         }
 
-        /* Instructional text with proper spacing & zero overlap */
         .sos-instruction-box {
           width: 100%;
           max-width: 520px;
@@ -1638,7 +1585,6 @@ export const SosPage = () => {
           margin: 0;
         }
 
-        /* Clickable Distress Signal Button - Compact Prominent Height (~50% original) */
         .btn-sos-massive {
           display: flex;
           flex-direction: column;
@@ -1761,13 +1707,6 @@ export const SosPage = () => {
         .btn-cancel-broadcast:hover {
           background: rgba(239, 68, 68, 0.25);
           color: #fca5a5;
-        }
-
-        /* Right Column Styles (Unchanged functionality) */
-        .sos-secondary-col {
-          display: flex;
-          flex-direction: column;
-          gap: 1.5rem;
         }
 
         .contacts-card, .protocols-card {

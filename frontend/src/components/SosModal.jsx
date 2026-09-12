@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDisaster } from '../context/DisasterContext';
 import { AlertTriangleIcon, XIcon, ShieldIcon, RadioIcon, MapPinIcon, CheckIcon } from './Icons';
+import LocationPicker from './LocationPicker';
 
 export const SosModal = () => {
   const { sosModalOpen, setSosModalOpen, triggerSos, sosActive, sosPayload, cancelSos } = useDisaster();
@@ -10,6 +11,9 @@ export const SosModal = () => {
   const [medicalUrgent, setMedicalUrgent] = useState(false);
   const [notes, setNotes] = useState('');
   const [countdown, setCountdown] = useState(null);
+
+  // Dynamic location state managed by LocationPicker
+  const [rescueLocation, setRescueLocation] = useState(null);
 
   const categories = [
     { id: 'flood', label: 'Rising Flood Water / Trapped', icon: '🌊', color: '#06b6d4' },
@@ -30,12 +34,18 @@ export const SosModal = () => {
         category,
         personsCount,
         medicalUrgent,
+        location: rescueLocation || {
+          displayName: 'Auto GPS Lock',
+          lat: 18.5204,
+          lon: 73.8567,
+          area: 'Detected Sector'
+        },
         notes: notes || 'Immediate extraction requested at coordinates.'
       });
       setCountdown(null);
     }
     return () => clearTimeout(timer);
-  }, [countdown]);
+  }, [countdown, category, personsCount, medicalUrgent, notes, rescueLocation, triggerSos]);
 
   if (!sosModalOpen) return null;
 
@@ -76,14 +86,30 @@ export const SosModal = () => {
               <h4 className="beacon-title">DISTRESS BEACON BROADCASTING</h4>
               <p className="beacon-sub">
                 Distress packet <strong>#{sosPayload?.id}</strong> is active across 48 local mesh nodes.
-                Emergency rescue units are dispatched to your GPS lock.
+                Emergency rescue units are dispatched to your location lock.
               </p>
 
               <div className="beacon-details-box">
                 <div className="b-row">
                   <span>GPS Telemetry</span>
-                  <span className="b-highlight">18.5204° N, 73.8567° E (± 3m)</span>
+                  <span className="b-highlight">
+                    {sosPayload?.location?.lat
+                      ? `${sosPayload.location.lat.toFixed(4)}° N, ${sosPayload.location.lon.toFixed(4)}° E`
+                      : '18.5204° N, 73.8567° E (± 3m)'}
+                  </span>
                 </div>
+                <div className="b-row">
+                  <span>Location / Sector</span>
+                  <span className="text-slate-200">
+                    {sosPayload?.location?.area || sosPayload?.location?.displayName || 'Coastal Sector'}
+                  </span>
+                </div>
+                {sosPayload?.location?.floorLandmark && (
+                  <div className="b-row">
+                    <span>Floor / Landmark</span>
+                    <span className="text-amber-400 font-semibold">{sosPayload.location.floorLandmark}</span>
+                  </div>
+                )}
                 <div className="b-row">
                   <span>Incident Category</span>
                   <span>{sosPayload?.category}</span>
@@ -94,7 +120,7 @@ export const SosModal = () => {
                 </div>
                 <div className="b-row">
                   <span>Medical Attention</span>
-                  <span className={sosPayload?.medicalUrgent ? 'text-danger' : 'text-slate-300'}>
+                  <span className={sosPayload?.medicalUrgent ? 'text-danger font-bold' : 'text-slate-300'}>
                     {sosPayload?.medicalUrgent ? 'URGENT MEDICAL TRIAGE' : 'Standard extraction'}
                   </span>
                 </div>
@@ -117,6 +143,7 @@ export const SosModal = () => {
             </div>
           ) : (
             <div className="sos-form-view">
+              {/* Emergency Category */}
               <div className="form-group">
                 <label className="form-label">SELECT EMERGENCY CATEGORY</label>
                 <div className="category-grid">
@@ -134,6 +161,13 @@ export const SosModal = () => {
                 </div>
               </div>
 
+              {/* Blinkit-Style Dynamic Location Autocomplete */}
+              <div className="form-group">
+                <label className="form-label">LOCATION / ADDRESS / FLOOR *</label>
+                <LocationPicker onLocationSelect={(loc) => setRescueLocation(loc)} />
+              </div>
+
+              {/* People Count & Medical Status */}
               <div className="form-row-split">
                 <div className="form-group">
                   <label className="form-label">PEOPLE NEEDING RESCUE</label>
@@ -169,20 +203,29 @@ export const SosModal = () => {
                 </div>
               </div>
 
+              {/* Notes */}
               <div className="form-group">
-                <label className="form-label">ADDITIONAL NOTES / LANDMARK (OPTIONAL)</label>
+                <label className="form-label">ADDITIONAL NOTES / HAZARDS (OPTIONAL)</label>
                 <input
                   type="text"
                   className="sos-notes-input"
-                  placeholder="e.g. Trapped on 2nd floor, yellow roof building"
+                  placeholder="e.g. Battery at 5%, elderly person unable to climb"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                 />
               </div>
 
+              {/* Telemetry Status Notice */}
               <div className="telemetry-notice">
                 <MapPinIcon className="w-4 h-4 text-cyan" />
-                <span>GPS Auto-Lock: <strong>18.5204° N, 73.8567° E</strong> (High Precision)</span>
+                <span>
+                  Target Lock:{' '}
+                  <strong>
+                    {rescueLocation
+                      ? `${rescueLocation.lat.toFixed(4)}° N, ${rescueLocation.lon.toFixed(4)}° E (${rescueLocation.area || rescueLocation.city || 'Locked'})`
+                      : '18.5204° N, 73.8567° E (Default)'}
+                  </strong>
+                </span>
               </div>
 
               <button className="btn-confirm-sos" onClick={handleStartCountdown}>
@@ -209,10 +252,10 @@ export const SosModal = () => {
 
         .sos-modal-card {
           width: 100%;
-          max-width: 540px;
+          max-width: 560px;
           background: #0d1424;
           border: 1px solid rgba(239, 68, 68, 0.4);
-          border-radius: var(--radius-lg);
+          border-radius: var(--radius-lg, 12px);
           box-shadow: 0 0 35px rgba(239, 68, 68, 0.25);
           overflow: hidden;
           animation: modal-enter 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -229,7 +272,7 @@ export const SosModal = () => {
           justify-content: space-between;
           padding: 1.25rem 1.5rem;
           background: rgba(239, 68, 68, 0.08);
-          border-bottom: 1px solid var(--border-subtle);
+          border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
         }
 
         .sos-header-left {
@@ -243,7 +286,7 @@ export const SosModal = () => {
           height: 42px;
           border-radius: 10px;
           background: rgba(239, 68, 68, 0.2);
-          border: 1px solid var(--danger);
+          border: 1px solid var(--danger, #ef4444);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -270,6 +313,8 @@ export const SosModal = () => {
 
         .sos-modal-body {
           padding: 1.5rem;
+          max-height: 85vh;
+          overflow-y: auto;
         }
 
         .category-grid {
@@ -284,11 +329,11 @@ export const SosModal = () => {
           align-items: center;
           gap: 0.5rem;
           background: #090e1a;
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+          border-radius: var(--radius-sm, 6px);
           padding: 0.65rem 0.85rem;
-          color: var(--text-secondary);
-          font-family: var(--font-main);
+          color: var(--text-secondary, #94a3b8);
+          font-family: var(--font-main, sans-serif);
           font-size: 0.78rem;
           font-weight: 700;
           text-align: left;
@@ -303,7 +348,7 @@ export const SosModal = () => {
 
         .cat-btn.active {
           background: rgba(239, 68, 68, 0.15);
-          border-color: var(--danger);
+          border-color: var(--danger, #ef4444);
           color: #ffffff;
           box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
         }
@@ -323,7 +368,7 @@ export const SosModal = () => {
           font-size: 0.68rem;
           font-weight: 800;
           letter-spacing: 0.06em;
-          color: var(--text-dim);
+          color: var(--text-dim, #64748b);
         }
 
         .form-row-split {
@@ -337,8 +382,8 @@ export const SosModal = () => {
           align-items: center;
           gap: 0.75rem;
           background: #090e1a;
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+          border-radius: var(--radius-sm, 6px);
           padding: 0.35rem 0.6rem;
           width: fit-content;
         }
@@ -358,7 +403,7 @@ export const SosModal = () => {
         .count-num {
           font-size: 1.1rem;
           font-weight: 800;
-          font-family: var(--font-mono);
+          font-family: var(--font-mono, monospace);
           min-width: 24px;
           text-align: center;
           color: #ffffff;
@@ -377,17 +422,17 @@ export const SosModal = () => {
 
         .sos-notes-input {
           background: #090e1a;
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+          border-radius: var(--radius-sm, 6px);
           padding: 0.65rem 0.85rem;
           color: #ffffff;
-          font-family: var(--font-main);
+          font-family: var(--font-main, sans-serif);
           font-size: 0.82rem;
           outline: none;
         }
 
         .sos-notes-input:focus {
-          border-color: var(--danger);
+          border-color: var(--danger, #ef4444);
         }
 
         .telemetry-notice {
@@ -396,7 +441,7 @@ export const SosModal = () => {
           gap: 0.5rem;
           background: rgba(6, 182, 212, 0.08);
           border: 1px solid rgba(6, 182, 212, 0.25);
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-sm, 6px);
           padding: 0.5rem 0.75rem;
           font-size: 0.75rem;
           color: #cbd5e1;
@@ -404,8 +449,8 @@ export const SosModal = () => {
         }
 
         .telemetry-notice strong {
-          color: var(--cyan);
-          font-family: var(--font-mono);
+          color: var(--cyan, #06b6d4);
+          font-family: var(--font-mono, monospace);
         }
 
         .btn-confirm-sos {
@@ -417,12 +462,12 @@ export const SosModal = () => {
           background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
           border: 1px solid rgba(255, 255, 255, 0.2);
           color: #ffffff;
-          font-family: var(--font-main);
+          font-family: var(--font-main, sans-serif);
           font-size: 0.92rem;
           font-weight: 800;
           letter-spacing: 0.03em;
           padding: 0.85rem;
-          border-radius: var(--radius-md);
+          border-radius: var(--radius-md, 8px);
           cursor: pointer;
           box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
           transition: all 0.2s ease;
@@ -447,7 +492,7 @@ export const SosModal = () => {
           height: 80px;
           border-radius: 50%;
           background: rgba(239, 68, 68, 0.2);
-          border: 2px solid var(--danger);
+          border: 2px solid var(--danger, #ef4444);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -473,8 +518,8 @@ export const SosModal = () => {
         .beacon-details-box {
           width: 100%;
           background: #090e1a;
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+          border-radius: var(--radius-sm, 6px);
           padding: 0.85rem 1rem;
           display: flex;
           flex-direction: column;
@@ -486,24 +531,24 @@ export const SosModal = () => {
           display: flex;
           justify-content: space-between;
           font-size: 0.78rem;
-          color: var(--text-muted);
+          color: var(--text-muted, #64748b);
         }
 
         .b-highlight {
-          color: var(--cyan);
-          font-family: var(--font-mono);
+          color: var(--cyan, #06b6d4);
+          font-family: var(--font-mono, monospace);
           font-weight: 600;
         }
 
         .btn-cancel-sos {
           background: rgba(255, 255, 255, 0.06);
-          border: 1px solid var(--border-subtle);
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
           color: #cbd5e1;
-          font-family: var(--font-main);
+          font-family: var(--font-main, sans-serif);
           font-size: 0.82rem;
           font-weight: 700;
           padding: 0.75rem 1.5rem;
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-sm, 6px);
           cursor: pointer;
         }
 
@@ -525,7 +570,7 @@ export const SosModal = () => {
           width: 90px;
           height: 90px;
           border-radius: 50%;
-          border: 4px solid var(--danger);
+          border: 4px solid var(--danger, #ef4444);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -535,7 +580,7 @@ export const SosModal = () => {
         .countdown-val {
           font-size: 2.75rem;
           font-weight: 900;
-          font-family: var(--font-mono);
+          font-family: var(--font-mono, monospace);
           color: #ffffff;
         }
 
@@ -547,18 +592,18 @@ export const SosModal = () => {
 
         .countdown-sub {
           font-size: 0.82rem;
-          color: var(--text-muted);
+          color: var(--text-muted, #64748b);
         }
 
         .btn-abort {
           background: #1e293b;
-          border: 1px solid var(--border-subtle);
+          border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
           color: #ffffff;
-          font-family: var(--font-main);
+          font-family: var(--font-main, sans-serif);
           font-size: 0.85rem;
           font-weight: 700;
           padding: 0.65rem 1.5rem;
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-sm, 6px);
           cursor: pointer;
         }
       `}</style>
