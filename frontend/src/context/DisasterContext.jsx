@@ -5,7 +5,7 @@ const DisasterContext = createContext();
 
 export const DisasterProvider = ({ children }) => {
   const [scenarioKey, setScenarioKey] = useState('cyclone-surge');
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('map');
   const [sosModalOpen, setSosModalOpen] = useState(false);
   const [sosActive, setSosActive] = useState(false);
   const [sosPayload, setSosPayload] = useState(null);
