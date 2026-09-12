@@ -14,7 +14,7 @@
 
 export async function getShelters() {
   return new Promise((resolve) => {
-    if (!navigator.geolocation) {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
       resolve(getFallbackShelters());
       return;
     }
@@ -28,11 +28,11 @@ export async function getShelters() {
           const query = `
             [out:json][timeout:15];
             (
-              node["amenity"="hospital"](around:6000,${userLat},${userLng});
-              node["amenity"="college"](around:6000,${userLat},${userLng});
-              node["amenity"="school"](around:6000,${userLat},${userLng});
-              node["leisure"="stadium"](around:6000,${userLat},${userLng});
-              node["amenity"="community_centre"](around:6000,${userLat},${userLng});
+              node["amenity"="hospital"](around:7000,${userLat},${userLng});
+              node["amenity"="college"](around:7000,${userLat},${userLng});
+              node["amenity"="school"](around:7000,${userLat},${userLng});
+              node["leisure"="stadium"](around:7000,${userLat},${userLng});
+              node["amenity"="community_centre"](around:7000,${userLat},${userLng});
             );
             out center 15;
           `;
@@ -42,7 +42,7 @@ export async function getShelters() {
             body: query,
           });
 
-          if (!res.ok) throw new Error("Overpass failed");
+          if (!res.ok) throw new Error("Overpass query failed");
           const data = await res.json();
 
           const realShelters = data.elements
@@ -93,14 +93,27 @@ export async function getShelters() {
   });
 }
 
+export function getShelterSystemStats() {
+  return {
+    totalShelters: 8,
+    openShelters: 8,
+    totalBeds: 4200,
+    occupiedBeds: 2450,
+    availableBeds: 1750,
+    overallOccupancy: 58,
+    medicalStaffOnSite: 24,
+    generatorBackupHours: 72
+  };
+}
+
 function getFallbackShelters() {
   return [
     {
       id: "sh-1",
-      name: "District Medical Hospital Base",
+      name: "District Medical Emergency Center",
       badge: "★ PRIMARY TRIAGE BASE",
       status: "OPEN & ACCEPTING",
-      address: "Main Sector Hub • 1.1 km",
+      address: "Main Regional Hub • 1.1 km",
       distance: "1.1 km",
       elevation: "42m (High Ground Safe Zone)",
       supplies: "Plentiful (3-Day Buffer)",
@@ -115,4 +128,4 @@ function getFallbackShelters() {
 }
 
 export const SHELTERS_DATA = [];
-export default { getShelters };
+export default { getShelters, getShelterSystemStats, SHELTERS_DATA };
